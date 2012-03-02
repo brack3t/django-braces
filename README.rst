@@ -15,7 +15,7 @@ All we are doing here is requiring a user to be authenticated to be able to get 
 While this doesn't look like much, it frees us up from having to manually overload the dispatch method on every single view that 
 requires a user to be authenticated. If that's all that is needed on this view, we just saved 3 lines of code. Example usage below.
 
-.. code-block:: django
+::
 
     from django.views.generic import TemplateView
 
@@ -50,7 +50,7 @@ don't have an authenticated user, there is no sense in checking for any permissi
 
     :info-label:`note` If you are using Django's built in auth system, ``superusers`` automatically have all permissions in your system.
 
-.. code-block:: django
+::
 
     from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 
@@ -65,7 +65,7 @@ SuperuserRequiredMixin
 Another permission-based mixin. This is specifically for requiring a user to be a superuser. Comes in handy for tools that only privileged 
 users should have access to.
 
-.. code-block:: django
+::
 
     from braces.views import LoginRequiredMixin, SuperuserRequiredMixin
 
@@ -85,7 +85,7 @@ and stuffs the user instance into the form kwargs. We can then pop the user off 
 to pop the user from the kwargs before calling ``super`` on your form, otherwise the form gets an unexpected keyword argument and everything 
 blows up. Example usage:
 
-.. code-block:: django
+::
 
     from django.views.generic import CreateView
 
@@ -111,7 +111,7 @@ This becomes the first inherited class of our forms that receive the user keywor
 the popping off of the keyword argument in our form and no longer have to do it manually on every form that works this way. 
 While this may be overkill for a weekend project, for us, it speeds up adding new features. Example usage:
 
-.. code-block:: django
+::
 
     from braces.forms import UserKwargModelFormMixin
 
@@ -135,7 +135,7 @@ redirects the user to the ``ListView`` for whatever model they are working with,
 an existing one or deleting one. Rather than having to override ``get_success_url`` on every view, we simply use this mixin and pass it 
 a reversible route name. Example:
 
-.. code-block:: django
+::
 
     # urls.py
     url(r"^users/$", UserListView.as_view(), name="cms_users_list"),
@@ -165,7 +165,7 @@ straightforward and works much like Django's built-in ``get_queryset`` method. T
 Static Example
 --------------
 
-.. code-block:: django
+::
 
     from braces.views import SetHeadlineMixin
 
@@ -178,7 +178,7 @@ Static Example
 Dynamic Example
 ---------------
 
-.. code-block:: django
+::
 
     from datetime import date
 
@@ -199,7 +199,7 @@ CreateAndRedirectToEditView
 
 Mostly used for CRUD, where you're going to create an object and then move direct to the update view for that object. Your URL for the update view has to accept a PK for the object.
 
-.. code-block:: django
+::
 
     # urls.py
     ...
