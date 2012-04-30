@@ -1,0 +1,20 @@
+More Tables
+-----------
+
+A multicolumn table with multi-paragraph rowspanning cells:
+
++----------+--------------+---------------------------------+-----------+
+| test     | **bold hd**  | multicolumn 1                   | *emph hd* |
+|          |              |                                 |           |
+|          |              | With a second paragraph         |           |
++----------+--------------+--------------+--------+---------+-----------+
+| multicolumn 2           | cell         | cell   | cell    | cell      |
+|                         |              |        |         |           |
+| With a second paragraph |              |        |         |           |
++----------+--------------+--------------+--------+---------+-----------+
+| cell     | multicolumn 3 (one line,    | cell   | cell    | cell      |
+|          | but very very very very     |        |         |           |
+|          | very looooong)              |        |         |           |
++----------+--------------+--------------+--------+---------+-----------+
+| cell     | cell         | cell         | Short multicolumn 4          |
++----------+--------------+--------------+------------------------------+

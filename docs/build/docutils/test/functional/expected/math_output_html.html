@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title>Mathematics</title>
+<link rel="stylesheet" href="../../../docutils/writers/html4css1/html4css1.css" type="text/css" />
+<link rel="stylesheet" href="../../../docutils/writers/html4css1/math.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="mathematics">
+<h1 class="title">Mathematics</h1>
+
+<p>Docutils supports inline math with the prefix or postfix <tt class="docutils literal">:math:</tt>
+role specificator, <span class="formula">
+<i>n</i>! + sin(<i>x</i><span class="scripts"><sup class="script">2</sup><sub class="script"><i>n</i></sub></span>)</span>
+ and <span class="formula">
+<i>A</i><sub><span class="text">c</span></sub> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>π</i></span><span class="ignored">)/(</span><span class="denominator">4</span><span class="ignored">)</span></span><i>d</i><sup>2</sup></span>
+, as well as displayed math via the
+<cite>math</cite> directive:</p>
+<div class="formula">
+<i>f</i>(<i>ϵ</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator">1 + exp<span class="array"><span class="arrayrow"><span class="bracket align-left">⎛</span></span><span class="arrayrow"><span class="bracket align-left">⎝</span></span></span><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>ε</i></span><span class="ignored">)/(</span><span class="denominator"><i>k</i><sub><span class="text">B</span></sub><i>T</i></span><span class="ignored">)</span></span><span class="array"><span class="arrayrow"><span class="bracket align-right">⎞</span></span><span class="arrayrow"><span class="bracket align-right">⎠</span></span></span></span><span class="ignored">)</span></span>
+</div>
+<p>Content may start on the first line of the directive, e.g.</p>
+<div class="formula">
+<i>N</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><span class="text">number of apples</span></span><span class="ignored">)/(</span><span class="denominator">7</span><span class="ignored">)</span></span>
+</div>
+<p>Equations can be labeled with a reference name using the <tt class="docutils literal">:name:</tt> option.
+See <a class="reference internal" href="#eq-m">eq:M</a> and <a class="reference internal" href="#eq-schrodinger">eq:schrödinger</a> below.</p>
+<p>The determinant of the matrix</p>
+<div class="formula" id="eq-m">
+<b>M</b> = <span class="array"><span class="arrayrow"><span class="bracket align-left">⎛</span></span><span class="arrayrow"><span class="bracket align-left">⎜</span></span><span class="arrayrow"><span class="bracket align-left">⎝</span></span></span><span class="array"><span class="arrayrow">
+<span class="arraycell align-c">
+<i>a</i>
+</span>
+<span class="arraycell align-c">
+<i>b</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-c">
+ 
+</span>
+<span class="arraycell align-c">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-c">
+<i>c</i>
+</span>
+<span class="arraycell align-c">
+<i>d</i>
+</span>
+
+</span>
+</span><span class="array"><span class="arrayrow"><span class="bracket align-right">⎞</span></span><span class="arrayrow"><span class="bracket align-right">⎟</span></span><span class="arrayrow"><span class="bracket align-right">⎠</span></span></span>
+</div>
+<p>is <span class="formula">
+|<b>M</b>| = <i>ad</i> − <i>bc</i></span>
+.</p>
+<p>More than one display math block can be put in one math directive.
+For example, the following sum and integral with limits:</p>
+<div class="formula">
+<span class="limits"><span class="limit">∫</span></span><span class="scripts"><sup class="script">1</sup><sub class="script">0</sub></span><i>x</i><sup><i>n</i></sup><i>dx</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>n</i> + 1</span><span class="ignored">)</span></span>
+</div>
+<div class="formula">
+<span class="limits"><span class="limit">∑</span></span><span class="scripts"><sup class="script"><i>m</i></sup><sub class="script"><i>n</i> = 1</sub></span><i>n</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>m</i>(<i>m</i> + 1)</span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span>
+</div>
+<p>LaTeX-supported Unicode math symbols can be used in math roles and
+directives:</p>
+<p>The Schrödinger equation</p>
+<div class="formula" id="eq-schrodinger">
+<i>i</i>ℏ<span class="fraction"><span class="ignored">(</span><span class="numerator">∂</span><span class="ignored">)/(</span><span class="denominator">∂<i>t</i></span><span class="ignored">)</span></span>Ψ = <i>Ĥ</i>Ψ, 
+</div>
+<p>with the <em>wave function</em> <span class="formula">
+Ψ</span>
+, describes how the quantum state of a
+physical system changes in time.</p>
+<dl class="docutils">
+<dt>Math-Accents:</dt>
+<dd><table border="1" class="borderless first last docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><span class="formula">
+<i>á</i></span>
+      <tt class="docutils literal">\acute{a}</tt></td>
+<td><span class="formula">
+<i>ṫ</i></span>
+        <tt class="docutils literal">\dot{t}</tt></td>
+<td><span class="formula">
+<i>γ̂</i></span>
+   <tt class="docutils literal"><span class="pre">\hat{\gamma}</span></tt></td>
+</tr>
+<tr><td><span class="formula">
+<i>à</i></span>
+      <tt class="docutils literal">\grave{a}</tt></td>
+<td><span class="formula">
+<i>ẗ</i></span>
+       <tt class="docutils literal">\ddot{t}</tt></td>
+<td><span class="formula">
+<i>α̃</i></span>
+ <tt class="docutils literal"><span class="pre">\tilde{\alpha}</span></tt></td>
+</tr>
+<tr><td><span class="formula">
+<i>x̆</i></span>
+      <tt class="docutils literal">\breve{x}</tt></td>
+<td><span class="formula">
+<i>t⃛</i></span>
+      <tt class="docutils literal">\dddot{t}</tt></td>
+<td><span class="formula">
+<i>ı⃗</i></span>
+   <tt class="docutils literal"><span class="pre">\vec{\imath}</span></tt></td>
+</tr>
+<tr><td><span class="formula">
+<i>ǎ</i></span>
+      <tt class="docutils literal">\check{a}</tt></td>
+<td><span class="formula">
+<span class="bar"><i>a</i></span></span>
+        <tt class="docutils literal">\bar{a}</tt></td>
+<td><span class="formula">
+<i>R⃗</i></span>
+        <tt class="docutils literal">\vec{R}</tt></td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<!-- \widetilde{xxx}
+\widehat{xxx} -->
+<p>Modulation Transfer Function:</p>
+<div class="formula">
+<span class="text">MTF</span> = <span class="array"><span class="arrayrow"><span class="bracket align-left">|</span></span><span class="arrayrow"><span class="bracket align-left">|</span></span></span><span class="fraction"><span class="ignored">(</span><span class="numerator">ℱ{<i>s</i>(<i>x</i>)}</span><span class="ignored">)/(</span><span class="denominator">ℱ{<i>s</i>(<i>x</i>)}|<sub><i>ω</i><sub><i>x</i></sub> = 0</sub></span><span class="ignored">)</span></span><span class="array"><span class="arrayrow"><span class="bracket align-right">|</span></span><span class="arrayrow"><span class="bracket align-right">|</span></span></span> = <span class="mathrm"> abs</span><span class="array"><span class="arrayrow"><span class="bracket align-left">⎛</span></span><span class="arrayrow"><span class="bracket align-left">⎝</span></span></span><span class="fraction"><span class="ignored">(</span><span class="numerator"><span class="limits"><span class="limit">∫</span></span><span class="scripts"><sup class="script">∞</sup><sub class="script"> − ∞</sub></span><i>s</i>(<i>x</i>)<span class="mathrm">e</span><sup><span class="mathrm">i</span><i>ω</i><sub><i>x</i></sub><i>x</i></sup><span class="mathrm">d</span><i>x</i></span><span class="ignored">)/(</span><span class="denominator"><span class="limits"><span class="limit">∫</span></span><span class="scripts"><sup class="script">∞</sup><sub class="script"> − ∞</sub></span><i>s</i>(<i>x</i>)<span class="mathrm">d</span><i>x</i></span><span class="ignored">)</span></span><span class="array"><span class="arrayrow"><span class="bracket align-right">⎞</span></span><span class="arrayrow"><span class="bracket align-right">⎠</span></span></span>.
+</div>
+<p>Math split over two lines: If a double backslash is detected outside a
+<tt class="docutils literal"><span class="pre">\begin{...}</span> <span class="pre">\end{...}</span></tt> pair, the math code is wrapped in an <a class="reference external" href="ftp://ftp.ams.org/ams/doc/amsmath/short-math-guide.pdf">AMSmath</a>
+<tt class="docutils literal">align</tt> environment:</p>
+<div class="formula">
+<span class="environment"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>s</i><sub><span class="mathrm">out</span></sub>(<i>x</i>)
+</span>
+<span class="arraycell align-l">
+ = <i>s</i><sub><span class="mathrm">in</span></sub>(<i>x</i>’)*<i>s</i><sub><i>δ</i></sub>(<i>x</i> − <i>x</i>’)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+<span class="arraycell align-l">
+ = <span class="limits"><span class="limit">∫</span></span><i>s</i><sub><span class="mathrm">in</span></sub>(<i>x</i>’)<i>s</i><sub><i>δ</i></sub>(<i>x</i> − <i>x</i>’)<span class="mathrm">d</span><i>x</i>’
+</span>
+
+</span>
+</span>
+</div>
+<p>Cases (&quot;manually&quot;, with <tt class="docutils literal">matrix</tt> environment):</p>
+<div class="formula">
+<span class="mathrm">sgn</span>(<i>x</i>) = <span class="array"><span class="arrayrow"><span class="bracket align-left">⎧</span></span><span class="arrayrow"><span class="bracket align-left">⎨</span></span><span class="arrayrow"><span class="bracket align-left">⎩</span></span></span><span class="array"><span class="arrayrow">
+<span class="arraycell align-c">
+ − 1
+</span>
+<span class="arraycell align-c">
+<i>x</i> &lt; 0
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-c">
+ 
+</span>
+<span class="arraycell align-c">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-c">
+1
+</span>
+<span class="arraycell align-c">
+<i>x</i> &gt; 0
+</span>
+
+</span>
+</span><span class="emptydot"></span>
+</div>
+<p>Cases with the <a class="reference external" href="ftp://ftp.ams.org/ams/doc/amsmath/short-math-guide.pdf">AMSmath</a> <tt class="docutils literal">cases</tt> environment (not (yet) supported by
+HTML writers with <tt class="docutils literal"><span class="pre">--math-output=MathML</span></tt>):</p>
+<div class="formula">
+<span class="mathrm">sgn</span>(<i>x</i>) = <span class="array"><span class="arrayrow"><span class="bracket align-l">⎧</span></span><span class="arrayrow"><span class="bracket align-l">⎨</span></span><span class="arrayrow"><span class="bracket align-l">⎩</span></span></span><span class="bracketcases">
+<span class="arrayrow">
+<span class="case align-l">
+ − 1 
+</span>
+<span class="case align-l">
+<i>x</i> &lt; 0 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+1 
+</span>
+<span class="case align-l">
+<i>x</i> &gt; 0 
+</span>
+
+</span>
+
+</span>
+
+</div>
+</div>
+</body>
+</html>

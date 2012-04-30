@@ -1,0 +1,113 @@
+Mathematics
+-----------
+
+Docutils supports inline math with the prefix or postfix ``:math:``
+role specificator, :math:`n! + \sin(x_n^2)` and `A_\text{c} =
+\frac{\pi}{4} d^2`:math:, as well as displayed math via the
+`math` directive:
+
+.. math::
+
+   f(\epsilon) = \frac{1}{1 + \exp\left(\frac{\varepsilon}{k_\text{B}T}\right)}
+
+Content may start on the first line of the directive, e.g.
+
+.. math:: N = \frac{\text{number of apples}}{7}
+
+Equations can be labeled with a reference name using the ``:name:`` option.
+See `eq:M`_ and `eq:schrödinger`_ below.
+
+The determinant of the matrix
+
+.. math:: :name: eq:M
+
+   \mathbf{M} = \left(\begin{matrix}a&b\\c&d\end{matrix}\right)
+
+is :math:`|\mathbf{M}| = ad - bc`.
+
+More than one display math block can be put in one math directive.
+For example, the following sum and integral with limits:
+
+.. math::
+
+          \int_0^1 x^n dx = \frac{1}{n + 1}
+
+          \sum_{n=1}^m n = \frac{m(m+1)}{2}
+
+LaTeX-supported Unicode math symbols can be used in math roles and
+directives:
+
+The Schrödinger equation
+
+.. math:: :name: eq:schrödinger
+
+   i\hbar \frac{∂}{∂t}Ψ = \hat{H}Ψ,
+   
+
+with the *wave function* :math:`Ψ`, describes how the quantum state of a
+physical system changes in time.
+
+Math-Accents:
+  .. list-table::
+     :class: borderless
+
+     * - :math:`\acute{a}`      ``\acute{a}``
+       - :math:`\dot{t}`        ``\dot{t}``
+       - :math:`\hat{\gamma}`   ``\hat{\gamma}``
+
+     * - :math:`\grave{a}`      ``\grave{a}``
+       - :math:`\ddot{t}`       ``\ddot{t}``
+       - :math:`\tilde{\alpha}` ``\tilde{\alpha}``
+
+     * - :math:`\breve{x}`      ``\breve{x}``
+       - :math:`\dddot{t}`      ``\dddot{t}``
+       - :math:`\vec{\imath}`   ``\vec{\imath}``
+
+     * - :math:`\check{a}`      ``\check{a}``
+       - :math:`\bar{a}`        ``\bar{a}``
+       - :math:`\vec{R}`        ``\vec{R}``
+
+..
+       \widetilde{xxx}
+       \widehat{xxx}
+
+Modulation Transfer Function:
+
+.. math::
+
+ \text{MTF} = \left|\frac{\mathcal{F}\{s(x)\}}
+                         {\mathcal{F}\{ s(x)\} |_{ω_{x}=0}}\right|
+            = \mathrm{abs}\left(\frac
+                  {∫_{-∞}^{∞}s(x) \mathrm{e}^{\mathrm{i}ω_{x}x}\mathrm{d}{x}}
+                  {∫_{-∞}^{∞}s(x)\mathrm{d}{x}}
+              \right).
+
+Math split over two lines: If a double backslash is detected outside a
+``\begin{...} \end{...}`` pair, the math code is wrapped in an AMSmath_
+``align`` environment:
+
+.. math::
+
+   s_{\mathrm{out}}(x) & = s_{\mathrm{in}}(x') * s_δ(x-x') \\
+                       & = ∫ s_{\mathrm{in}}(x')s_δ(x-x')\mathrm{d}x'
+
+Cases ("manually", with ``matrix`` environment):
+
+.. math::
+
+   \mathrm{sgn}(x) = \left\{\begin{matrix}
+                       -1 & x<0\\
+                       1 & x>0
+                     \end{matrix}\right.
+
+Cases with the AMSmath_ ``cases`` environment (not (yet) supported by
+HTML writers with ``--math-output=MathML``):
+
+.. math::
+
+   \mathrm{sgn}(x) = \begin{cases}
+                       -1 & x<0\\
+                        1 & x>0
+                     \end{cases}
+
+.. _AMSmath: ftp://ftp.ams.org/ams/doc/amsmath/short-math-guide.pdf

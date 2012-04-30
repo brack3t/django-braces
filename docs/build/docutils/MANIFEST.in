@@ -1,0 +1,12 @@
+include *.txt
+include *.py
+include setup.cfg
+include MANIFEST
+include MANIFEST.in
+recursive-include docutils *
+recursive-include docs *
+recursive-include extras *
+recursive-include licenses *
+recursive-include test *
+recursive-include tools *
+recursive-exclude * .cvsignore *.pyc *~ .DS_Store

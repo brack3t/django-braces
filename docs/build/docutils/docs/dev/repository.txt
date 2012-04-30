@@ -1,0 +1,210 @@
+=====================================
+ The Docutils_ Subversion Repository
+=====================================
+
+:Author: Lea Wiemann
+:Contact: LeWiemann@gmail.com
+:Revision: $Revision: 6349 $
+:Date: $Date: 2010-07-02 17:56:17 +0200 (Fre, 02 Jul 2010) $
+:Copyright: This document has been placed in the public domain.
+
+.. _Docutils: http://docutils.sourceforge.net/
+
+.. admonition:: Quick Instructions
+
+   To get a checkout of the Docutils source tree (without the
+   sandboxes), type ::
+
+       svn checkout http://svn.berlios.de/svnroot/repos/docutils/trunk/docutils
+
+   If you are going to commit changes to the repository, please read
+   the **whole document**, especially the section "`Information for
+   Developers`_"!
+
+Docutils uses a Subversion_ repository located at ``svn.berlios.de``.
+Subversion is exhaustively documented in the `Subversion Book`_
+(svnbook).
+
+While Unix and Mac OS X users will probably prefer the standard
+Subversion command line interface, Windows user may want to try
+TortoiseSVN_, a convenient explorer extension.  The instructions apply
+analogously.
+
+Note that while the repository and the snapshots reside at BerliOS_,
+all other project data (web site, releases, mailing lists, trackers)
+is hosted by SourceForge.net_.
+
+For the project policy on repository use (check-in requirements,
+branching, etc.), please see the `Docutils Project Policies`__.
+
+__ policies.html#subversion-repository
+
+.. _Subversion: http://subversion.tigris.org/
+.. _Subversion Book: http://svnbook.red-bean.com/
+.. _TortoiseSVN: http://tortoisesvn.tigris.org/
+.. _BerliOS: http://developer.berlios.de/
+.. _SourceForge.net: http://sourceforge.net/
+
+.. contents::
+
+
+Accessing the Repository
+========================
+
+General Information
+-------------------
+
+Web Access
+~~~~~~~~~~
+
+The repository can be browsed and examined via the web at
+http://svn.berlios.de/viewvc/docutils/.
+
+
+Repository Access Methods
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To get a checkout of the Docutils repository, first determine the root
+of the repository depending on your preferred protocol::
+
+    svn://svn.berlios.de/docutils                     (anonymous)
+    http://svn.berlios.de/svnroot/repos/docutils      (anonymous + developers)
+    https://svn.berlios.de/svnroot/repos/docutils     (anonymous + developers)
+    svn+ssh://<username>@svn.berlios.de/svnroot/repos/docutils
+                                                      (developers only)
+
+
+Checking Out the Repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To check out only the current main source tree of Docutils, type ::
+
+    svn checkout ROOT/trunk/docutils
+
+(Substitute your preferred repository root for ROOT.)  To check out
+everything (main tree, sandboxes, web site, and parallel projects),
+type ::
+
+    svn checkout ROOT/trunk docutils
+
+This will create a working copy of the whole trunk in a new directory
+called ``docutils``.
+
+Note that you probably do *not* want to check out the ROOT itself
+(without "/trunk"), because then you'd end up fetching the whole
+Docutils tree for every branch and tag over and over again.
+
+To update your working copy later on, ``cd`` into the working copy and
+type ::
+
+    svn update
+
+
+Switching the Repository Root
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you changed your mind and want to use a different repository root,
+``cd`` into your working copy and type::
+
+    svn switch --relocate OLDROOT NEWROOT
+
+
+Information for Developers
+--------------------------
+
+If you would like to have write access to the repository, register
+with SourceForge.net_ and BerliOS_, and send your SourceForge.net and
+BerliOS user names to docutils-develop@lists.sourceforge.net.
+(Note that there may be a delay of several hours until you can commit
+changes to the repository.)
+
+
+Setting Up Your Subversion Client For Development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before commiting changes to the repository, please ensure that the
+following lines are contained (and uncommented) in your local
+~/.subversion/config file, so that new files are added with the
+correct properties set::
+
+    [miscellany]
+    # For your convenience:
+    global-ignores = ... *.pyc ...
+    # For correct properties:
+    enable-auto-props = yes
+
+    [auto-props]
+    *.py = svn:eol-style=native;svn:keywords=Author Date Id Revision
+    *.txt = svn:eol-style=native;svn:keywords=Author Date Id Revision
+    *.html = svn:eol-style=native;svn:keywords=Author Date Id Revision
+    *.xml = svn:eol-style=native;svn:keywords=Author Date Id Revision
+    *.tex = svn:eol-style=native;svn:keywords=Author Date Id Revision
+    *.css = svn:eol-style=native;svn:keywords=Author Date Id Revision
+    *.patch = svn:eol-style=native
+    *.sh = svn:eol-style=native;svn:executable;svn:keywords=Author Date Id Revision
+    *.png = svn:mime-type=image/png
+    *.jpg = svn:mime-type=image/jpeg
+    *.gif = svn:mime-type=image/gif
+
+
+Setting Up SSH Keys
+~~~~~~~~~~~~~~~~~~~
+
+If you are a developer and you are using the svn+ssh access method
+instead of https or http, you may want to set a public & private key
+pair, so that you can access the shell and Subversion servers without
+having to enter your password.
+
+To do this, log in on BerliOS_ and copy and paste your SSH public key
+into the edit box on the "`CVS/SVN/SSH Shared Keys`__" page.  Further
+instructions are available on this page.
+
+__ https://developer.berlios.de/account/editsshkeys.php
+
+
+Migration from SourceForge.net
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Developers who had write-access for Docutils' CVS repository on
+SourceForge.net should `register with BerliOS`__ and send a message
+with their BerliOS user name to docutils-develop@lists.sourceforge.net.
+
+__ https://developer.berlios.de/account/register.php
+
+
+Repository Layout
+=================
+
+The following tree shows the repository layout::
+
+    docutils/
+    |-- branches/
+    |   |-- branch1/
+    |   |   |-- docutils/
+    |   |   |-- sandbox/
+    |   |   `-- web/
+    |   `-- branch2/
+    |       |-- docutils/
+    |       |-- sandbox/
+    |       `-- web/
+    |-- tags/
+    |   |-- tag1/
+    |   |   |-- docutils/
+    |   |   |-- sandbox/
+    |   |   `-- web/
+    |   `-- tag2/
+    |       |-- docutils/
+    |       |-- sandbox/
+    |       `-- web/
+    `-- trunk/
+        |-- docutils/
+        |-- sandbox/
+        `-- web/
+
+The main source tree lives at ``docutils/trunk/docutils/``, next to
+the sandboxes (``docutils/trunk/sandbox/``) and the web site files
+(``docutils/trunk/web/``).
+
+``docutils/branches/`` and ``docutils/tags/`` contain (shallow) copies
+of either the whole trunk or only the main source tree
+(``docutils/trunk/docutils``).

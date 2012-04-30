@@ -1,0 +1,62 @@
+External references
+-------------------
+
+Long URLs should be wrapped in the PDF.
+This can be achieved with the \url command which is used by the LaTeX writer
+wheneve the content (name) of a reference node equals the link URL.
+
+Example:
+  a long URL that should wrap in the output
+  http://docutils.sourceforge.net/docs/user/latex.html#id79
+
+
+If the argument contains any "%", "#", or "^^", or ends with ``\``, it can't
+be used in the argument to another command. The argument must not contain
+unbalanced braces.
+
+The characters ^, {, }, and ``\`` are invalid in a "http:" or "ftp:" URL
+and not recognized as part of it:
+  
+| http://www.example.org/strange^^name
+| http://www.example.org\\using\\DOS\\paths\\
+| http://www.example.org/XML/strange{n}ame
+
+They can, however be used in paths and/or filenames.
+
+Handling by the LaTeX writer:
+
+* ``#``, ``\`` and ``%`` are escaped:
+
+  | `URL with # <http://www.w3.org/XML/Schema#dev>`__
+    http://www.w3.org/XML/Schema#dev
+  | `URL with % <http://www.w3.org/XML/Schema%dev>`__
+    http://example.org/Schema%dev
+  | `file with DOS path`__ `A:DOS\\path\\`__
+  
+  .. note:: These URLs are typeset inside a LaTeX command without error.
+  
+    | http://www.w3.org/XML/Schema#dev
+    | http://example.org/Schema%dev
+    | `A:DOS\\path\\`__
+
+__  
+__  
+__ A:DOS\\path\\
+
+
+* ^^ LaTeX's special syntax for characters results in "strange" replacements
+  (both with \href and \url). A warning is given.
+
+  `file with ^^ <../strange^^name>`__:
+  `<../strange^^name>`__
+
+* Unbalanced braces, { or }, will fail (both with \href and \url)::
+
+    `file with { <../strange{name>`__
+    `<../strange{name>`__
+
+  while balanced braces are suported:
+  
+  | `<../strange{n}ame>`__
+  | `<../st{r}ange{n}ame>`__
+  | `<../{st{r}ange{n}ame}>`__

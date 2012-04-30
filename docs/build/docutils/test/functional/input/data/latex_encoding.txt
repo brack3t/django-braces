@@ -1,0 +1,43 @@
+Encoding special chars
+----------------------
+
+The LaTeX Info pages lists under "2.18 Special Characters"
+
+  The following characters play a special role in LaTeX and are called
+  "special printing characters", or simply "special characters".
+
+                            # $ % & ~ _ ^ \\ { }
+
+The special chars verbatim::
+
+                            # $ % & ~ _ ^ \ { }
+
+However also *square brackets* [] need special care. 
+
+   \item and all the other commands with optional arguments check
+   if the token right after the macro name is an opening bracket.
+   In that case the contents between that bracket and the following
+   closing bracket on the same grouping level are taken as the
+   optional argument. What makes this unintuitive is the fact that
+   the square brackets aren't grouping characters themselves, so in
+   your last example \item[[...]] the optional argument consists of
+   [... (without the closing bracket).
+
+Compare the items in the following lists:
+
+* simple item
+* [bracketed] item
+
+simple
+  description term
+
+[bracketed]
+  description term
+
+The OT1 font-encoding has different characters for the less-than,
+greater-than and bar, < | >, except for typewriter font `cmtt`::
+
+   < | >
+   
+
+

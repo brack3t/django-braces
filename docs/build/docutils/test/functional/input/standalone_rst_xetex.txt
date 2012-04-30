@@ -1,0 +1,39 @@
+.. include:: data/standard.txt
+.. currently not implemented in LaTeX:
+    .. include:: data/header_footer.txt
+.. include:: data/table_colspan.txt
+.. include:: data/table_rowspan.txt
+.. include:: data/custom_roles.txt
+
+Tests for the LaTeX writer
+==========================
+
+Test syntax elements which may cause trouble for the LaTeX writer but might
+not need to be tested with other writers (e.g. the HTML writer).
+
+.. include:: data/custom_roles_latex.txt
+.. include:: data/option_lists.txt
+.. include:: data/nonalphanumeric.txt
+.. include:: data/unicode.txt
+.. include:: data/latex_encoding.txt
+.. include:: data/hyperlinking.txt
+.. include:: data/urls.txt
+
+Tests for the XeTeX writer
+==========================
+
+With XeTeX, you can typeset text in any language/script supported by
+Unicode and the selected font, e.g. Azərbaycanca, Bân-lâm-gú, Башҡорт
+Беларуская, Български, Català, Чӑвашла, Česky, Ελληνικά, Español,
+Français, Føroyskt, Хальмг, Íslenska, עברית , Қазақша, Kurdî,
+Latviešu, Lietuvių, Македонски, Монгол, Nāhuatl, Português, Română,
+Русский, Slovenščina, Српски, Türkçe, Українська, Tiếng Việt, Volapük,
+Võro, ייִדיש , Žemaitėška.
+Currently, there is extended support for 28 languages in the
+polyglossia_ package.
+
+.. _polyglossia:
+   http://tug.ctan.org/cgi-bin/ctanPackageInformation.py?id=polyglossia
+
+.. System Messages:
+.. include:: data/errors.txt

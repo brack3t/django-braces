@@ -1,0 +1,168 @@
+=============================
+ Deploying Docutils Securely
+=============================
+
+:Author: David Goodger
+:Contact: goodger@python.org
+:Date: $Date: 2006-11-13 00:29:04 +0100 (Mon, 13 Nov 2006) $
+:Revision: $Revision: 4808 $
+:Copyright: This document has been placed in the public domain.
+
+.. contents::
+
+Introduction
+============
+
+Initially, Docutils was intended for command-line tools and
+single-user applications.  Through-the-web editing and processing was
+not envisaged, therefore web security was not a consideration.  Once
+Docutils/reStructuredText started being incorporated into an
+ever-increasing number of web applications (blogs__, wikis__, content
+management systems, and others), several security issues arose and
+have been addressed.  This document provides instructions to help you
+secure the Docutils software in your applications.
+
+Docutils does not come in a through-the-web secure state, because this
+would inconvenience ordinary users
+
+__ ../../FAQ.html#are-there-any-weblog-blog-projects-that-use-restructuredtext-syntax
+__ ../../FAQ.html#are-there-any-wikis-that-use-restructuredtext-syntax
+
+
+The Issues
+==========
+
+External Data Insertion
+-----------------------
+
+There are several `reStructuredText directives`_ that can insert
+external data (files and URLs) into the immediate document.  These
+directives are:
+
+* "include_", by its very nature
+* "raw_", through its ``:file:`` and ``:url:`` options
+* "csv-table_", through its ``:file:`` and ``:url:`` options
+
+The "include_" directive and the other directives' file insertion
+features can be disabled by setting "file_insertion_enabled_" to
+0/false.
+
+.. _reStructuredText directives: ../ref/rst/directives.html
+.. _include: ../ref/rst/directives.html#include
+.. _raw: ../ref/rst/directives.html#raw
+.. _csv-table: ../ref/rst/directives.html#csv-table
+.. _file_insertion_enabled: ../user/config.html#file-insertion-enabled
+
+
+Raw HTML Insertion
+------------------
+
+The "raw_" directive is intended for the insertion of
+non-reStructuredText data that is passed untouched to the Writer.
+This directive can be abused to bypass site features or insert
+malicious JavaScript code into a web page.  The "raw_" directive can
+be disabled by setting "raw_enabled_" to 0/false.
+
+.. _raw_enabled: ../user/config.html#raw-enabled
+
+
+Securing Docutils
+=================
+
+Programmatically Via Application Default Settings
+-------------------------------------------------
+
+If your application calls Docutils via one of the `convenience
+functions`_, you can pass a dictionary of default settings that
+override the component defaults::
+
+    defaults = {'file_insertion_enabled': 0,
+                'raw_enabled': 0}
+    output = docutils.core.publish_string(
+        ..., settings_overrides=defaults)
+
+Note that these defaults can be overridden by configuration files (and
+command-line options if applicable).  If this is not desired, you can
+disable configuration file processing with the ``_disable_config``
+setting::
+
+    defaults = {'file_insertion_enabled': 0,
+                'raw_enabled': 0,
+                '_disable_config': 1}
+    output = docutils.core.publish_string(
+        ..., settings_overrides=defaults)
+
+.. _convenience functions: ../api/publisher.html
+
+
+Via a Configuration File
+------------------------
+
+You should secure Docutils via a configuration file:
+
+* if your application executes one of the `Docutils front-end tools`_
+  as a separate process;
+* if you cannot or choose not to alter the source code of your
+  application or the component that calls Docutils; or
+* if you want to secure all Docutils deployments system-wide.
+
+If you call Docutils programmatically, it may be preferable to use the
+methods described in section below.
+
+Docutils automatically looks in three places for a configuration file:
+
+* ``/etc/docutils.conf``, for system-wide configuration,
+* ``./docutils.conf`` (in the current working directory), for
+  project-specific configuration, and
+* ``~/.docutils`` (in the user's home directory), for user-specific
+  configuration.
+
+These locations can be overridden by the ``DOCUTILSCONFIG``
+environment variable.  Details about configuration files, the purpose
+of the various locations, and ``DOCUTILSCONFIG`` are available in the
+`"Configuration Files"`_ section of `Docutils Configuration`_.
+
+To fully secure your Docutils installation, the configuration file
+should contain the following lines::
+
+    [general]
+    file-insertion-enabled:
+    raw-enabled:
+
+.. Note:: Due to a bug in the definitions of these security-related
+   settings, the right-hand-side of the above lines (the values)
+   should be left blank, as shown.  The bug was corrected on
+   2006-11-12 and is reflected in Docutils releases 0.4.1 and higher.
+   In these versions, more verbose forms may be used, such as::
+
+       [general]
+       file-insertion-enabled: off
+       raw-enabled: no
+
+.. _Docutils front-end tools: ../user/tools.html
+.. _"Configuration Files": ../user/config.html#configuration-files
+.. _Docutils Configuration: ../user/config.html
+
+
+Version Applicability
+=====================
+
+The ``file_insertion_enabled`` & ``raw_enabled`` settings were added
+to Docutils 0.3.9; previous versions will ignore these settings.  A
+bug existed in the configuration file handling of these settings in
+Docutils 0.4 and earlier.  The bug was fixed with the 0.4.1 release on
+2006-11-12.
+
+
+Related Documents
+=================
+
+`Docutils Runtime Settings`_ explains the relationship between
+component settings specifications, application settings
+specifications, configuration files, and command-line options
+
+`Docutils Configuration`_ describes configuration files (locations,
+structure, and syntax), and lists all settings and command-line
+options.
+
+.. _Docutils Runtime Settings: ../api/runtime-settings.html

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title>Mathematics</title>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<link rel="stylesheet" href="../../../docutils/writers/html4css1/html4css1.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="mathematics">
+<h1 class="title">Mathematics</h1>
+
+<p>Docutils supports inline math with the prefix or postfix <tt class="docutils literal">:math:</tt>
+role specificator, <span class="math">
+\(n! + \sin(x_n^2)\)</span>
+ and <span class="math">
+\(A_\text{c} =
+\frac{\pi}{4} d^2\)</span>
+, as well as displayed math via the
+<cite>math</cite> directive:</p>
+<div class="math">
+\begin{equation*}
+f(\epsilon) = \frac{1}{1 + \exp\left(\frac{\varepsilon}{k_\text{B}T}\right)}
+\end{equation*}
+</div>
+<p>Content may start on the first line of the directive, e.g.</p>
+<div class="math">
+\begin{equation*}
+N = \frac{\text{number of apples}}{7}
+\end{equation*}
+</div>
+<p>Equations can be labeled with a reference name using the <tt class="docutils literal">:name:</tt> option.
+See <a class="reference internal" href="#eq-m">eq:M</a> and <a class="reference internal" href="#eq-schrodinger">eq:schrödinger</a> below.</p>
+<p>The determinant of the matrix</p>
+<div class="math" id="eq-m">
+\begin{equation*}
+\mathbf{M} = \left(\begin{matrix}a&amp;b\\c&amp;d\end{matrix}\right)
+\end{equation*}
+</div>
+<p>is <span class="math">
+\(|\mathbf{M}| = ad - bc\)</span>
+.</p>
+<p>More than one display math block can be put in one math directive.
+For example, the following sum and integral with limits:</p>
+<div class="math">
+\begin{equation*}
+\int_0^1 x^n dx = \frac{1}{n + 1}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\sum_{n=1}^m n = \frac{m(m+1)}{2}
+\end{equation*}
+</div>
+<p>LaTeX-supported Unicode math symbols can be used in math roles and
+directives:</p>
+<p>The Schrödinger equation</p>
+<div class="math" id="eq-schrodinger">
+\begin{equation*}
+i\hbar \frac{\partial }{\partial t}\Psi  = \hat{H}\Psi ,
+\end{equation*}
+</div>
+<p>with the <em>wave function</em> <span class="math">
+\(\Psi \)</span>
+, describes how the quantum state of a
+physical system changes in time.</p>
+<dl class="docutils">
+<dt>Math-Accents:</dt>
+<dd><table border="1" class="borderless first last docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><span class="math">
+\(\acute{a}\)</span>
+      <tt class="docutils literal">\acute{a}</tt></td>
+<td><span class="math">
+\(\dot{t}\)</span>
+        <tt class="docutils literal">\dot{t}</tt></td>
+<td><span class="math">
+\(\hat{\gamma}\)</span>
+   <tt class="docutils literal"><span class="pre">\hat{\gamma}</span></tt></td>
+</tr>
+<tr><td><span class="math">
+\(\grave{a}\)</span>
+      <tt class="docutils literal">\grave{a}</tt></td>
+<td><span class="math">
+\(\ddot{t}\)</span>
+       <tt class="docutils literal">\ddot{t}</tt></td>
+<td><span class="math">
+\(\tilde{\alpha}\)</span>
+ <tt class="docutils literal"><span class="pre">\tilde{\alpha}</span></tt></td>
+</tr>
+<tr><td><span class="math">
+\(\breve{x}\)</span>
+      <tt class="docutils literal">\breve{x}</tt></td>
+<td><span class="math">
+\(\dddot{t}\)</span>
+      <tt class="docutils literal">\dddot{t}</tt></td>
+<td><span class="math">
+\(\vec{\imath}\)</span>
+   <tt class="docutils literal"><span class="pre">\vec{\imath}</span></tt></td>
+</tr>
+<tr><td><span class="math">
+\(\check{a}\)</span>
+      <tt class="docutils literal">\check{a}</tt></td>
+<td><span class="math">
+\(\bar{a}\)</span>
+        <tt class="docutils literal">\bar{a}</tt></td>
+<td><span class="math">
+\(\vec{R}\)</span>
+        <tt class="docutils literal">\vec{R}</tt></td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<!-- \widetilde{xxx}
+\widehat{xxx} -->
+<p>Modulation Transfer Function:</p>
+<div class="math">
+\begin{equation*}
+\text{MTF} = \left|\frac{\mathcal{F}\{s(x)\}}
+                        {\mathcal{F}\{ s(x)\} |_{\omega _{x}=0}}\right|
+           = \mathrm{abs}\left(\frac
+                 {\int _{-\infty }^{\infty }s(x) \mathrm{e}^{\mathrm{i}\omega _{x}x}\mathrm{d}{x}}
+                 {\int _{-\infty }^{\infty }s(x)\mathrm{d}{x}}
+             \right).
+\end{equation*}
+</div>
+<p>Math split over two lines: If a double backslash is detected outside a
+<tt class="docutils literal"><span class="pre">\begin{...}</span> <span class="pre">\end{...}</span></tt> pair, the math code is wrapped in an <a class="reference external" href="ftp://ftp.ams.org/ams/doc/amsmath/short-math-guide.pdf">AMSmath</a>
+<tt class="docutils literal">align</tt> environment:</p>
+<div class="math">
+\begin{align*}
+s_{\mathrm{out}}(x) &amp; = s_{\mathrm{in}}(x') * s_\delta (x-x') \\
+                    &amp; = \int  s_{\mathrm{in}}(x')s_\delta (x-x')\mathrm{d}x'
+\end{align*}
+</div>
+<p>Cases (&quot;manually&quot;, with <tt class="docutils literal">matrix</tt> environment):</p>
+<div class="math">
+\begin{equation*}
+\mathrm{sgn}(x) = \left\{\begin{matrix}
+                    -1 &amp; x&lt;0\\
+                    1 &amp; x&gt;0
+                  \end{matrix}\right.
+\end{equation*}
+</div>
+<p>Cases with the <a class="reference external" href="ftp://ftp.ams.org/ams/doc/amsmath/short-math-guide.pdf">AMSmath</a> <tt class="docutils literal">cases</tt> environment (not (yet) supported by
+HTML writers with <tt class="docutils literal"><span class="pre">--math-output=MathML</span></tt>):</p>
+<div class="math">
+\begin{equation*}
+\mathrm{sgn}(x) = \begin{cases}
+                    -1 &amp; x&lt;0\\
+                     1 &amp; x&gt;0
+                  \end{cases}
+\end{equation*}
+</div>
+</div>
+</body>
+</html>

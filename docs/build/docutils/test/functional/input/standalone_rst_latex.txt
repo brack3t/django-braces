@@ -1,0 +1,27 @@
+.. include:: data/standard.txt
+.. currently not implemented in LaTeX:
+    .. include:: data/header_footer.txt
+.. include:: data/table_colspan.txt
+.. include:: data/table_rowspan.txt
+.. include:: data/custom_roles.txt
+.. include:: data/math.txt
+
+Tests for the LaTeX writer
+==========================
+
+Test syntax elements which may cause trouble for the LaTeX writer but might
+not need to be tested with other writers (e.g. the HTML writer).
+
+.. include:: data/custom_roles_latex.txt
+.. include:: data/tables_latex.txt
+.. include:: data/option_lists.txt
+.. include:: data/nonalphanumeric.txt
+.. include:: data/unicode.txt
+.. include:: data/latex_encoding.txt
+.. include:: data/hyperlinking.txt
+.. include:: data/urls.txt
+.. unusual combinations (from newlatex, for interactive testing)
+   .. include:: data/latex.txt
+
+.. Preface for System Messages:
+.. include:: data/errors.txt

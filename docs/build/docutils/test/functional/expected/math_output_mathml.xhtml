@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title>Mathematics</title>
+<link rel="stylesheet" href="../../../docutils/writers/html4css1/html4css1.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="mathematics">
+<h1 class="title">Mathematics</h1>
+
+<p>Docutils supports inline math with the prefix or postfix <tt class="docutils literal">:math:</tt>
+role specificator, <math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mi>n</mi><mo>!</mo><mo>+</mo><mo>sin</mo><mo>(</mo><msubsup><mi>x</mi><mi>n</mi><mn>2</mn></msubsup><mo>)</mo></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><msub><mi>A</mi><mtext>c</mtext></msub><mo>=</mo><mfrac>
+<mrow><mi>π</mi></mrow>
+<mrow><mn>4</mn></mrow></mfrac><msup><mi>d</mi><mn>2</mn></msup></mrow></math>, as well as displayed math via the
+<cite>math</cite> directive:</p>
+<div>
+<math xmlns="http://www.w3.org/1998/Math/MathML" mode="display">
+<mtable>
+<mtr>
+<mtd><mi>f</mi><mo>(</mo><mi>ϵ</mi><mo>)</mo><mo>=</mo><mfrac>
+<mrow><mn>1</mn></mrow>
+<mrow><mn>1</mn><mo>+</mo><mo>exp</mo><mfenced open="(" close=")">
+<mrow><mfrac>
+<mrow><mi>ε</mi></mrow>
+<mrow><msub><mi>k</mi><mtext>B</mtext></msub><mi>T</mi></mrow></mfrac></mrow></mfenced></mrow></mfrac></mtd></mtr></mtable></math>
+</div>
+<p>Content may start on the first line of the directive, e.g.</p>
+<div>
+<math xmlns="http://www.w3.org/1998/Math/MathML" mode="display">
+<mtable>
+<mtr>
+<mtd><mi>N</mi><mo>=</mo><mfrac>
+<mrow><mtext>number of apples</mtext></mrow>
+<mrow><mn>7</mn></mrow></mfrac></mtd></mtr></mtable></math>
+</div>
+<p>Equations can be labeled with a reference name using the <tt class="docutils literal">:name:</tt> option.
+See <a class="reference internal" href="#eq-m">eq:M</a> and <a class="reference internal" href="#eq-schrodinger">eq:schrödinger</a> below.</p>
+<p>The determinant of the matrix</p>
+<div id="eq-m">
+<math xmlns="http://www.w3.org/1998/Math/MathML" mode="display">
+<mtable>
+<mtr>
+<mtd><mstyle fontweight="bold">
+<mrow><mi>M</mi></mrow></mstyle><mo>=</mo><mfenced open="(" close=")">
+<mrow>
+<mtable>
+<mtr>
+<mtd><mi>a</mi></mtd>
+<mtd><mi>b</mi></mtd></mtr>
+<mtr>
+<mtd><mi>c</mi></mtd>
+<mtd><mi>d</mi></mtd></mtr></mtable></mrow></mfenced></mtd></mtr></mtable></math>
+</div>
+<p>is <math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mo>|</mo><mstyle fontweight="bold">
+<mrow><mi>M</mi></mrow></mstyle><mo>|</mo><mo>=</mo><mi>a</mi><mi>d</mi><mo>-</mo><mi>b</mi><mi>c</mi></mrow></math>.</p>
+<p>More than one display math block can be put in one math directive.
+For example, the following sum and integral with limits:</p>
+<div>
+<math xmlns="http://www.w3.org/1998/Math/MathML" mode="display">
+<mtable>
+<mtr>
+<mtd><munderover><mo>∫</mo><mn>0</mn><mn>1</mn></munderover><msup><mi>x</mi><mi>n</mi></msup><mi>d</mi><mi>x</mi><mo>=</mo><mfrac>
+<mrow><mn>1</mn></mrow>
+<mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac></mtd></mtr></mtable></math>
+</div>
+<div>
+<math xmlns="http://www.w3.org/1998/Math/MathML" mode="display">
+<mtable>
+<mtr>
+<mtd><munderover><mo>∑</mo>
+<mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mi>n</mi><mo>=</mo><mfrac>
+<mrow><mi>m</mi><mo>(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo>)</mo></mrow>
+<mrow><mn>2</mn></mrow></mfrac></mtd></mtr></mtable></math>
+</div>
+<p>LaTeX-supported Unicode math symbols can be used in math roles and
+directives:</p>
+<p>The Schrödinger equation</p>
+<div id="eq-schrodinger">
+<math xmlns="http://www.w3.org/1998/Math/MathML" mode="display">
+<mtable>
+<mtr>
+<mtd><mi>i</mi><mo>ℏ</mo><mfrac>
+<mrow><mo>∂</mo></mrow>
+<mrow><mo>∂</mo><mi>t</mi></mrow></mfrac><mo>Ψ</mo><mo>=</mo><mover>
+<mrow><mi>H</mi></mrow><mo>^</mo></mover><mo>Ψ</mo><mo>,</mo></mtd></mtr></mtable></math>
+</div>
+<p>with the <em>wave function</em> <math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mo>Ψ</mo></mrow></math>, describes how the quantum state of a
+physical system changes in time.</p>
+<dl class="docutils">
+<dt>Math-Accents:</dt>
+<dd><table border="1" class="borderless first last docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>a</mi></mrow><mo>´</mo></mover></mrow></math>      <tt class="docutils literal">\acute{a}</tt></td>
+<td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>t</mi></mrow><mo>˙</mo></mover></mrow></math>        <tt class="docutils literal">\dot{t}</tt></td>
+<td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>γ</mi></mrow><mo>^</mo></mover></mrow></math>   <tt class="docutils literal"><span class="pre">\hat{\gamma}</span></tt></td>
+</tr>
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>a</mi></mrow><mo>`</mo></mover></mrow></math>      <tt class="docutils literal">\grave{a}</tt></td>
+<td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>t</mi></mrow><mo>¨</mo></mover></mrow></math>       <tt class="docutils literal">\ddot{t}</tt></td>
+<td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>α</mi></mrow><mo>˜</mo></mover></mrow></math> <tt class="docutils literal"><span class="pre">\tilde{\alpha}</span></tt></td>
+</tr>
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>x</mi></mrow><mo>˘</mo></mover></mrow></math>      <tt class="docutils literal">\breve{x}</tt></td>
+<td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>t</mi></mrow><mo>⃛</mo></mover></mrow></math>      <tt class="docutils literal">\dddot{t}</tt></td>
+<td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>ı</mi></mrow><mo>⃗</mo></mover></mrow></math>   <tt class="docutils literal"><span class="pre">\vec{\imath}</span></tt></td>
+</tr>
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>a</mi></mrow><mo>ˇ</mo></mover></mrow></math>      <tt class="docutils literal">\check{a}</tt></td>
+<td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>a</mi></mrow><mo>¯</mo></mover></mrow></math>        <tt class="docutils literal">\bar{a}</tt></td>
+<td><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow><mover>
+<mrow><mi>R</mi></mrow><mo>⃗</mo></mover></mrow></math>        <tt class="docutils literal">\vec{R}</tt></td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<!-- \widetilde{xxx}
+\widehat{xxx} -->
+<p>Modulation Transfer Function:</p>
+<div>
+<math xmlns="http://www.w3.org/1998/Math/MathML" mode="display">
+<mtable>
+<mtr>
+<mtd><mtext>MTF</mtext><mo>=</mo><mfenced open="|" close="|">
+<mrow><mfrac>
+<mrow><mi>ℱ</mi><mo>{</mo><mi>s</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>}</mo></mrow>
+<mrow><mi>ℱ</mi><mo>{</mo><mi>s</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>}</mo><msub><mo>|</mo>
+<mrow><msub><mi>ω</mi>
+<mrow><mi>x</mi></mrow></msub><mo>=</mo><mn>0</mn></mrow></msub></mrow></mfrac></mrow></mfenced><mo>=</mo><mtext>abs</mtext><mfenced open="(" close=")">
+<mrow><mfrac>
+<mrow><munderover><mo>∫</mo>
+<mrow><mo>-</mo><mo>∞</mo></mrow>
+<mrow><mo>∞</mo></mrow></munderover><mi>s</mi><mo>(</mo><mi>x</mi><mo>)</mo><msup><mtext>e</mtext>
+<mrow><mtext>i</mtext><msub><mi>ω</mi>
+<mrow><mi>x</mi></mrow></msub><mi>x</mi></mrow></msup><mtext>d</mtext>
+<mrow><mi>x</mi></mrow></mrow>
+<mrow><munderover><mo>∫</mo>
+<mrow><mo>-</mo><mo>∞</mo></mrow>
+<mrow><mo>∞</mo></mrow></munderover><mi>s</mi><mo>(</mo><mi>x</mi><mo>)</mo><mtext>d</mtext>
+<mrow><mi>x</mi></mrow></mrow></mfrac></mrow></mfenced><mo>.</mo></mtd></mtr></mtable></math>
+</div>
+<p>Math split over two lines: If a double backslash is detected outside a
+<tt class="docutils literal"><span class="pre">\begin{...}</span> <span class="pre">\end{...}</span></tt> pair, the math code is wrapped in an <a class="reference external" href="ftp://ftp.ams.org/ams/doc/amsmath/short-math-guide.pdf">AMSmath</a>
+<tt class="docutils literal">align</tt> environment:</p>
+<div>
+<math xmlns="http://www.w3.org/1998/Math/MathML" mode="display">
+<mtable>
+<mtr>
+<mtd><msub><mi>s</mi>
+<mrow><mtext>out</mtext></mrow></msub><mo>(</mo><mi>x</mi><mo>)</mo></mtd>
+<mtd><mo>=</mo><msub><mi>s</mi>
+<mrow><mtext>in</mtext></mrow></msub><mo>(</mo><mi>x</mi><mo>'</mo><mo>)</mo><mo>*</mo><msub><mi>s</mi><mi>δ</mi></msub><mo>(</mo><mi>x</mi><mo>-</mo><mi>x</mi><mo>'</mo><mo>)</mo></mtd></mtr>
+<mtr>
+<mtd></mtd>
+<mtd><mo>=</mo><mo>∫</mo><msub><mi>s</mi>
+<mrow><mtext>in</mtext></mrow></msub><mo>(</mo><mi>x</mi><mo>'</mo><mo>)</mo><msub><mi>s</mi><mi>δ</mi></msub><mo>(</mo><mi>x</mi><mo>-</mo><mi>x</mi><mo>'</mo><mo>)</mo><mtext>d</mtext><mi>x</mi><mo>'</mo></mtd></mtr></mtable></math>
+</div>
+<p>Cases (&quot;manually&quot;, with <tt class="docutils literal">matrix</tt> environment):</p>
+<div>
+<math xmlns="http://www.w3.org/1998/Math/MathML" mode="display">
+<mtable>
+<mtr>
+<mtd><mtext>sgn</mtext><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mfenced open="{" close="">
+<mrow>
+<mtable>
+<mtr>
+<mtd><mo>-</mo><mn>1</mn></mtd>
+<mtd><mi>x</mi><mo>&lt;</mo><mn>0</mn></mtd></mtr>
+<mtr>
+<mtd><mn>1</mn></mtd>
+<mtd><mi>x</mi><mo>&gt;</mo><mn>0</mn></mtd></mtr></mtable></mrow></mfenced></mtd></mtr></mtable></math>
+</div>
+<p>Cases with the <a class="reference external" href="ftp://ftp.ams.org/ams/doc/amsmath/short-math-guide.pdf">AMSmath</a> <tt class="docutils literal">cases</tt> environment (not (yet) supported by
+HTML writers with <tt class="docutils literal"><span class="pre">--math-output=MathML</span></tt>):</p>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">functional/input/data/math.txt</tt>, line 108)</p>
+<p>
+Environment not supported! Supported environment: "matrix".</p>
+<pre class="literal-block">
+\mathrm{sgn}(x) = \begin{cases}
+                    -1 &amp; x&lt;0\\
+                     1 &amp; x&gt;0
+                  \end{cases}
+</pre>
+</div>
+</div>
+</body>
+</html>

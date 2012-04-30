@@ -1,0 +1,341 @@
+:tocdepth: 2
+
+.. title:: set by title directive
+
+Testing various markup
+======================
+
+Meta markup
+-----------
+
+.. sectionauthor:: Georg Brandl
+.. moduleauthor:: Georg Brandl
+
+.. contents:: TOC
+
+.. meta::
+   :author: Me
+   :keywords: docs, sphinx
+
+
+Generic reST
+------------
+
+A |subst| (the definition is in rst_epilog).
+
+.. _label:
+
+::
+
+   some code
+
+Option list:
+
+-h              help
+--help          also help
+
+Line block:
+
+| line1
+|   line2
+|     line3
+|       line4
+|   line5
+| line6
+|   line7
+
+
+Body directives
+^^^^^^^^^^^^^^^
+
+.. topic:: Title
+
+   Topic body.
+
+.. sidebar:: Sidebar
+   :subtitle: Sidebar subtitle
+
+   Sidebar body.
+
+.. rubric:: Test rubric
+
+.. epigraph:: Epigraph title
+
+   Epigraph body.
+
+   -- Author
+
+.. highlights:: Highlights
+
+   Highlights body.
+
+.. pull-quote:: Pull-quote
+
+   Pull quote body.
+
+.. compound::
+
+   a
+
+   b
+
+
+.. _admonition-section:
+
+Admonitions
+^^^^^^^^^^^
+
+.. admonition:: My Admonition
+
+   Admonition text.
+
+.. note::
+   Note text.
+
+.. warning::
+
+   Warning text.
+
+.. _some-label:
+
+.. tip::
+   Tip text.
+
+
+Inline markup
+-------------
+
+*Generic inline markup*
+
+Adding \n to test unescaping.
+
+* :command:`command\\n`
+* :dfn:`dfn\\n`
+* :guilabel:`guilabel with &accelerator and \\n`
+* :kbd:`kbd\\n`
+* :mailheader:`mailheader\\n`
+* :makevar:`makevar\\n`
+* :manpage:`manpage\\n`
+* :mimetype:`mimetype\\n`
+* :newsgroup:`newsgroup\\n`
+* :program:`program\\n`
+* :regexp:`regexp\\n`
+* :menuselection:`File --> Close\\n`
+* :menuselection:`&File --> &Print`
+* :file:`a/{varpart}/b\\n`
+* :samp:`print {i}\\n`
+
+*Linking inline markup*
+
+* :pep:`8`
+* :rfc:`1`
+* :envvar:`HOME`
+* :keyword:`with`
+* :token:`try statement <try_stmt>`
+* :ref:`admonition-section`
+* :ref:`here <some-label>`
+* :ref:`my-figure`
+* :ref:`my-table`
+* :doc:`subdir/includes`
+* ``:download:`` is tested in includes.txt
+* :option:`Python -c option <python -c>`
+
+Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
+
+Testing the :index:`index` role, also available with
+:index:`explicit <pair: title; explicit>` title.
+
+.. _with:
+
+With
+----
+
+(Empty section.)
+
+
+Tables
+------
+
+.. tabularcolumns:: |L|p{5cm}|R|
+
+.. _my-table:
+
+.. table:: my table
+
+   +----+----------------+----+
+   | 1  | * Block elems  |  x |
+   |    | * In table     |    |
+   +----+----------------+----+
+   | 2  | Empty cells:   |    |
+   +----+----------------+----+
+
+Table with multicol:
+
+.. only:: latex
+
+   +----+---------------------+
+   | 1  | test!               |
+   +----+---------+------+----+
+   | 2  | col     | col  | c  |
+   | y  +---------+------+----+
+   | x  | test                |
+   +----+---------------------+
+
+
+Figures
+-------
+
+.. _my-figure:
+
+.. figure:: img.png
+
+   My caption of the figure
+
+
+Version markup
+--------------
+
+.. versionadded:: 0.6
+   Some funny **stuff**.
+
+.. versionchanged:: 0.6
+   Even more funny stuff.
+
+.. deprecated:: 0.6
+   Boring stuff.
+
+
+Code blocks
+-----------
+
+.. code-block:: ruby
+   :linenos:
+
+   def ruby?
+       false
+   end
+
+
+Misc stuff
+----------
+
+Stuff [#]_
+
+Reference lookup: [Ref1]_ (defined in another file).
+
+.. seealso:: something, something else, something more
+
+   `Google <http://www.google.com>`_
+       For everything.
+
+.. hlist::
+   :columns: 4
+
+   * This
+   * is
+   * a horizontal
+   * list
+   * with several
+   * items
+
+.. rubric:: Side note
+
+This is a side note.
+
+This tests :CLASS:`role names in uppercase`.
+
+.. centered:: LICENSE AGREEMENT
+
+.. acks::
+
+   * Terry Pratchett
+   * J. R. R. Tolkien
+   * Monty Python
+
+.. glossary::
+   :sorted:
+
+   boson
+      Particle with integer spin.
+
+   *fermion*
+      Particle with half-integer spin.
+
+   tauon
+   myon
+   electron
+      Examples for fermions.
+
+   über
+      Gewisse
+
+   änhlich
+      Dinge
+
+.. productionlist::
+   try_stmt: `try1_stmt` | `try2_stmt`
+   try1_stmt: "try" ":" `suite`
+            : ("except" [`expression` ["," `target`]] ":" `suite`)+
+            : ["else" ":" `suite`]
+            : ["finally" ":" `suite`]
+   try2_stmt: "try" ":" `suite`
+            : "finally" ":" `suite`
+
+
+Index markup
+------------
+
+.. index::
+   single: entry
+   pair: entry; pair
+   double: entry; double
+   triple: index; entry; triple
+   keyword: with
+   see: from; to
+   seealso: fromalso; toalso
+
+Invalid index markup...
+
+.. index::
+   single:
+   pair:
+   keyword:
+
+.. index::
+   !Main, !Other
+   !single: entry; pair
+
+:index:`!Main`
+
+.. _ölabel:
+
+Ö... Some strange characters
+----------------------------
+
+Testing öäü...
+
+
+Only directive
+--------------
+
+.. only:: html
+
+   In HTML.
+
+.. only:: latex
+
+   In LaTeX.
+
+.. only:: html or latex
+
+   In both.
+
+.. only:: confpytag and (testtag or nonexisting_tag)
+
+   Always present, because set through conf.py/command line.
+
+
+.. rubric:: Footnotes
+
+.. [#] Like footnotes.
+
