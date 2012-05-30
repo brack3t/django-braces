@@ -225,6 +225,27 @@ Mostly used for CRUD, where you're going to create an object and then move direc
         ...
 
 
+SelectRelatedMixin
+==================
+
+A simple mixin which allows you to specify a list or tuple of foreign key fields to perform a select_related on.
+
+::
+
+    # views.py
+    from django.views.generic import DetailView
+
+    from braces.views import SelectRelatedMixin
+
+    from profiles.models import Profile
+
+
+    class UserProfileView(SelectRelatedMixin, DetailView):
+        model = Profile
+        select_related = ["user"]
+        template_name = "profiles/detail.html"
+
+
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
