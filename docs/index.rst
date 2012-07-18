@@ -8,14 +8,6 @@ Welcome to django-braces's documentation!
 
 You can view the code of our project or fork it and add your own mixins (please, send them back to us), on `Github`_.
 
-Contents:
-
-.. toctree::
-   :maxdepth: 2
-
-
-Here are the generic mixins we've been using a lot lately. If you have any that you find useful, feel free to send them to us in a pull request. Please include example usage.
-
 LoginRequiredMixin
 ==================
 
