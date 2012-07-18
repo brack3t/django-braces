@@ -245,6 +245,21 @@ A simple mixin which allows you to specify a list or tuple of foreign key fields
         select_related = ["user"]
         template_name = "profiles/detail.html"
 
+StaffuserRequiredMixin
+======================
+
+A mixin to support those cases where you want to give staff access to a view.
+
+::
+
+    # views.py
+    from django.views.generic import DetailView
+
+    from braces.views import StaffuserRequiredMixin
+
+    class SomeStaffuserView(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
+        template_name = "path/to/template.html"
+
 
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
