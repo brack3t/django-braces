@@ -192,5 +192,5 @@ class StaffuserRequiredMixin(object):
                 tup = self.login_url, self.redirect_field_name, path
                 return HttpResponseRedirect("%s?%s=%s" % tup)
 
-        return super(SuperuserRequiredMixin, self).dispatch(request,
+        return super(StaffuserRequiredMixin, self).dispatch(request,
             *args, **kwargs)
