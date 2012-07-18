@@ -6,6 +6,8 @@
 Welcome to django-braces's documentation!
 =========================================
 
+You can view the code of our project or fork it and add your own mixins (please, send them back to us), on `Github`_.
+
 Contents:
 
 .. toctree::
@@ -257,3 +259,5 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+
+.. _Github: https://github.com/brack3t/django-braces
