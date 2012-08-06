@@ -8,5 +8,6 @@ class UserKwargModelFormMixin(object):
     anything else is done.
     """
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop("user", None)
+        self.user = kwargs.pop("user", None)  # Pop the user off the
+                                              # passed in kwargs.
         super(UserKwargModelFormMixin, self).__init__(*args, **kwargs)
