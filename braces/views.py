@@ -79,8 +79,8 @@ class PermissionRequiredMixin(object):
         # Make sure that a permission_required is set on the view,
         # and if it is, that it only has two parts (app.action_model)
         # or raise a configuration error.
-        if self.permission_required == None or len(
-            self.permission_required.split(".")) != 2:
+        if self.permission_required == None or (isinstance(self.permission_required, basestring) and len(
+                    self.permission_required.split(".")) != 2):
             raise ImproperlyConfigured("'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
 
