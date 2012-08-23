@@ -1,3 +1,4 @@
 include README.rst
+include LICENSE
 include CONTRIBUTORS.txt
 recursive-include braces *.py
