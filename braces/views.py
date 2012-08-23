@@ -54,6 +54,9 @@ class PermissionRequiredMixin(object):
     `redirect_field_name` - defaults to "next"
     `raise_exception` - defaults to False - raise 403 if set to True
 
+    The `permission_required` attribute can be a callable. The callable will
+    receive the same arguments as the `dispatch` method.
+
     Example Usage
 
         class SomeView(PermissionRequiredMixin, ListView):
@@ -76,13 +79,16 @@ class PermissionRequiredMixin(object):
         # Make sure that a permission_required is set on the view,
         # and if it is, that it only has two parts (app.action_model)
         # or raise a configuration error.
-        if self.permission_required == None or len(
-            self.permission_required.split(".")) != 2:
+        if self.permission_required == None or (isinstance(self.permission_required, basestring) and len(
+                    self.permission_required.split(".")) != 2):
             raise ImproperlyConfigured("'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
 
-        # Check to see if the request's user has the required permission.
-        has_permission = request.user.has_perm(self.permission_required)
+        if hasattr(self.permission_required, '__call__'):
+            has_permission = self.permission_required(request, *arg, **kwargs)
+        else:
+            # Check to see if the request's user has the required permission.
+            has_permission = request.user.has_perm(self.permission_required)
 
         if not has_permission:  # If the user lacks the permission
             if self.raise_exception:  # *and* if an exception was desired

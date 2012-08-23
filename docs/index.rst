@@ -42,6 +42,22 @@ dispatch method manually on every view that needs to check for the existence of 
 and set the ``permission_required`` class attribute on our view. If you don't specify ``permission_required`` on 
 your view, an ``ImproperlyConfigured`` exception is raised reminding you that you haven't set it.
 
+The `permission_required` attribute can be a callable. The callable will receive the same arguments as the `dispatch` method. For example::
+
+    from braces.views import PermissionRequiredMixin
+
+
+    def owns_account(request, *args, **kwargs):
+        account = Account.object.get(slug=kwargs['account_slug'])
+        
+        return account.user == request.user
+
+
+    class EditAccountView(PermissionRequiredMixin, TemplateView):
+        permission_required = owns_account
+        template_name = "path/to/template.html"
+
+
 The one limitation of this mixin is that it can **only** accept a single permission. It would need to be modified to 
 handle more than one. We haven't needed that yet, so this has worked out well for us.
 
