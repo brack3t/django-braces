@@ -99,7 +99,7 @@ class PermissionRequiredMixin(object):
             *args, **kwargs)
 
 
-class PermissionsRequiredMixin(object):
+class MultiplePermissionsRequiredMixin(object):
     """
     """
     login_url = settings.LOGIN_URL # LOGIN_URL from project settings
@@ -150,7 +150,7 @@ class PermissionsRequiredMixin(object):
                 tup = self.login_url, self.redirect_field_name, path
                 return HttpResponseRedirect("%s?%s=%s" % tup)
 
-        return super(PermissionsRequiredMixin, self).dispatch(request,
+        return super(MultiplePermissionsRequiredMixin, self).dispatch(request,
             *args, **kwargs)
 
 
