@@ -99,6 +99,61 @@ class PermissionRequiredMixin(object):
             *args, **kwargs)
 
 
+class PermissionsRequiredMixin(object):
+    """
+    """
+    login_url = settings.LOGIN_URL # LOGIN_URL from project settings
+    permissions = None # Default required perms to none
+    raise_exception = False # Default whether to raise an exception to none
+    redirect_field_name = REDIRECT_FIELD_NAME #Set by django.contrib.auth
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.permissions is None or self.permissions is not isinstance(dict):
+            raise ImproperlyConfigured("'PermissionsRequiredMixin' requires"
+                "'permissions' attribute to be set to a dict.")
+
+        perms_all = self.permissions.get('all') or None
+        perms_any = self.permissions.get('any') or None
+
+        if perms_all is None and perms_any is None:
+            raise ImproperlyConfigured("'PermissionsRequiredMixin' requires"
+                "'permissions' attribute to be set to a dict and the 'any'"
+                "or 'all' key to be set.")
+
+        if perms_all and perms_all is not isinstance(list, tuple):
+            raise ImproperlyConfigured("'PermissionsRequiredMixin' requires"
+                "permissions dict 'all' value to be a list or tuple.")
+
+        if perms_any and perms_any is not isinstance(list, tuple):
+            raise ImproperlyConfigured("'PermissionsRequiredMixin' requires"
+                "permissions dict 'any' value to be a list or tuple.")
+
+        if perms_all:
+            if not request.user.has_perms(perms_all):
+                if self.raise_exception:
+                    return HttpResponseForbidden()
+                path = urlquote(request.get_full_path())
+                tup = self.login_url, self.redirect_field_name, path
+                return HttpResponseRedirect("%s?%s=%s" % tup)
+
+        if perms_any:
+            has_one_perm = False
+            for perm in perms_any:
+                if request.user.has_perm(perm):
+                    has_one_perm = True
+                    break
+
+            if not has_one_perm:
+                if self.raise_exception:
+                    return HttpResponseForbidden()
+                path = urlquote(request.get_full_path())
+                tup = self.login_url, self.redirect_field_name, path
+                return HttpResponseRedirect("%s?%s=%s" % tup)
+
+        return super(PermissionsRequiredMixin, self).dispatch(request,
+            *args, **kwargs)
+
+
 class UserFormKwargsMixin(object):
     """
     CBV mixin which puts the user from the request into the form kwargs.
