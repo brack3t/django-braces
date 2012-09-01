@@ -11,11 +11,11 @@ You can view the code of our project or fork it and add your own mixins (please,
 LoginRequiredMixin
 ==================
 
-This mixin is rather simple and is generally the first inherited class in any of our views. If we don't have an authenticated user 
-there's no need to go any further. If you've used Django before you are probably familiar with the ``login_required`` decorator. 
+This mixin is rather simple and is generally the first inherited class in any of our views. If we don't have an authenticated user
+there's no need to go any further. If you've used Django before you are probably familiar with the ``login_required`` decorator.
 All we are doing here is requiring a user to be authenticated to be able to get to this view.
 
-While this doesn't look like much, it frees us up from having to manually overload the dispatch method on every single view that 
+While this doesn't look like much, it frees us up from having to manually overload the dispatch method on every single view that
 requires a user to be authenticated. If that's all that is needed on this view, we just saved 3 lines of code. Example usage below.
 
 ::
@@ -37,15 +37,15 @@ PermissionRequiredMixin
 
 This mixin was originally written, I believe, by `Daniel Sokolowski`_ (`code here`_), but we have updated it to eliminate an unneeded render if the permissions check fails.
 
-The permission required mixin has been very handy for our client's custom CMS. Again, rather than overloading the 
-dispatch method manually on every view that needs to check for the existence of a permission, we inherit this class 
-and set the ``permission_required`` class attribute on our view. If you don't specify ``permission_required`` on 
+The permission required mixin has been very handy for our client's custom CMS. Again, rather than overloading the
+dispatch method manually on every view that needs to check for the existence of a permission, we inherit this class
+and set the ``permission_required`` class attribute on our view. If you don't specify ``permission_required`` on
 your view, an ``ImproperlyConfigured`` exception is raised reminding you that you haven't set it.
 
-The one limitation of this mixin is that it can **only** accept a single permission. It would need to be modified to 
+The one limitation of this mixin is that it can **only** accept a single permission. It would need to be modified to
 handle more than one. We haven't needed that yet, so this has worked out well for us.
 
-In our normal use case for this mixin, ``LoginRequiredMixin`` comes first, then the ``PermissionRequiredMixin``. If we 
+In our normal use case for this mixin, ``LoginRequiredMixin`` comes first, then the ``PermissionRequiredMixin``. If we
 don't have an authenticated user, there is no sense in checking for any permissions.
 
     .. role:: info-label
@@ -62,10 +62,47 @@ don't have an authenticated user, there is no sense in checking for any permissi
         permission_required = "auth.change_user"
         template_name = "path/to/template.html"
 
+
+MultiplePermissionsRequiredMixin
+================================
+
+The multiple permissions required view mixin is a more powerful version of the permission required mixin.
+This view mixin can handle multiple permissions by setting the mandatory ``permissions`` attribute as a dict
+with the keys ``any`` and/or ``all`` to a list/tuple of <app label>.<permission codename> permissions.
+The ``all`` key requires the request.user to have all of the specified permissions.
+The ``any`` key requires the request.user to have at least ONE of the specified permissions.
+
+If you only need to check a single permission, the ``PermissionRequiredMixin`` is all you need.
+
+    .. role:: info-label
+        :class: "label label-info"
+
+    :info-label:`note` If you are using Django's built in auth system, ``superusers`` automatically have all permissions in your system.
+
+::
+
+    from braces.views import LoginRequiredMixin, MultiplePermissionsRequiredMixin
+
+
+    class SomeProtectedView(LoginRequiredMixin, MultiplePermissionsRequiredMixin,
+        TemplateView):
+
+        #required
+        permissions = {
+            "all": (blog.add_post, blog.change_post),
+            "any": (blog.delete_post, user.change_user)
+        }
+
+        #optional
+        login_url = "/signup/"
+        redirect_field_name = "hollaback"
+        raise_exception = True
+
+
 SuperuserRequiredMixin
 ======================
 
-Another permission-based mixin. This is specifically for requiring a user to be a superuser. Comes in handy for tools that only privileged 
+Another permission-based mixin. This is specifically for requiring a user to be a superuser. Comes in handy for tools that only privileged
 users should have access to.
 
 ::
@@ -79,13 +116,13 @@ users should have access to.
 UserFormKwargsMixin
 ===================
 
-In our clients CMS, we have a lot of form-based views that require a user to be passed in for permission-based form tools. For example, 
-only superusers can delete or disable certain objects. To custom tailor the form for users, we have to pass that user instance into the form 
+In our clients CMS, we have a lot of form-based views that require a user to be passed in for permission-based form tools. For example,
+only superusers can delete or disable certain objects. To custom tailor the form for users, we have to pass that user instance into the form
 and based on their permission level, change certain fields or add specific options within the forms ``__init__`` method.
 
-This mixin automates the process of overloading the ``get_form_kwargs`` (this method is available in any generic view which handles a form) method 
-and stuffs the user instance into the form kwargs. We can then pop the user off in the form and do with it what we need. **Always** remember 
-to pop the user from the kwargs before calling ``super`` on your form, otherwise the form gets an unexpected keyword argument and everything 
+This mixin automates the process of overloading the ``get_form_kwargs`` (this method is available in any generic view which handles a form) method
+and stuffs the user instance into the form kwargs. We can then pop the user off in the form and do with it what we need. **Always** remember
+to pop the user from the kwargs before calling ``super`` on your form, otherwise the form gets an unexpected keyword argument and everything
 blows up. Example usage:
 
 ::
@@ -109,9 +146,9 @@ This obviously pairs very nicely with the following ``Form`` mixin.
 UserKwargModelFormMixin
 =======================
 
-The ``UserKwargModelFormMixin`` is a new form mixin we just implemented this week to go along with our ``UserFormKwargsMixin``. 
-This becomes the first inherited class of our forms that receive the user keyword argument. With this mixin, we have automated 
-the popping off of the keyword argument in our form and no longer have to do it manually on every form that works this way. 
+The ``UserKwargModelFormMixin`` is a new form mixin we just implemented this week to go along with our ``UserFormKwargsMixin``.
+This becomes the first inherited class of our forms that receive the user keyword argument. With this mixin, we have automated
+the popping off of the keyword argument in our form and no longer have to do it manually on every form that works this way.
 While this may be overkill for a weekend project, for us, it speeds up adding new features. Example usage:
 
 ::
@@ -133,9 +170,9 @@ While this may be overkill for a weekend project, for us, it speeds up adding ne
 SuccessURLRedirectListMixin
 ===========================
 
-The ``SuccessURLRedirectListMixin`` is a bit more tailored to how we handle CRUD_ within our CMS. Our CMS's workflow, by design, 
-redirects the user to the ``ListView`` for whatever model they are working with, whether they are creating a new instance, editing 
-an existing one or deleting one. Rather than having to override ``get_success_url`` on every view, we simply use this mixin and pass it 
+The ``SuccessURLRedirectListMixin`` is a bit more tailored to how we handle CRUD_ within our CMS. Our CMS's workflow, by design,
+redirects the user to the ``ListView`` for whatever model they are working with, whether they are creating a new instance, editing
+an existing one or deleting one. Rather than having to override ``get_success_url`` on every view, we simply use this mixin and pass it
 a reversible route name. Example:
 
 ::
@@ -161,8 +198,8 @@ a reversible route name. Example:
 SetHeadlineMixin
 ================
 
-The ``SetHeadlineMixin`` is a newer edition to our client's CMS. It allows us to *statically* or *programmatically* set the headline of any 
-of our views. We like to write as few templates as possible, so a mixin like this helps us reuse generic templates. Its usage is amazingly 
+The ``SetHeadlineMixin`` is a newer edition to our client's CMS. It allows us to *statically* or *programmatically* set the headline of any
+of our views. We like to write as few templates as possible, so a mixin like this helps us reuse generic templates. Its usage is amazingly
 straightforward and works much like Django's built-in ``get_queryset`` method. This mixin has two ways of being used.
 
 Static Example
