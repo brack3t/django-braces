@@ -291,6 +291,59 @@ A mixin to support those cases where you want to give staff access to a view.
     class SomeStaffuserView(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
         template_name = "path/to/template.html"
 
+PrepareMixin
+============
+
+A mixin to provide a prepare hook for method-independent validation and
+preparation of a view.
+
+If the ``prepare`` method returns something, it is returned straight away from
+the view.
+
+This hook becomes useful in slightly complex situations when you want to reuse
+some generic code. Suppose you have and ``Article`` model, and they are
+categorised using a ``Category`` model. Users can be given access to certain
+categories, and also getting the category from the url arguments is slightly
+complex. So when writing your category detail and update views, you wrote the
+following mixin, which is used in some way in the ``CategoryDetailView``::
+
+    class GetCategoryMixin(object):
+
+        def get_category(self):
+            try:
+                return Category.objects.get_for_url_kwargs(self.kwargs)
+            except Category.DoesNotExist:
+                raise Http404
+
+Now suppose you also want to implement this checking on an
+``ArticleDetailView``. With the ``PrepareMixin`` we can do this::
+
+    class ArticleDetailView(LoginRequiredMixin, PrepareMixin, DetailView):
+        model = Article
+
+        def prepare(self):
+            self.category = self.get_category()
+            if not self.category.access_for(self.request.user):
+                messages.error(request, 'You do not have access to this resource.')
+                return HttpResponseRedirect('/')
+            return super(ArticleDetailView, self).prepare()
+
+        def get_queryset(self):
+            qs = super(ArticleDetailView, self).get_queryset()
+            return qs.filter(category=self.category)
+
+        def get_context_data(self, **kwargs):
+            return super(ArticleDetailView, self).get_context_data(
+                    category=self.category, **kwargs)
+
+This will check for the existence of the category, and redirect to the home
+page with a message if the user does not have access. These methods could also
+be used exactly the same way in an ``ArticleUpdateView``, and the permissions
+would be checked on ``POST`` as well as on ``GET``. The advantages of this
+approach over overriding ``dispatch`` or ``get``/``post`` are that you get
+method-independent checking, and you are safe to call view methods which may
+expect ``self.request`` or ``self.kwargs`` to have been set.
+
 
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48

@@ -336,3 +336,25 @@ class StaffuserRequiredMixin(object):
 
         return super(StaffuserRequiredMixin, self).dispatch(request,
             *args, **kwargs)
+
+
+class PrepareMixin(object):
+    """
+    Mixin to add a `prepare` hook before the method handler is called.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        self.request = request
+        self.args = args
+        self.kwargs = kwargs
+        response = self.prepare()
+        if response:
+            return response
+        if request.method.lower() in self.http_method_names:
+            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+        else:
+            handler = self.http_method_not_allowed
+        return handler(request, *args, **kwargs)
+
+    def prepare(self):
+        return None
