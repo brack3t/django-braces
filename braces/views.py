@@ -3,7 +3,9 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.core.utils import simplejson as json
+from django.http import (HttpResponseForbidden, HttpResponseRedirect,
+    HttpResponse)
 from django.utils.decorators import method_decorator
 from django.utils.http import urlquote
 from django.views.generic import CreateView
@@ -336,3 +338,13 @@ class StaffuserRequiredMixin(object):
 
         return super(StaffuserRequiredMixin, self).dispatch(request,
             *args, **kwargs)
+
+
+class JSONResponseMixin(object):
+    def render_json_response(self, context_dict):
+        """
+        Limited serialization for shipping plain data. Do not use for models
+        or other complex or custom objects.
+        """
+        json_context = json.dumps(context_dict)
+        return HttpResponse(json_context, content_type="application/json")

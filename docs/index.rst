@@ -291,6 +291,30 @@ A mixin to support those cases where you want to give staff access to a view.
     class SomeStaffuserView(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
         template_name = "path/to/template.html"
 
+JSONResponseMixin
+=================
+
+A simple mixin to handle very simple serialization as a response to the browser.
+
+::
+
+    # views.py
+    from django.views.generic import DetailView
+
+    from braces.views import JSONResponseMixin
+
+    class UserProfileAJAXView(JSONResponseMixin, DetailView):
+        model = Profile
+
+        def get(self, request, *args, **kwargs):
+            self.object = self.get_object()
+            context_dict = {
+                name: self.object.user.name,
+                location: self.object.location
+            }
+
+            return render_json_response(context_dict)
+
 
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
