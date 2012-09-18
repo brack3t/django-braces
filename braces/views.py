@@ -3,7 +3,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
-from django.core.utils import simplejson as json
+from django.utils import simplejson as json
 from django.http import (HttpResponseForbidden, HttpResponseRedirect,
     HttpResponse)
 from django.utils.decorators import method_decorator
