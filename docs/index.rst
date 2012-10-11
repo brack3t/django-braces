@@ -309,11 +309,11 @@ A simple mixin to handle very simple serialization as a response to the browser.
         def get(self, request, *args, **kwargs):
             self.object = self.get_object()
             context_dict = {
-                name: self.object.user.name,
-                location: self.object.location
+                'name': self.object.user.name,
+                'location': self.object.location
             }
 
-            return render_json_response(context_dict)
+            return self.render_json_response(context_dict)
 
 
 .. _Daniel Sokolowski: https://github.com/danols
