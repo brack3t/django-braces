@@ -363,7 +363,7 @@ class JSONResponseMixin(object):
         return HttpResponse(json_data, content_type="application/json")
 
 
-class AjaxResponseMixin(object)
+class AjaxResponseMixin(object):
     """
     Mixin allows you to define alternative methods for ajax requests. Similar
     to the normal get, post, and put methods, you can use get_ajax, post_ajax,
