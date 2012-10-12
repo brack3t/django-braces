@@ -371,12 +371,13 @@ class AjaxResponseMixin(object):
     """
     def dispatch(self, request, *args, **kwargs):
         request_method = request.method.lower()
-        handler = super(AjaxResponseMixin, self).dispatch(request, *args,
-            **kwargs)
 
         if request.is_ajax() and request_method in self.http_method_names:
             handler = getattr(self, '%s_ajax' % request_method,
                 self.http_method_not_allowed)
+            self.request = request
+            self.args = args
+            self.kwargs = kwargs
             return handler(request, *args, **kwargs)
 
-        return handler
+        return super(AjaxResponseMixin, self).dispatch(request, *args, **kwargs)
