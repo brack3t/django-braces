@@ -337,20 +337,17 @@ A mixin to allow you to provide alternative methods for handling Ajax requests.
 ::
 
     # views.py
-    from django.http import HttpResponse
-    from django.utils import simplejson as json
     from django.views.generic import View
 
-    from braces.views import AjaxResponseMixin
+    from braces.views import AjaxResponseMixin, JSONResponseMixin
 
-    class UserProfileView(AjaxResponseMixin, View):
+    class SomeView(JSONResponseMixin, AjaxResponseMixin, View):
         def get_ajax(self, request, *args, **kwargs):
             json_dict = {
                 'name': "Benny's Burritos",
                 'location': "New York, NY"
             }
-
-            return HttpResponse(json.dumps(json_dict), content_type="application/json")
+            return self.render_json_response(json_dict)
 
 
 Indices and tables
