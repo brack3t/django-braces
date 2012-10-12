@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
@@ -341,6 +342,10 @@ class StaffuserRequiredMixin(object):
 
 
 class JSONResponseMixin(object):
+    """
+    A mixin that allows you to easily serialize simple data such as a dict or
+    Django models.
+    """
     def render_json_response(self, context_dict):
         """
         Limited serialization for shipping plain data. Do not use for models
@@ -348,3 +353,30 @@ class JSONResponseMixin(object):
         """
         json_context = json.dumps(context_dict)
         return HttpResponse(json_context, content_type="application/json")
+
+    def render_json_object_response(self, objects, **kwargs):
+        """
+        Serializes objects using Django's builtin JSON serializer. Additional
+        kwargs can be used the same way for django.core.serializers.serialize.
+        """
+        json_data = serializers.serialize("json", objects, **kwargs)
+        return HttpResponse(json_data, content_type="application/json")
+
+
+class AjaxResponseMixin(object)
+    """
+    Mixin allows you to define alternative methods for ajax requests. Similar
+    to the normal get, post, and put methods, you can use get_ajax, post_ajax,
+    and put_ajax.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        request_method = request.method.lower()
+        handler = super(AjaxResponseMixin, self).dispatch(request, *args,
+            **kwargs)
+
+        if request.is_ajax() and request_method in self.http_method_names:
+            handler = getattr(self, '%s_ajax' % request_method,
+                self.http_method_not_allowed)
+            return handler(request, *args, **kwargs)
+
+        return handler
