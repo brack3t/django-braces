@@ -308,6 +308,7 @@ A simple mixin to handle very simple serialization as a response to the browser.
 
         def get(self, request, *args, **kwargs):
             self.object = self.get_object()
+
             context_dict = {
                 'name': self.object.user.name,
                 'location': self.object.location
@@ -315,10 +316,39 @@ A simple mixin to handle very simple serialization as a response to the browser.
 
             return self.render_json_response(context_dict)
 
+    # You can additionally use the AjaxResponseMixin
+    from braces.views import AjaxResponseMixin
+    class UserProfileView(JSONResponseMixin, AjaxResponseMixin, DetailView):
+        model = Profile
+
+        def get_ajax(self, request, *args, **kwargs):
+            return self.render_json_object_response(self.get_object())
+
 
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+
+AjaxResponseMixin
+=================
+
+A mixin to allow you to provide alternative methods for handling Ajax requests.
+
+::
+
+    # views.py
+    from django.views.generic import View
+
+    from braces.views import AjaxResponseMixin, JSONResponseMixin
+
+    class SomeView(JSONResponseMixin, AjaxResponseMixin, View):
+        def get_ajax(self, request, *args, **kwargs):
+            json_dict = {
+                'name': "Benny's Burritos",
+                'location': "New York, NY"
+            }
+            return self.render_json_response(json_dict)
+
 
 Indices and tables
 ==================
