@@ -322,7 +322,7 @@ A simple mixin to handle very simple serialization as a response to the browser.
         model = Profile
 
         def get_ajax(self, request, *args, **kwargs):
-            return render_json_object_response(self.get_object())
+            return self.render_json_object_response(self.get_object())
 
 
 .. _Daniel Sokolowski: https://github.com/danols
