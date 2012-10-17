@@ -350,11 +350,11 @@ class PrepareMixin(object):
         response = self.prepare()
         if response:
             return response
-        if request.method.lower() in self.http_method_names:
-            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+        if self.request.method.lower() in self.http_method_names:
+            handler = getattr(self, self.request.method.lower(), self.http_method_not_allowed)
         else:
             handler = self.http_method_not_allowed
-        return handler(request, *args, **kwargs)
+        return handler(self.request, *self.args, **self.kwargs)
 
     def prepare(self):
         return None
