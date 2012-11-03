@@ -166,6 +166,44 @@ While this may be overkill for a weekend project, for us, it speeds up adding ne
             if not self.user.is_superuser:
                 del self.fields["group"]
 
+InlineFormsetMixin
+==================
+
+The ``InlineFormMixin`` class is used to provide a hook to inline formsets that
+are needed within a create or update view. This is done by providing a new
+attribute ``inline_formsets`` that can/should be overridden in your generic view
+subclass, and by providing sensible overrides for the ``get_context_data`` and
+``form_valid`` methods that take advantage of the formset info provided in the
+``inline_formsets`` attribute.
+
+You should set ``inline_formsets`` to be a dict, using the desired template
+context key as the key and the class or callable representing the formset as
+the value.
+
+Example:
+
+::
+
+    # urls.py
+    url(r'^authors/new$', AuthorCreateView.as_view(), name='author_create'),
+
+    # forms.py
+    from django.forms.models import inlineformset_factory
+    # No need to define model form explicitly unless it's necessary
+
+    BookFormSet = inlineformset_factory(Author, Book, extra=1, max_num=2)
+
+    # views.py
+    from django.views.generic import CreateView
+    from braces.views import LoginRequiredMixin, InlineFormsetMixin
+    class AuthorCreateView(LoginRequiredMixin, InlineFormsetMixin, CreateView):
+        model = Author               # Uses the generic ModelForm...
+        form_class = NewAuthorForm   # ... or a custom ModelForm
+        inline_formsets = {
+            'book_formset': BookFormSet,
+        }
+        success_url = 'some_success_url'
+
 
 SuccessURLRedirectListMixin
 ===========================
