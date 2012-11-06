@@ -371,7 +371,7 @@ class JSONResponseMixin(object):
         kwargs can be used the same way for django.core.serializers.serialize.
         """
         json_data = serializers.serialize("json", objects, **kwargs)
-        return HttpResponse(json_data, content_type="application/json")
+        return HttpResponse(json_data, content_type=self.get_content_type())
 
 
 class AjaxResponseMixin(object):
