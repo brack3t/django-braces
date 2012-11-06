@@ -392,3 +392,15 @@ class AjaxResponseMixin(object):
             return handler(request, *args, **kwargs)
 
         return super(AjaxResponseMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_ajax(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def post_ajax(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def put_ajax(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def delete_ajax(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
