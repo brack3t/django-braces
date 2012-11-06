@@ -316,18 +316,45 @@ A simple mixin to handle very simple serialization as a response to the browser.
 
             return self.render_json_response(context_dict)
 
-    # You can additionally use the AjaxResponseMixin
+You can additionally use the `AjaxResponseMixin`
+
+::
+
+    # views.py   
     from braces.views import AjaxResponseMixin
+
     class UserProfileView(JSONResponseMixin, AjaxResponseMixin, DetailView):
         model = Profile
 
         def get_ajax(self, request, *args, **kwargs):
             return self.render_json_object_response(self.get_object())
 
+The `JSONResponseMixin` provides a class-level variable to control the response
+type as well. By default it is `application/json`, but you can override that by
+providing the `content_type` variable a different value or, programatticaly, by
+overriding the `get_content_type()` method.
 
-.. _Daniel Sokolowski: https://github.com/danols
-.. _code here: https://github.com/lukaszb/django-guardian/issues/48
-.. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+::
+
+    from braces.views import JSONResponseMixin
+
+    class UserProfileAJAXView(JSONResponseMixin, DetailView):
+        content_type = 'application/javascript'
+        model = Profile
+
+        def get(self, request, *args, **kwargs):
+            self.object = self.get_object()
+
+            context_dict = {
+                'name': self.object.user.name,
+                'location': self.object.location
+            }
+
+            return self.render_json_response(context_dict)
+
+        def get_content_type(self):
+            # Shown just for illustrative purposes
+            return 'application/javascript'
 
 AjaxResponseMixin
 =================
@@ -359,3 +386,6 @@ Indices and tables
 
 
 .. _Github: https://github.com/brack3t/django-braces
+.. _Daniel Sokolowski: https://github.com/danols
+.. _code here: https://github.com/lukaszb/django-guardian/issues/48
+.. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
