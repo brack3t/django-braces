@@ -359,7 +359,11 @@ overriding the `get_content_type()` method.
 AjaxResponseMixin
 =================
 
-A mixin to allow you to provide alternative methods for handling Ajax requests.
+A mixin to allow you to provide alternative methods for handling AJAX requests.
+
+To control AJAX-specific behavior, override `get_ajax`, `post_ajax`, `put_ajax`,
+or `delete_ajax`. All four methods take `request`, `*args`, and `**kwargs` like
+the standard view methods.
 
 ::
 
