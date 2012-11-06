@@ -139,10 +139,10 @@ class MultiplePermissionsRequiredMixin(object):
             redirect_field_name = "hollaback"
             raise_exception = True
     """
-    login_url = settings.LOGIN_URL # LOGIN_URL from project settings
-    permissions = None # Default required perms to none
-    raise_exception = False # Default whether to raise an exception to none
-    redirect_field_name = REDIRECT_FIELD_NAME #Set by django.contrib.auth
+    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
+    permissions = None  # Default required perms to none
+    raise_exception = False  # Default whether to raise an exception to none
+    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
 
     def dispatch(self, request, *args, **kwargs):
         self._check_permissions_attr()
@@ -281,8 +281,8 @@ class SetHeadlineMixin(object):
         if self.headline is None:  # If no headline was provided as a view
                                    # attribute and this method wasn't overriden
                                    # raise a configuration error.
-            raise ImproperlyConfigured(u"%(cls)s is missing a headline. Define "
-                u"%(cls)s.headline, or override "
+            raise ImproperlyConfigured(u"%(cls)s is missing a headline. "
+                u"Define %(cls)s.headline, or override "
                 u"%(cls)s.get_headline()." % {"cls": self.__class__.__name__
             })
         return self.headline
@@ -298,8 +298,8 @@ class SelectRelatedMixin(object):
     def get_queryset(self):
         if self.select_related is None:  # If no fields were provided,
                                          # raise a configuration error
-            raise ImproperlyConfigured(u"%(cls)s is missing the select_related "
-                "property. This must be a tuple or list." % {
+            raise ImproperlyConfigured(u"%(cls)s is missing the "
+                "select_related property. This must be a tuple or list." % {
                     "cls": self.__class__.__name__})
 
         if not isinstance(self.select_related, (tuple, list)):
@@ -346,13 +346,24 @@ class JSONResponseMixin(object):
     A mixin that allows you to easily serialize simple data such as a dict or
     Django models.
     """
+    content_type = "application/json"
+
+    def get_content_type(self):
+        if self.content_type is None:
+            raise ImproperlyConfigured(u"%(cls)s is missing a content type. "
+                u"Define %(cls)s.content_type, or override "
+                u"%(cls)s.get_content_type()." % {
+                "cls": self.__class__.__name__
+            })
+        return self.content_type
+
     def render_json_response(self, context_dict):
         """
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
         json_context = json.dumps(context_dict)
-        return HttpResponse(json_context, content_type="application/json")
+        return HttpResponse(json_context, content_type=self.get_content_type())
 
     def render_json_object_response(self, objects, **kwargs):
         """
