@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
-from django.http import (HttpResponseForbidden, HttpResponseRedirect,
-    HttpResponse)
+from django.http import HttpResponseForbidden, HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils.http import urlquote
 from django.views.generic import CreateView
@@ -92,12 +92,9 @@ class PermissionRequiredMixin(object):
             if self.raise_exception:  # *and* if an exception was desired
                 return HttpResponseForbidden()  # return a forbidden response.
             else:
-                # otherwise, redirect the user to the login page.
-                # Also, handily, sets the `next` GET argument
-                # for future redirects.
-                path = urlquote(request.get_full_path())
-                tup = self.login_url, self.redirect_field_name, path
-                return HttpResponseRedirect("%s?%s=%s" % tup)
+                return redirect_to_login(request.get_full_path(),
+                                         self.login_url,
+                                         self.redirect_field_name)
 
         return super(PermissionRequiredMixin, self).dispatch(request,
             *args, **kwargs)
@@ -160,9 +157,9 @@ class MultiplePermissionsRequiredMixin(object):
             if not request.user.has_perms(perms_all):
                 if self.raise_exception:
                     return HttpResponseForbidden()
-                path = urlquote(request.get_full_path())
-                tup = self.login_url, self.redirect_field_name, path
-                return HttpResponseRedirect("%s?%s=%s" % tup)
+                return redirect_to_login(request.get_full_path(),
+                                         self.login_url,
+                                         self.redirect_field_name)
 
         # If perms_any, check that user has at least one in the list/tuple
         if perms_any:
@@ -175,9 +172,9 @@ class MultiplePermissionsRequiredMixin(object):
             if not has_one_perm:
                 if self.raise_exception:
                     return HttpResponseForbidden()
-                path = urlquote(request.get_full_path())
-                tup = self.login_url, self.redirect_field_name, path
-                return HttpResponseRedirect("%s?%s=%s" % tup)
+                return redirect_to_login(request.get_full_path(),
+                                         self.login_url,
+                                         self.redirect_field_name)
 
         return super(MultiplePermissionsRequiredMixin, self).dispatch(request,
             *args, **kwargs)
@@ -254,12 +251,9 @@ class SuperuserRequiredMixin(object):
             if self.raise_exception:  # *and* if an exception was desired
                 return HttpResponseForbidden()  # return a forbidden response.
             else:
-                # otherwise, redirect the user to the login page.
-                # Also, handily, sets the `next` GET argument for
-                # future redirects.
-                path = urlquote(request.get_full_path())
-                tup = self.login_url, self.redirect_field_name, path
-                return HttpResponseRedirect("%s?%s=%s" % tup)
+                return redirect_to_login(request.get_full_path(),
+                                         self.login_url,
+                                         self.redirect_field_name)
 
         return super(SuperuserRequiredMixin, self).dispatch(request,
             *args, **kwargs)
@@ -331,12 +325,9 @@ class StaffuserRequiredMixin(object):
             if self.raise_exception:  # *and* if an exception was desired
                 return HttpResponseForbidden()  # return a forbidden response
             else:
-                # otherwise, redirect the user to the login page.
-                # Also, handily, sets the GET `next` argument for
-                # future redirects.
-                path = urlquote(request.get_full_path())
-                tup = self.login_url, self.redirect_field_name, path
-                return HttpResponseRedirect("%s?%s=%s" % tup)
+                return redirect_to_login(request.get_full_path(),
+                                         self.login_url,
+                                         self.redirect_field_name)
 
         return super(StaffuserRequiredMixin, self).dispatch(request,
             *args, **kwargs)
