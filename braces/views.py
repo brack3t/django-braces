@@ -215,8 +215,8 @@ class UserFormKwargsMixin(object):
     Note: Using this mixin requires you to pop the `user` kwarg
     out of the dict in the super of your form's `__init__`.
     """
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super(UserFormKwargsMixin, self).get_form_kwargs(**kwargs)
+    def get_form_kwargs(self):
+        kwargs = super(UserFormKwargsMixin, self).get_form_kwargs()
         # Update the existing form kwargs dict with the request's user.
         kwargs.update({"user": self.request.user})
         return kwargs
