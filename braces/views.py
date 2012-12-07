@@ -4,13 +4,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
 from django.http import HttpResponseForbidden, HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils.http import urlquote
 from django.views.generic import CreateView
-
 
 class CreateAndRedirectToEditView(CreateView):
     """
@@ -351,7 +351,7 @@ class JSONResponseMixin(object):
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
-        json_context = json.dumps(context_dict)
+        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder, ensure_ascii=False)
         return HttpResponse(json_context, content_type=self.get_content_type())
 
     def render_json_object_response(self, objects, **kwargs):
