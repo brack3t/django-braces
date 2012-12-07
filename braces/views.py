@@ -3,11 +3,11 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core import serializers
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
-from django.http import HttpResponseForbidden, HttpResponse
+from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils.http import urlquote
 from django.views.generic import CreateView
@@ -90,7 +90,7 @@ class PermissionRequiredMixin(object):
 
         if not has_permission:  # If the user lacks the permission
             if self.raise_exception:  # *and* if an exception was desired
-                return HttpResponseForbidden()  # return a forbidden response.
+                raise PermissionDenied  # return a forbidden response.
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.login_url,
@@ -156,7 +156,7 @@ class MultiplePermissionsRequiredMixin(object):
         if perms_all:
             if not request.user.has_perms(perms_all):
                 if self.raise_exception:
-                    return HttpResponseForbidden()
+                    raise PermissionDenied
                 return redirect_to_login(request.get_full_path(),
                                          self.login_url,
                                          self.redirect_field_name)
@@ -171,7 +171,7 @@ class MultiplePermissionsRequiredMixin(object):
 
             if not has_one_perm:
                 if self.raise_exception:
-                    return HttpResponseForbidden()
+                    raise PermissionDenied
                 return redirect_to_login(request.get_full_path(),
                                          self.login_url,
                                          self.redirect_field_name)
@@ -249,7 +249,7 @@ class SuperuserRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:  # If the user is a standard user,
             if self.raise_exception:  # *and* if an exception was desired
-                return HttpResponseForbidden()  # return a forbidden response.
+                raise PermissionDenied  # return a forbidden response.
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.login_url,
@@ -320,7 +320,7 @@ class StaffuserRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_staff:  # If the request's user is not staff,
             if self.raise_exception:  # *and* if an exception was desired
-                return HttpResponseForbidden()  # return a forbidden response
+                raise PermissionDenied  # return a forbidden response
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.login_url,
