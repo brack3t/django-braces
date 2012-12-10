@@ -2,6 +2,13 @@ Here are the generic mixins we've been using a lot lately. If you have any that 
 
 http://django-braces.readthedocs.org/en/latest/index.html
 
+CONTRIBUTING
+============
+
+Fork, make a change, update the docs, make a pull request.
+
+Add yourself to CONTRIBUTORS.txt if you want.
+
 CHANGE LOG
 ==========
 
