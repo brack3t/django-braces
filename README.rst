@@ -16,7 +16,7 @@ CHANGE LOG
 -----
 
 * Fixed signature of UserFormKwargsMixin.get_form_kwargs
-* Updated JSONResponseMixin to work with non-ASCII characters and other datatypes (such as 
-    datetimes)
+* Updated JSONResponseMixin to work with non-ASCII characters and other datatypes (such as
+  datetimes)
 * Fixed all mixins that have `raise_exception` as an argument to properly raise a
-    `PermissionDenied` exception to allow for custom 403s.
+  `PermissionDenied` exception to allow for custom 403s.
