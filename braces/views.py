@@ -6,11 +6,17 @@ from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
-from django.utils import simplejson as json
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils.http import urlquote
 from django.views.generic import CreateView
+
+## Django 1.5+ compat
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
+
 
 class CreateAndRedirectToEditView(CreateView):
     """
