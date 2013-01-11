@@ -17,6 +17,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
+
 class CreateAndRedirectToEditView(CreateView):
     """
     Subclass of CreateView which redirects to the edit view.
