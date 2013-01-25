@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils.http import urlquote
 from django.views.generic import CreateView
+from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
 try:
@@ -51,6 +52,19 @@ class LoginRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(request,
             *args, **kwargs)
+
+
+class CsrfExemptMixin(object):
+    """
+    Exempts the view from CSRF requirements.
+
+    NOTE:
+        This should be the left-most mixin of a view.
+    """
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(CsrfExemptMixin, self).dispatch(*args, **kwargs)
 
 
 class PermissionRequiredMixin(object):
