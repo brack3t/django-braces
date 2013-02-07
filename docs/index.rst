@@ -89,8 +89,8 @@ If you only need to check a single permission, the ``PermissionRequiredMixin`` i
 
         #required
         permissions = {
-            "all": (blog.add_post, blog.change_post),
-            "any": (blog.delete_post, user.change_user)
+            "all": ("blog.add_post", "blog.change_post"),
+            "any": ("blog.delete_post", "user.change_user")
         }
 
         #optional
@@ -320,7 +320,7 @@ You can additionally use the `AjaxResponseMixin`
 
 ::
 
-    # views.py   
+    # views.py
     from braces.views import AjaxResponseMixin
 
     class UserProfileView(JSONResponseMixin, AjaxResponseMixin, DetailView):
