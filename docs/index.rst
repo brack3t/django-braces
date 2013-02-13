@@ -112,6 +112,20 @@ users should have access to.
     class SomeSuperuserView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
         template_name = "path/to/template.html"
 
+StaffuserRequiredMixin
+======================
+
+Similar to ``SuperuserRequiredMixin``, this mixin allows you to require a user with ``is_staff`` set to True.
+
+::
+
+    from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
+
+
+    class SomeStaffuserView(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
+        template_name = "path/to/template.html"
+
+
 UserFormKwargsMixin
 ===================
 
