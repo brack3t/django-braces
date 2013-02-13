@@ -42,8 +42,7 @@ dispatch method manually on every view that needs to check for the existence of 
 and set the ``permission_required`` class attribute on our view. If you don't specify ``permission_required`` on
 your view, an ``ImproperlyConfigured`` exception is raised reminding you that you haven't set it.
 
-The one limitation of this mixin is that it can **only** accept a single permission. It would need to be modified to
-handle more than one. We haven't needed that yet, so this has worked out well for us.
+The one limitation of this mixin is that it can **only** accept a single permission. If you need multiple permissions use ``MultiplePermissionsRequiredMixin``.
 
 In our normal use case for this mixin, ``LoginRequiredMixin`` comes first, then the ``PermissionRequiredMixin``. If we
 don't have an authenticated user, there is no sense in checking for any permissions.
@@ -66,7 +65,7 @@ don't have an authenticated user, there is no sense in checking for any permissi
 MultiplePermissionsRequiredMixin
 ================================
 
-The multiple permissions required view mixin is a more powerful version of the permission required mixin.
+The multiple permissions required view mixin is a more powerful version of the ``PermissionRequiredMixin``.
 This view mixin can handle multiple permissions by setting the mandatory ``permissions`` attribute as a dict
 with the keys ``any`` and/or ``all`` to a list/tuple of <app label>.<permission codename> permissions.
 The ``all`` key requires the request.user to have all of the specified permissions.
@@ -331,7 +330,7 @@ You can additionally use the `AjaxResponseMixin`
 
 The `JSONResponseMixin` provides a class-level variable to control the response
 type as well. By default it is `application/json`, but you can override that by
-providing the `content_type` variable a different value or, programatticaly, by
+providing the `content_type` variable a different value or, programmatically, by
 overriding the `get_content_type()` method.
 
 ::
