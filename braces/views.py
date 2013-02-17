@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 ## Django 1.5+ compat
 try:
     import json
-except ImportError:
+except ImportError: # pragma: no cover
     from django.utils import simplejson as json
 
 
@@ -294,11 +294,11 @@ class SetHeadlineMixin(object):
 
     def get_headline(self):
         if self.headline is None:  # If no headline was provided as a view
-                                   # attribute and this method wasn't overriden
+                                   # attribute and this method wasn't overridden
                                    # raise a configuration error.
-            raise ImproperlyConfigured(u"%(cls)s is missing a headline. "
-                u"Define %(cls)s.headline, or override "
-                u"%(cls)s.get_headline()." % {"cls": self.__class__.__name__
+            raise ImproperlyConfigured("%(cls)s is missing a headline. "
+                "Define %(cls)s.headline, or override "
+                "%(cls)s.get_headline()." % {"cls": self.__class__.__name__
             })
         return self.headline
 
@@ -313,14 +313,14 @@ class SelectRelatedMixin(object):
     def get_queryset(self):
         if self.select_related is None:  # If no fields were provided,
                                          # raise a configuration error
-            raise ImproperlyConfigured(u"%(cls)s is missing the "
+            raise ImproperlyConfigured("%(cls)s is missing the "
                 "select_related property. This must be a tuple or list." % {
                     "cls": self.__class__.__name__})
 
         if not isinstance(self.select_related, (tuple, list)):
             # If the select_related argument is *not* a tuple or list,
             # raise a configuration error.
-            raise ImproperlyConfigured(u"%(cls)s's select_related property "
+            raise ImproperlyConfigured("%(cls)s's select_related property "
                 "must be a tuple or list." % {"cls": self.__class__.__name__})
 
         # Get the current queryset of the view
@@ -359,9 +359,9 @@ class JSONResponseMixin(object):
 
     def get_content_type(self):
         if self.content_type is None:
-            raise ImproperlyConfigured(u"%(cls)s is missing a content type. "
-                u"Define %(cls)s.content_type, or override "
-                u"%(cls)s.get_content_type()." % {
+            raise ImproperlyConfigured("%(cls)s is missing a content type. "
+                "Define %(cls)s.content_type, or override "
+                "%(cls)s.get_content_type()." % {
                 "cls": self.__class__.__name__
             })
         return self.content_type

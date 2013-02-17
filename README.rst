@@ -9,6 +9,13 @@ Fork, make a change, update the docs, make a pull request.
 
 Add yourself to CONTRIBUTORS.txt if you want.
 
+All development dependencies are available in requirements.txt file.
+
+To run test suite execute this in your shell:
+
+    py.test --cov=braces --cov-report=html
+
+
 CHANGE LOG
 ==========
 
