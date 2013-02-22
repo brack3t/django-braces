@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
@@ -48,10 +47,28 @@ class LoginRequiredMixin(object):
         This should be the left-most mixin of a view.
     """
 
-    @method_decorator(login_required)
+    login_url = None
+    redirect_field = None
+    redirect_path = None
+
+    def get_login_url(self):
+        return self.login_url
+
+    def get_redirect_field(self):
+        return self.redirect_field
+
+    def get_redirect_path(self, request):
+        return self.redirect_path or request.get_full_path()
+
     def dispatch(self, request, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        if not request.user.is_authenticated():
+            return redirect_to_login(
+                self.get_reidrect_path(request),
+                self.get_login_url(),
+                self.get_redirect_field(),
+            )
+        return super(LoginRequiredMixin, self).dispatch(request, *args,
+                                                        **kwargs)
 
 
 class CsrfExemptMixin(object):
