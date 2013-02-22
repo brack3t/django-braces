@@ -16,6 +16,8 @@ urlpatterns = patterns('',
 
     url(r'^article_list/create/$',
         views.CreateArticleAndRedirectToListView.as_view()),
+    url(r'^article_list_bad/create/$',
+        views.CreateArticleAndRedirectToListViewBad.as_view()),
     url(r'^article_list/$', views.ArticleListView.as_view(),
         name='article_list'),
 

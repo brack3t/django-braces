@@ -91,6 +91,14 @@ class CreateArticleAndRedirectToListView(
     success_list_url = 'article_list'
 
 
+class CreateArticleAndRedirectToListViewBad(
+        SuccessURLRedirectListMixin, CreateArticleView):
+    """
+    View for testing SuccessURLRedirectListMixin
+    """
+    success_list_url = None
+
+
 class ArticleListView(SelectRelatedMixin, ListView):
     """
     A list view for articles, required for testing SuccessURLRedirectListMixin.

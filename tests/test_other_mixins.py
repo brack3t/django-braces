@@ -45,6 +45,14 @@ class TestSuccessURLRedirectListMixin(test.TestCase):
         resp = self.client.post('/article_list/create/', data)
         self.assertRedirects(resp, '/article_list/')
 
+    def test_no_url_name(self):
+        """
+        Test that ImproperlyConfigured is raised.
+        """
+        data = {'title': "Test body", 'body': "Test body"}
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.post('/article_list_bad/create/', data)
+
 
 class TestUserFormKwargsMixin(test.TestCase):
     """

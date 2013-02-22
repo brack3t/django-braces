@@ -255,6 +255,11 @@ class SuccessURLRedirectListMixin(object):
 
     def get_success_url(self):
         # Return the reversed success url.
+        if self.success_list_url is None:
+            raise ImproperlyConfigured("%(cls)s is missing a succes_list_url "
+                "name to reverse and redirect to. Define "
+                "%(cls)s.success_list_url or override %(cls)s.get_success_url()"
+                "." % {"cls": self.__class__.__name__})
         return reverse(self.success_list_url)
 
 
