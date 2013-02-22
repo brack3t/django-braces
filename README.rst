@@ -13,13 +13,26 @@ All development dependencies are available in requirements.txt file.
 
 To run test suite execute this in your shell:
 
-    py.test --cov=braces --cov-report=html
+    `py.test --cov=braces --cov-report=html`
 
 
 CHANGE LOG
 ==========
 
-1.2.1
+0.2.3
+-----
+
+* Tests for all mixins (from rafales).
+* New CsrfExemptMixin for marking views as being CSRF exempt (from jarcoal).
+* Some documentation updates and a spelling error correction (from shabda).
+* SuccessURLRedirectListMixin raises ImproperlyConfigured if no success_list_url attribute is supplied (from kennethlove).
+
+0.2.2
+-----
+
+* Try importing the built-in json module first, drop back to Django if necessary. Django 1.5 compatibility.
+
+0.2.1
 -----
 
 * Fixed signature of UserFormKwargsMixin.get_form_kwargs
@@ -28,7 +41,3 @@ CHANGE LOG
 * Fixed all mixins that have `raise_exception` as an argument to properly raise a
   `PermissionDenied` exception to allow for custom 403s.
 
-1.2.2
------
-
-* Try importing the built-in json module first, drop back to Django if necessary. Django 1.5 compatibility.
