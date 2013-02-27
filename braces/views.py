@@ -1,3 +1,5 @@
+import warnings
+
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
@@ -26,6 +28,8 @@ class CreateAndRedirectToEditView(CreateView):
     success_url_name = None
 
     def get_success_url(self):
+        warnings.warn("CreateAndRedirectToEditView is deprecated and will be "
+            "removed in a future release.", PendingDeprecationWarning)
         # First we check for a name to be provided on the view object.
         # If one is, we reverse it and finish running the method,
         # otherwise we raise a configuration error.
@@ -264,7 +268,8 @@ class SuccessURLRedirectListMixin(object):
         if self.success_list_url is None:
             raise ImproperlyConfigured("%(cls)s is missing a succes_list_url "
                 "name to reverse and redirect to. Define "
-                "%(cls)s.success_list_url or override %(cls)s.get_success_url()"
+                "%(cls)s.success_list_url or override "
+                "%(cls)s.get_success_url()"
                 "." % {"cls": self.__class__.__name__})
         return reverse(self.success_list_url)
 
@@ -305,8 +310,8 @@ class SetHeadlineMixin(object):
 
     def get_headline(self):
         if self.headline is None:  # If no headline was provided as a view
-                                   # attribute and this method wasn't overridden
-                                   # raise a configuration error.
+                                   # attribute and this method wasn't
+                                   # overridden raise a configuration error.
             raise ImproperlyConfigured("%(cls)s is missing a headline. "
                 "Define %(cls)s.headline, or override "
                 "%(cls)s.get_headline()." % {"cls": self.__class__.__name__
@@ -382,7 +387,8 @@ class JSONResponseMixin(object):
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
-        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder, ensure_ascii=False)
+        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
+            ensure_ascii=False)
         return HttpResponse(json_context, content_type=self.get_content_type())
 
     def render_json_object_response(self, objects, **kwargs):
@@ -411,7 +417,8 @@ class AjaxResponseMixin(object):
             self.kwargs = kwargs
             return handler(request, *args, **kwargs)
 
-        return super(AjaxResponseMixin, self).dispatch(request, *args, **kwargs)
+        return super(AjaxResponseMixin, self).dispatch(request, *args,
+            **kwargs)
 
     def get_ajax(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
