@@ -8,14 +8,13 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
-from django.utils.http import urlquote
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
 try:
     import json
-except ImportError: # pragma: no cover
+except ImportError:  # pragma: no cover
     from django.utils import simplejson as json
 
 
@@ -97,11 +96,9 @@ class PermissionRequiredMixin(object):
     redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
 
     def dispatch(self, request, *args, **kwargs):
-        # Make sure that a permission_required is set on the view,
-        # and if it is, that it only has two parts (app.action_model)
-        # or raise a configuration error.
-        if self.permission_required == None or len(
-            self.permission_required.split(".")) != 2:
+        # Make sure that the permission_required attribute is set on the
+        # view, or raise a configuration error.
+        if self.permission_required is None:
             raise ImproperlyConfigured("'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
 
