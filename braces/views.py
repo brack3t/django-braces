@@ -63,7 +63,7 @@ class LoginRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
             return redirect_to_login(
-                self.get_reidrect_path(request),
+                self.get_redirect_path(request),
                 self.get_login_url(),
                 self.get_redirect_field(),
             )
