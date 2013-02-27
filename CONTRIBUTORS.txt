@@ -15,6 +15,7 @@ Project Leads
 * * Drew Tempelmeyer
 * * Baptiste Mispelon
 * * Derek Payton
+* * Rafal Stozek
 *
 * Other Contributors
 * ==================

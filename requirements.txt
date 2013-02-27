@@ -1,0 +1,3 @@
+mock
+pytest-django
+pytest-cov
