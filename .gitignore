@@ -7,4 +7,4 @@
 /.coverage.xml
 /htmlcov
 /.tox
-
+dist/
