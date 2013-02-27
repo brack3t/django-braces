@@ -130,9 +130,10 @@ class MultiplePermissionsRequiredMixin(object):
     View mixin which allows you to specify two types of permission
     requirements. The `permissions` attribute must be a dict which
     specifies two keys, `all` and `any`. You can use either one on
-    it's own or combine them. Both keys values are required be a list or
-    tuple of permissions in the format of
-    <app label>.<permission codename>
+    its own or combine them. The value of each key is required to be a
+    list or tuple of permissions. The standard Django permissions
+    style is not strictly enforced. If you have created your own
+    permissions in a different format, they should still work.
 
     By specifying the `all` key, the user must have all of
     the permissions in the passed in list.
@@ -143,7 +144,7 @@ class MultiplePermissionsRequiredMixin(object):
     Class Settings
         `permissions` - This is required to be a dict with one or both
             keys of `all` and/or `any` containing a list or tuple of
-            permissions in the format of <app label>.<permission codename>
+            permissions.
         `login_url` - the login url of site
         `redirect_field_name` - defaults to "next"
         `raise_exception` - defaults to False - raise 403 if set to True
@@ -153,8 +154,8 @@ class MultiplePermissionsRequiredMixin(object):
             ...
             #required
             permissions = {
-                "all": (blog.add_post, blog.change_post),
-                "any": (blog.delete_post, user.change_user)
+                "all": ("blog.add_post", "blog.change_post"),
+                "any": ("blog.delete_post", "user.change_user")
             }
 
             #optional
