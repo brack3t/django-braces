@@ -3,8 +3,9 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from .compat import force_text
 from .factories import make_user
 from .helpers import TestViewHelper
-from .views import PermissionRequiredView, MultiplePermissionsRequiredView
-from .views import SuperuserRequiredView, StaffuserRequiredView
+from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
+                    SuperuserRequiredView, StaffuserRequiredView,
+                    LoginRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -76,18 +77,26 @@ class _TestAccessBasicsMixin(TestViewHelper):
         self.assertEqual(expected_url, resp['Location'])
 
 
-class TestLoginRequiredMixin(test.TestCase):
+class TestLoginRequiredMixin(TestViewHelper):
     """
     Tests for LoginRequiredMixin.
     """
+    view_class = LoginRequiredView
+    view_url = '/login_required/'
+
     def test_anonymous(self):
-        resp = self.client.get('/login_required/')
+        resp = self.client.get(self.view_url)
         self.assertRedirects(resp, '/accounts/login/?next=/login_required/')
+
+    def test_anonymous_raises_exception(self):
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(self.build_request(path=self.view_url),
+                raise_exception=True)
 
     def test_authenticated(self):
         user = make_user()
         self.client.login(username=user.username, password='asdf1234')
-        resp = self.client.get('/login_required/')
+        resp = self.client.get(self.view_url)
         assert resp.status_code == 200
         assert force_text(resp.content) == 'OK'
 
@@ -112,11 +121,6 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         """
         with self.assertRaises(ImproperlyConfigured):
             self.dispatch_view(self.build_request(), permission_required=None)
-
-        with self.assertRaises(ImproperlyConfigured):
-            self.dispatch_view(
-                self.build_request(),
-                permission_required='bad.permission.name')
 
 
 class TestMultiplePermissionsRequiredMixin(
