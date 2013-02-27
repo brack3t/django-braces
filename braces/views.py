@@ -334,6 +334,54 @@ class SelectRelatedMixin(object):
         return queryset.select_related(*self.select_related)
 
 
+class InlineFormsetMixin(object):
+    """
+    This mixin allows a user to specify inline formsets that should be rendered
+    alongside a Form or ModelForm.
+
+    This mixin should occur before the form mixins in the inheritance list, so
+    that the context dictionary they return can be modified by the
+    ``get_context_data`` method in this mixin.
+
+    Note also that ``form_valid`` is overridden here and will NOT delegate back
+    to the form mixins. The behavior (redirecting to ``self.get_success_url``)
+    is preserved, however. Note also that the ModelForm object is saved if and
+    only if the original form and the inline formsets are all valid.
+    """
+    inline_formsets = None
+
+    def form_valid(self, form):
+        import operator.methodcaller
+        context = self.get_context_data(form=form)
+        formsets = map(context.get, self.inline_formsets.keys())
+        if all(map(operator.methodcaller('is_valid'), formsets)):
+            self.object = form.save()
+            for formset in formsets:
+                formset.instance = self.object
+                formset.save()
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        """ Adds the items from self.inline_formsets to the context dict. """
+        import collections
+        if not isinstance(self.inline_formsets, dict):
+            raise ImproperlyConfigured('%(cls)s.inline_formsets must be a '
+                'dict representing the context dict key and the formset '
+                'class for each desired inline formset.' % {
+                    'cls': self.__class__,
+                })
+        context = super(InlineFormsetMixin, self).get_context_data(**kwargs)
+        for key, formset_cls in self.inline_formsets.items():
+            if self.request.POST:
+                formset = formset_cls(self.request.POST, instance=self.object)
+            else:
+                formset = formset_cls(instance=self.object)
+            context[key] = formset
+        return context
+
+
 class StaffuserRequiredMixin(object):
     """
     Mixin allows you to require a user with `is_staff` set to True.
