@@ -296,7 +296,8 @@ This ``mixin`` extends from `CreateView`.
 SelectRelatedMixin
 ==================
 
-A simple mixin which allows you to specify a list or tuple of foreign key fields to perform a select_related on.
+A simple mixin which allows you to specify a list or tuple of foreign key fields to perform a `select_related`_ on.
+See Django's docs for more information on `select_related`_.
 
 ::
 
@@ -317,7 +318,8 @@ A simple mixin which allows you to specify a list or tuple of foreign key fields
 PrefetchRelatedMixin
 ==================
 
-A simple mixin which allows you to specify a list or tuple of reverse foreign key or ManyToMany fields to perform a prefetch_related on.
+A simple mixin which allows you to specify a list or tuple of reverse foreign key or ManyToMany fields to perform a `prefetch_related`_ on.
+See Django's docs for more information on `prefetch_related`_.
 
 ::
 
@@ -451,3 +453,5 @@ Indices and tables
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+.. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
+.. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related
