@@ -48,6 +48,8 @@ class CreateAndRedirectToEditView(CreateView):
 
 class AccessMixin(object):
     """
+    'Abstract' mixin that gives access mixins the same customizable
+    functionality.
     """
     login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
     raise_exception = False  # Default whether to raise an exception to none
@@ -55,6 +57,7 @@ class AccessMixin(object):
 
     def get_login_url(self):
         """
+        Override this method to customize the login_url.
         """
         if self.login_url is None:
             raise ImproperlyConfigured("%(cls)s is missing the login_url. "
@@ -65,6 +68,7 @@ class AccessMixin(object):
 
     def get_redirect_field_name(self):
         """
+        Override this method to customize the redirect_field_name.
         """
         if self.redirect_field_name is None:
             raise ImproperlyConfigured("%(cls)s is missing the "
@@ -107,7 +111,7 @@ class CsrfExemptMixin(object):
         return super(CsrfExemptMixin, self).dispatch(*args, **kwargs)
 
 
-class PermissionRequiredMixin(object):
+class PermissionRequiredMixin(AccessMixin):
     """
     View mixin which verifies that the logged in user has the specified
     permission.
@@ -131,10 +135,7 @@ class PermissionRequiredMixin(object):
             raise_exception = True
             ...
     """
-    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
     permission_required = None  # Default required perms to none
-    raise_exception = False  # Default whether to raise an exception to none
-    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
 
     def dispatch(self, request, *args, **kwargs):
         # Make sure that the permission_required attribute is set on the
@@ -151,14 +152,14 @@ class PermissionRequiredMixin(object):
                 raise PermissionDenied  # return a forbidden response.
             else:
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         return super(PermissionRequiredMixin, self).dispatch(request,
             *args, **kwargs)
 
 
-class MultiplePermissionsRequiredMixin(object):
+class MultiplePermissionsRequiredMixin(AccessMixin):
     """
     View mixin which allows you to specify two types of permission
     requirements. The `permissions` attribute must be a dict which
@@ -196,10 +197,7 @@ class MultiplePermissionsRequiredMixin(object):
             redirect_field_name = "hollaback"
             raise_exception = True
     """
-    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
     permissions = None  # Default required perms to none
-    raise_exception = False  # Default whether to raise an exception to none
-    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
 
     def dispatch(self, request, *args, **kwargs):
         self._check_permissions_attr()
@@ -217,8 +215,8 @@ class MultiplePermissionsRequiredMixin(object):
                 if self.raise_exception:
                     raise PermissionDenied
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         # If perms_any, check that user has at least one in the list/tuple
         if perms_any:
@@ -232,8 +230,8 @@ class MultiplePermissionsRequiredMixin(object):
                 if self.raise_exception:
                     raise PermissionDenied
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         return super(MultiplePermissionsRequiredMixin, self).dispatch(request,
             *args, **kwargs)
@@ -303,22 +301,18 @@ class SuccessURLRedirectListMixin(object):
         return reverse(self.success_list_url)
 
 
-class SuperuserRequiredMixin(object):
+class SuperuserRequiredMixin(AccessMixin):
     """
     Mixin allows you to require a user with `is_superuser` set to True.
     """
-    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
-    raise_exception = False  # Default whether to raise an exception to none
-    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
-
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:  # If the user is a standard user,
             if self.raise_exception:  # *and* if an exception was desired
                 raise PermissionDenied  # return a forbidden response.
             else:
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         return super(SuperuserRequiredMixin, self).dispatch(request,
             *args, **kwargs)
@@ -400,22 +394,18 @@ class PrefetchRelatedMixin(object):
         return queryset.prefetch_related(*self.prefetch_related)
 
 
-class StaffuserRequiredMixin(object):
+class StaffuserRequiredMixin(AccessMixin):
     """
     Mixin allows you to require a user with `is_staff` set to True.
     """
-    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
-    raise_exception = False  # Default whether to raise an exception to none
-    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
-
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_staff:  # If the request's user is not staff,
             if self.raise_exception:  # *and* if an exception was desired
                 raise PermissionDenied  # return a forbidden response
             else:
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         return super(StaffuserRequiredMixin, self).dispatch(request,
             *args, **kwargs)

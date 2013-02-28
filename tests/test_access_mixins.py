@@ -76,6 +76,24 @@ class _TestAccessBasicsMixin(TestViewHelper):
         expected_url = '/accounts/login/?foo=%s' % self.view_url
         self.assertEqual(expected_url, resp['Location'])
 
+    def test_get_login_url_raises_exception(self):
+        """
+        Test that get_login_url from AccessMixin raises
+        ImproperlyConfigured.
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            self.dispatch_view(self.build_request(path=self.view_url),
+                login_url=None)
+
+    def test_get_redirect_field_name_raises_exception(self):
+        """
+        Test that get_redirect_field_name from AccessMixin raises
+        ImproperlyConfigured.
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            self.dispatch_view(self.build_request(path=self.view_url),
+                redirect_field_name=None)
+
 
 class TestLoginRequiredMixin(TestViewHelper):
     """
