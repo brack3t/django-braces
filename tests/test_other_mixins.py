@@ -4,7 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 from braces.views import SetHeadlineMixin
 from .models import Article
 from .helpers import TestViewHelper
-from .views import CreateArticleView, ArticleListView
+from .views import CreateArticleView, ArticleListView, AuthorDetailView
 from .factories import make_user
 from .compat import force_text
 
@@ -152,3 +152,39 @@ class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
         resp = self.dispatch_view(self.build_request())
         self.assertEqual(200, resp.status_code)
         m.assert_called_once_with('author')
+
+
+class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
+    view_class = AuthorDetailView
+
+    def test_missing_prefetch_related(self):
+        """
+        ImproperlyConfigured exception should be raised if
+        prefetch_related attribute is missing.
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            self.dispatch_view(self.build_request(), prefetch_related=None)
+
+    def test_invalid_prefetch_related(self):
+        """
+        ImproperlyConfigured exception should be raised if
+        prefetch_related is not a tuple or a list.
+        :return:
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            self.dispatch_view(self.build_request(), prefetch_related={'a': 1})
+
+    @mock.patch('django.db.models.query.QuerySet.prefetch_related')
+    def test_prefetch_related_called(self, m):
+        """
+        Checks if QuerySet's prefetch_related() was called with correct
+        arguments.
+        """
+        qs = Article.objects.all()
+        m.return_value = qs.prefetch_related('article_set')
+        qs.prefetch_related = m
+        m.reset_mock()
+
+        resp = self.dispatch_view(self.build_request())
+        self.assertEqual(200, resp.status_code)
+        m.assert_called_once_with('article_set')
