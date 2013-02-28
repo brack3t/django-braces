@@ -27,9 +27,13 @@ class CreateAndRedirectToEditView(CreateView):
     """
     success_url_name = None
 
-    def get_success_url(self):
+    def dispatch(self, request, *args, **kwargs):
         warnings.warn("CreateAndRedirectToEditView is deprecated and will be "
             "removed in a future release.", PendingDeprecationWarning)
+        return super(CreateAndRedirectToEditView, self).dispatch(request,
+            *args, **kwargs)
+
+    def get_success_url(self):
         # First we check for a name to be provided on the view object.
         # If one is, we reverse it and finish running the method,
         # otherwise we raise a configuration error.
