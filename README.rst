@@ -11,7 +11,7 @@ Add yourself to CONTRIBUTORS.txt if you want.
 
 All development dependencies are available in requirements.txt file.
 
-To run test suite execute this in your shell:
+To run the test suite, execute the following in your shell (Django install is required):
 
     `py.test --cov=braces --cov-report=html`
 
