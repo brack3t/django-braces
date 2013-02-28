@@ -349,6 +349,32 @@ class SelectRelatedMixin(object):
         return queryset.select_related(*self.select_related)
 
 
+class PrefetchRelatedMixin(object):
+    """
+    Mixin allows you to provide a tuple or list of related models to
+    perform a prefetch_related on.
+    """
+    prefetch_related = None  # Default prefetch fields to none
+
+    def get_queryset(self):
+        if self.prefetch_related is None:  # If no fields were provided,
+                                           # raise a configuration error
+            raise ImproperlyConfigured("%(cls)s is missing the "
+                "prefetch_related property. This must be a tuple or list." % {
+                    "cls": self.__class__.__name__})
+
+        if not isinstance(self.prefetch_related, (tuple, list)):
+            # If the select_related argument is *not* a tuple or list,
+            # raise a configuration error.
+            raise ImproperlyConfigured("%(cls)s's prefetch_related property "
+                "must be a tuple or list." % {"cls": self.__class__.__name__})
+
+        # Get the current queryset of the view
+        queryset = super(PrefetchRelatedMixin, self).get_queryset()
+
+        return queryset.prefetch_related(*self.prefetch_related)
+
+
 class StaffuserRequiredMixin(object):
     """
     Mixin allows you to require a user with `is_staff` set to True.

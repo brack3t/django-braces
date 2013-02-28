@@ -152,3 +152,24 @@ class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
         resp = self.dispatch_view(self.build_request())
         self.assertEqual(200, resp.status_code)
         m.assert_called_once_with('author')
+
+
+class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
+    view_class = ArticleListView
+
+    def test_missing_prefetch_related(self):
+        """
+        ImproperlyConfigured exception should be raised if
+        prefetch_related attribute is missing.
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            self.dispatch_view(self.build_request(), prefetch_related=None)
+
+    def test_invalid_select_related(self):
+        """
+        ImproperlyConfigured exception should be raised if
+        prefetch_related is not a tuple or a list.
+        :return:
+        """
+        with self.assertRaises(ImproperlyConfigured):
+            self.dispatch_view(self.build_request(), prefetch_related={'a': 1})
