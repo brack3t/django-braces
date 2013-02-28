@@ -18,6 +18,10 @@ All we are doing here is requiring a user to be authenticated to be able to get 
 While this doesn't look like much, it frees us up from having to manually overload the dispatch method on every single view that
 requires a user to be authenticated. If that's all that is needed on this view, we just saved 3 lines of code. Example usage below.
 
+    .. note::
+        As of version 1.0, the LoginRequiredMixin has been rewritten to behave like the rest of the ``access`` mixins. It now accepts ``login_url``, ``redirect_field_name``
+        and ``raise_exception``.
+
 ::
 
     from django.views.generic import TemplateView
@@ -28,6 +32,11 @@ requires a user to be authenticated. If that's all that is needed on this view, 
     class SomeSecretView(LoginRequiredMixin, TemplateView):
         template_name = "path/to/template.html"
 
+        #optional
+        login_url = "/signup/"
+        redirect_field_name = "hollaback"
+        raise_exception = True
+
         def get(self, request):
             return self.render_to_response({})
 
@@ -37,8 +46,7 @@ PermissionRequiredMixin
 
 This mixin was originally written, I believe, by `Daniel Sokolowski`_ (`code here`_), but we have updated it to eliminate an unneeded render if the permissions check fails.
 
-The permission required mixin has been very handy for our client's custom CMS. Again, rather than overloading the
-dispatch method manually on every view that needs to check for the existence of a permission, we inherit this class
+Rather than overloading the dispatch method manually on every view that needs to check for the existence of a permission, we inherit this class
 and set the ``permission_required`` class attribute on our view. If you don't specify ``permission_required`` on
 your view, an ``ImproperlyConfigured`` exception is raised reminding you that you haven't set it.
 
@@ -47,10 +55,8 @@ The one limitation of this mixin is that it can **only** accept a single permiss
 In our normal use case for this mixin, ``LoginRequiredMixin`` comes first, then the ``PermissionRequiredMixin``. If we
 don't have an authenticated user, there is no sense in checking for any permissions.
 
-    .. role:: info-label
-        :class: "label label-info"
-
-    :info-label:`note` If you are using Django's built in auth system, ``superusers`` automatically have all permissions in your system.
+    .. note::
+        If you are using Django's built in auth system, ``superusers`` automatically have all permissions in your system.
 
 ::
 
@@ -61,22 +67,25 @@ don't have an authenticated user, there is no sense in checking for any permissi
         permission_required = "auth.change_user"
         template_name = "path/to/template.html"
 
+        #optional
+        login_url = "/signup/"
+        redirect_field_name = "hollaback"
+        raise_exception = True
+
 
 MultiplePermissionsRequiredMixin
 ================================
 
 The multiple permissions required view mixin is a more powerful version of the ``PermissionRequiredMixin``.
 This view mixin can handle multiple permissions by setting the mandatory ``permissions`` attribute as a dict
-with the keys ``any`` and/or ``all`` to a list/tuple of <app label>.<permission codename> permissions.
+with the keys ``any`` and/or ``all`` to a list/tuple of permissions.
 The ``all`` key requires the request.user to have all of the specified permissions.
 The ``any`` key requires the request.user to have at least ONE of the specified permissions.
 
 If you only need to check a single permission, the ``PermissionRequiredMixin`` is all you need.
 
-    .. role:: info-label
-        :class: "label label-info"
-
-    :info-label:`note` If you are using Django's built in auth system, ``superusers`` automatically have all permissions in your system.
+    .. note::
+        If you are using Django's built in auth system, ``superusers`` automatically have all permissions in your system.
 
 ::
 
@@ -112,6 +121,12 @@ users should have access to.
     class SomeSuperuserView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
         template_name = "path/to/template.html"
 
+        #optional
+        login_url = "/signup/"
+        redirect_field_name = "hollaback"
+        raise_exception = True
+
+
 StaffuserRequiredMixin
 ======================
 
@@ -124,6 +139,11 @@ Similar to ``SuperuserRequiredMixin``, this mixin allows you to require a user w
 
     class SomeStaffuserView(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
         template_name = "path/to/template.html"
+
+        #optional
+        login_url = "/signup/"
+        redirect_field_name = "hollaback"
+        raise_exception = True
 
 
 UserFormKwargsMixin
@@ -174,7 +194,7 @@ While this may be overkill for a weekend project, for us, it speeds up adding ne
             model = User
 
         def __init__(self, *args, **kwargs):
-            super(UserForm, self).__init__(*args, **kwargs):
+            super(UserForm, self).__init__(*args, **kwargs)
 
             if not self.user.is_superuser:
                 del self.fields["group"]
@@ -251,6 +271,10 @@ CreateAndRedirectToEditView
 ===========================
 
 Mostly used for CRUD, where you're going to create an object and then move direct to the update view for that object. Your URL for the update view has to accept a PK for the object.
+This ``mixin`` extends from `CreateView`.
+
+    .. warning::
+        This mixin is pending deprecation and will be removed in a future release.
 
 ::
 
@@ -264,7 +288,7 @@ Mostly used for CRUD, where you're going to create an object and then move direc
     from braces.views import CreateAndRedirectToEditView
 
 
-    class UserCreateView(CreateAndRedirectToEditView, CreateView):
+    class UserCreateView(CreateAndRedirectToEditView):
         model = User
         ...
 
@@ -272,7 +296,8 @@ Mostly used for CRUD, where you're going to create an object and then move direc
 SelectRelatedMixin
 ==================
 
-A simple mixin which allows you to specify a list or tuple of foreign key fields to perform a select_related on.
+A simple mixin which allows you to specify a list or tuple of foreign key fields to perform a `select_related`_ on.
+See Django's docs for more information on `select_related`_.
 
 ::
 
@@ -288,6 +313,28 @@ A simple mixin which allows you to specify a list or tuple of foreign key fields
         model = Profile
         select_related = ["user"]
         template_name = "profiles/detail.html"
+
+
+PrefetchRelatedMixin
+==================
+
+A simple mixin which allows you to specify a list or tuple of reverse foreign key or ManyToMany fields to perform a `prefetch_related`_ on.
+See Django's docs for more information on `prefetch_related`_.
+
+::
+
+    # views.py
+    from django.contrib.auth.models import User
+    from django.views.generic import DetailView
+
+    from braces.views import PrefetchRelatedMixin
+
+
+    class UserView(PrefetchRelatedMixin, DetailView):
+        model = User
+        prefetch_related = ["post_set"]  # where the Post model has an FK to the User model as an author.
+        template_name = "users/detail.html"
+
 
 StaffuserRequiredMixin
 ======================
@@ -406,3 +453,5 @@ Indices and tables
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+.. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
+.. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related

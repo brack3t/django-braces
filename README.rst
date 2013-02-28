@@ -11,7 +11,7 @@ Add yourself to CONTRIBUTORS.txt if you want.
 
 All development dependencies are available in requirements.txt file.
 
-To run test suite execute this in your shell:
+To run the test suite, execute the following in your shell (Django install is required):
 
     `py.test --cov=braces --cov-report=html`
 
@@ -19,13 +19,24 @@ To run test suite execute this in your shell:
 CHANGE LOG
 ==========
 
+1.0.0
+-----
+* New 'abstract' ``AccessMixin`` which provides overridable ``get_login_url`` and ``get_redirect_field_name methods`` for all access-based mixins.
+* Rewritten ``LoginRequiredMixin`` which provides same customization as other access mixins with ``login_url``, ``raise_exception`` & ``redirect_field_name``.
+* New ``PrefetchRelatedMixin``. Works the same as ``SelectRelatedMixin`` but uses Django's ``prefetch_related`` method.
+* ``CreateAndRedirectToEditView`` is marked for deprecation.
+* ``PermissionRequiredMixin`` no longer requires dot syntax for permission names.
+* Marked package as supporting 2.6 thru 3.3 (from rafales).
+* Fixes to documentation.
+* Tests to cover new additions and changes.
+
 0.2.3
 -----
 
 * Tests for all mixins (from rafales).
-* New CsrfExemptMixin for marking views as being CSRF exempt (from jarcoal).
+* New ``CsrfExemptMixin`` for marking views as being CSRF exempt (from jarcoal).
 * Some documentation updates and a spelling error correction (from shabda).
-* SuccessURLRedirectListMixin raises ImproperlyConfigured if no success_list_url attribute is supplied (from kennethlove).
+* ``SuccessURLRedirectListMixin`` raises ``ImproperlyConfigured`` if no ``success_list_url`` attribute is supplied (from kennethlove).
 
 0.2.2
 -----
@@ -35,9 +46,9 @@ CHANGE LOG
 0.2.1
 -----
 
-* Fixed signature of UserFormKwargsMixin.get_form_kwargs
-* Updated JSONResponseMixin to work with non-ASCII characters and other datatypes (such as
+* Fixed signature of ``UserFormKwargsMixin.get_form_kwargs``
+* Updated ``JSONResponseMixin`` to work with non-ASCII characters and other datatypes (such as
   datetimes)
-* Fixed all mixins that have `raise_exception` as an argument to properly raise a
-  `PermissionDenied` exception to allow for custom 403s.
+* Fixed all mixins that have ``raise_exception`` as an argument to properly raise a
+  ``PermissionDenied`` exception to allow for custom 403s.
 
