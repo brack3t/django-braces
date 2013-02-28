@@ -34,9 +34,9 @@ CHANGE LOG
 -----
 
 * Tests for all mixins (from rafales).
-* New CsrfExemptMixin for marking views as being CSRF exempt (from jarcoal).
+* New ``CsrfExemptMixin`` for marking views as being CSRF exempt (from jarcoal).
 * Some documentation updates and a spelling error correction (from shabda).
-* SuccessURLRedirectListMixin raises ImproperlyConfigured if no success_list_url attribute is supplied (from kennethlove).
+* ``SuccessURLRedirectListMixin`` raises ``ImproperlyConfigured`` if no ``success_list_url`` attribute is supplied (from kennethlove).
 
 0.2.2
 -----
@@ -46,9 +46,9 @@ CHANGE LOG
 0.2.1
 -----
 
-* Fixed signature of UserFormKwargsMixin.get_form_kwargs
-* Updated JSONResponseMixin to work with non-ASCII characters and other datatypes (such as
+* Fixed signature of ``UserFormKwargsMixin.get_form_kwargs``
+* Updated ``JSONResponseMixin`` to work with non-ASCII characters and other datatypes (such as
   datetimes)
-* Fixed all mixins that have `raise_exception` as an argument to properly raise a
-  `PermissionDenied` exception to allow for custom 403s.
+* Fixed all mixins that have ``raise_exception`` as an argument to properly raise a
+  ``PermissionDenied`` exception to allow for custom 403s.
 
