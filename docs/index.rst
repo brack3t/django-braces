@@ -313,6 +313,27 @@ A simple mixin which allows you to specify a list or tuple of foreign key fields
         select_related = ["user"]
         template_name = "profiles/detail.html"
 
+
+PrefetchRelatedMixin
+==================
+
+A simple mixin which allows you to specify a list or tuple of reverse foreign key or ManyToMany fields to perform a prefetch_related on.
+
+::
+
+    # views.py
+    from django.contrib.auth.models import User
+    from django.views.generic import DetailView
+
+    from braces.views import PrefetchRelatedMixin
+
+
+    class UserView(PrefetchRelatedMixin, DetailView):
+        model = User
+        prefetch_related = ["post_set"]  # where the Post model has an FK to the User model as an author.
+        template_name = "users/detail.html"
+
+
 StaffuserRequiredMixin
 ======================
 

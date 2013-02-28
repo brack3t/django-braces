@@ -1,7 +1,10 @@
+from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.views.generic import View, UpdateView, FormView, TemplateView
-from django.views.generic import ListView
+from django.views.generic import (View, UpdateView, FormView, TemplateView,
+    ListView)
+
 from braces.views import *
+
 from .models import Article
 from .forms import FormWithUserKwarg
 
@@ -164,3 +167,9 @@ class StaffuserRequiredView(StaffuserRequiredMixin, OkView):
 
 class CsrfExemptView(CsrfExemptMixin, OkView):
     pass
+
+
+class AuthorDetailView(PrefetchRelatedMixin, ListView):
+    model = User
+    prefetch_related = ['article_set']
+    template_name = 'blank.html'
