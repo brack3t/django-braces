@@ -26,7 +26,7 @@ CHANGE LOG
 * New ``PrefetchRelatedMixin``. Works the same as ``SelectRelatedMixin`` but uses Django's ``prefetch_related`` method.
 * ``CreateAndRedirectToEditView`` is marked for deprecation.
 * ``PermissionRequiredMixin`` no longer requires dot syntax for permission names.
-* Marked package as supporting 2.6 thru 3.3.
+* Marked package as supporting 2.6 thru 3.3 (from rafales).
 * Fixes to documentation.
 * Tests to cover new additions and changes.
 
