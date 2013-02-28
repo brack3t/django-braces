@@ -21,11 +21,11 @@ CHANGE LOG
 
 1.0.0
 -----
-* New 'abstract' `AccessMixin` which provides overridable `get_login_url` and `get_redirect_field_name methods` for all access-based mixins.
-* Rewritten `LoginRequiredMixin` which provides same customization as other access mixins with `login_url`, `raise_exception` & `redirect_field_name`.
-* New `PrefetchRelatedMixin`. Works the same as `SelectRelatedMixin` but uses Django's `prefetch_related` method.
-* `CreateAndRedirectToEditView` is marked for deprecation.
-* `PermissionRequiredMixin` no longer requires dot syntax for permission names.
+* New 'abstract' ``AccessMixin`` which provides overridable ``get_login_url`` and ``get_redirect_field_name methods`` for all access-based mixins.
+* Rewritten ``LoginRequiredMixin`` which provides same customization as other access mixins with ``login_url``, ``raise_exception`` & ``redirect_field_name``.
+* New ``PrefetchRelatedMixin``. Works the same as ``SelectRelatedMixin`` but uses Django's ``prefetch_related`` method.
+* ``CreateAndRedirectToEditView`` is marked for deprecation.
+* ``PermissionRequiredMixin`` no longer requires dot syntax for permission names.
 * Marked package as supporting 2.6 thru 3.3.
 * Fixes to documentation.
 * Tests to cover new additions and changes.
