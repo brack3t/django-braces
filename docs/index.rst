@@ -336,21 +336,6 @@ See Django's docs for more information on `prefetch_related`_.
         template_name = "users/detail.html"
 
 
-StaffuserRequiredMixin
-======================
-
-A mixin to support those cases where you want to give staff access to a view.
-
-::
-
-    # views.py
-    from django.views.generic import DetailView
-
-    from braces.views import StaffuserRequiredMixin
-
-    class SomeStaffuserView(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
-        template_name = "path/to/template.html"
-
 JSONResponseMixin
 =================
 
