@@ -41,6 +41,26 @@ requires a user to be authenticated. If that's all that is needed on this view, 
             return self.render_to_response({})
 
 
+CsrfExemptMixin
+===============
+
+If you have Django's `CSRF protection` middleware enabled you can exempt views using the `csrf_exempt` decorator. This mixin exempts POST requests from
+the CSRF protection middleware without requiring that you decorate the ``dispatch`` method.
+
+::
+
+    from django.views.generic import UpdateView
+
+    from braces.views import LoginRequiredMixin, CsrfExemptMixin
+
+    from profiles.models import Profile
+
+
+    class UpdateProfileView(LoginRequiredMixin, CsrfExemptMixin, UpdateView):
+        model = Profile
+
+
+
 PermissionRequiredMixin
 =======================
 
@@ -435,6 +455,8 @@ Indices and tables
 
 
 .. _Github: https://github.com/brack3t/django-braces
+.. _CSRF protection: https://docs.djangoproject.com/en/1.5/ref/contrib/csrf/
+.. _csrf_exempt: https://docs.djangoproject.com/en/1.5/ref/contrib/csrf/#django.views.decorators.csrf.csrf_exempt
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
