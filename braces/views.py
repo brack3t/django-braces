@@ -7,7 +7,7 @@ from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
