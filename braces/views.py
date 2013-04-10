@@ -7,7 +7,7 @@ from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
@@ -435,6 +435,15 @@ class JSONResponseMixin(object):
         json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
             ensure_ascii=False)
         return HttpResponse(json_context, content_type=self.get_content_type())
+
+    def render_json_errors(self, context_dict):
+        """
+        Serialization of form errors. Returns status code 400
+        """
+        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
+                                  ensure_ascii=False)
+        return HttpResponseBadRequest(json_context,
+                                      content_type=self.get_content_type())
 
     def render_json_object_response(self, objects, **kwargs):
         """
