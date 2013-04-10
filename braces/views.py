@@ -417,6 +417,7 @@ class JSONResponseMixin(object):
     Django models.
     """
     content_type = "application/json"
+    status_code = 200
 
     def get_content_type(self):
         if self.content_type is None:
@@ -427,6 +428,15 @@ class JSONResponseMixin(object):
             })
         return self.content_type
 
+    def get_status_code(self):
+        if self.status_code is None:
+            raise ImproperlyConfigured("%(cls)s is missing a content status code. "
+                "Define %(cls)s.status_code, or override "
+                "%(cls)s.get_status_code()." % {
+                "cls": self.__class__.__name__
+            })
+        return self.status_code
+
     def render_json_response(self, context_dict):
         """
         Limited serialization for shipping plain data. Do not use for models
@@ -434,16 +444,9 @@ class JSONResponseMixin(object):
         """
         json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
             ensure_ascii=False)
-        return HttpResponse(json_context, content_type=self.get_content_type())
-
-    def render_json_errors(self, context_dict):
-        """
-        Serialization of form errors. Returns status code 400
-        """
-        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
-                                  ensure_ascii=False)
-        return HttpResponseBadRequest(json_context,
-                                      content_type=self.get_content_type())
+        return HttpResponse(json_context,
+                            content_type=self.get_content_type(),
+                            status=self.get_status_code())
 
     def render_json_object_response(self, objects, **kwargs):
         """
