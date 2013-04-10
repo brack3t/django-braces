@@ -58,6 +58,14 @@ class SimpleJsonView(JSONResponseMixin, View):
         return self.render_json_response(object)
 
 
+class SimpleJsonStatus400View(SimpleJsonView):
+    """
+    A view for testing JSONResponseMixin's render_json_response() method
+    with different status code.
+    """
+    status_code = 400
+
+
 class ArticleListJsonView(JSONResponseMixin, View):
     """
     A view for testing JSONResponseMixin's render_json_object_response()
