@@ -428,15 +428,19 @@ class JSONResponseMixin(object):
             })
         return self.content_type
 
+    def get_json_dumps_kwargs(self):
+        if self.json_dumps_kwargs is None:
+            self.json_dumps_kwargs = {}
+        self.json_dumps_kwargs.setdefault('ensure_ascii', False)
+        return self.json_dumps_kwargs
+
     def render_json_response(self, context_dict):
         """
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
-        kwargs = self.json_dumps_kwargs or {}
-        kwargs.setdefault('ensure_ascii', False)
         json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
-                **kwargs)
+                **self.get_json_dumps_kwargs())
         return HttpResponse(json_context, content_type=self.get_content_type())
 
     def render_json_object_response(self, objects, **kwargs):
