@@ -417,6 +417,7 @@ class JSONResponseMixin(object):
     Django models.
     """
     content_type = "application/json"
+    json_dumps_kwargs = None
 
     def get_content_type(self):
         if self.content_type is None:
@@ -432,8 +433,10 @@ class JSONResponseMixin(object):
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
+        kwargs = self.json_dumps_kwargs or {}
+        kwargs.setdefault('ensure_ascii', False)
         json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
-            ensure_ascii=False)
+                **kwargs)
         return HttpResponse(json_context, content_type=self.get_content_type())
 
     def render_json_object_response(self, objects, **kwargs):
