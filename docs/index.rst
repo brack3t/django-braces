@@ -370,6 +370,7 @@ A simple mixin to handle very simple serialization as a response to the browser.
 
     class UserProfileAJAXView(JSONResponseMixin, DetailView):
         model = Profile
+        json_dumps_kwargs = {'indent': 2}
 
         def get(self, request, *args, **kwargs):
             self.object = self.get_object()
