@@ -72,6 +72,15 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         self.assertEqual('application/json',
                          resp['content-type'].split(';')[0])
 
+    def get_content(self, url):
+        """
+        GET url and return content
+        """
+        resp = self.client.get(url)
+        self.assert_json_response(resp)
+        content = force_text(resp.content)
+        return content
+
     def test_simple_json(self):
         """
         Tests render_json_response() method.
@@ -110,3 +119,18 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         """
         with self.assertRaises(ImproperlyConfigured):
             self.dispatch_view(self.build_request(), content_type=None)
+
+    def test_pretty_json(self):
+        """
+        Success if JSON responses are the same, and the well-indented response
+        is longer than the normal one.
+        """
+        user = make_user()
+        self.client.login(username=user.username, password='asfa')
+        normal_content = self.get_content('/simple_json/')
+        self.view_class.json_dumps_kwargs = {'indent': 2}
+        pretty_content = self.get_content('/simple_json/')
+        normal_json = json.loads(normal_content)
+        pretty_json = json.loads(pretty_content)
+        self.assertEqual(normal_json, pretty_json)
+        self.assertTrue(len(pretty_content) > len(normal_content))
