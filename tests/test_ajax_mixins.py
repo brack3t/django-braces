@@ -87,9 +87,7 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         """
         user = make_user()
         self.client.login(username=user.username, password='asdf1234')
-        resp = self.client.get('/simple_json/')
-        self.assert_json_response(resp)
-        data = json.loads(force_text(resp.content))
+        data = json.loads(self.get_content('/simple_json/'))
         self.assertEqual({'username': user.username}, data)
 
     def test_serialization(self):
@@ -98,9 +96,7 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         using django's serializer framework.
         """
         a1, a2 = [make_article() for __ in range(2)]
-        resp = self.client.get('/article_list_json/')
-        self.assert_json_response(resp)
-        data = json.loads(force_text(resp.content))
+        data = json.loads(self.get_content('/article_list_json/'))
         self.assertIsInstance(data, list)
         self.assertEqual(2, len(data))
         titles = []
