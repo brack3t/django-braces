@@ -12,6 +12,9 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
 
+from django.http import HttpResponseBadRequest
+from django.utils import simplejson as json
+
 ## Django 1.5+ compat
 try:
     import json
@@ -417,7 +420,6 @@ class JSONResponseMixin(object):
     Django models.
     """
     content_type = "application/json"
-    status_code = 200
 
     def get_content_type(self):
         if self.content_type is None:
@@ -428,15 +430,6 @@ class JSONResponseMixin(object):
             })
         return self.content_type
 
-    def get_status_code(self):
-        if self.status_code is None:
-            raise ImproperlyConfigured("%(cls)s is missing a content status code. "
-                "Define %(cls)s.status_code, or override "
-                "%(cls)s.get_status_code()." % {
-                "cls": self.__class__.__name__
-            })
-        return self.status_code
-
     def render_json_response(self, context_dict):
         """
         Limited serialization for shipping plain data. Do not use for models
@@ -446,7 +439,7 @@ class JSONResponseMixin(object):
             ensure_ascii=False)
         return HttpResponse(json_context,
                             content_type=self.get_content_type(),
-                            status=self.get_status_code())
+                            )
 
     def render_json_object_response(self, objects, **kwargs):
         """
@@ -455,6 +448,10 @@ class JSONResponseMixin(object):
         """
         json_data = serializers.serialize("json", objects, **kwargs)
         return HttpResponse(json_data, content_type=self.get_content_type())
+
+    def render_json_errors(self, errors):
+        return HttpResponseBadRequest(json.dumps(errors),
+                                      mimetype="application/json")
 
 
 class AjaxResponseMixin(object):
