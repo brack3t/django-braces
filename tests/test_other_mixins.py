@@ -194,12 +194,16 @@ class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
 class TestOrderableListMixin(TestViewHelper, test.TestCase):
     view_class = OrderableListView
 
+    def __make_test_articles(self):
+        a1 = Article.objects.create(title='Alpha', body='Zet')
+        a2 = Article.objects.create(title='Zet', body='Alpha')
+        return a1, a2
+
     def test_correct_order(self):
         """
         Objects must be properly ordered if requested with valid column names
         """
-        a1 = Article.objects.create(title='Alpha')
-        a2 = Article.objects.create(title='Zet')
+        a1, a2 = self.__make_test_articles()
 
         resp = self.dispatch_view(self.build_request(path='?order_by=title&ordering=asc'))
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
@@ -207,8 +211,18 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         resp = self.dispatch_view(self.build_request(path='?order_by=id&ordering=desc'))
         self.assertEqual(list(resp.context_data['object_list']), [a2, a1])
 
-    def test_only_allowed_columns(self):
-        self.fail('Finish test')
-
     def test_default_column(self):
         self.fail('Finish test')
+
+    def test_no_default_raises(self):
+        self.fail('Finish test')
+
+    def test_only_allowed_columns(self):
+        """
+        If column is not in Model.Orderable.columns iterable, the objects
+        should be ordered by default column.
+        """
+        a1, a2 = self.__make_test_articles()
+
+        resp = self.dispatch_view(self.build_request(path='?order_by=body&ordering=asc'))
+        self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
