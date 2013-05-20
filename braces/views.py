@@ -486,4 +486,50 @@ class AjaxResponseMixin(object):
 
 
 class OrderableListMixin(object):
-    pass
+    """
+    Mixin allows your users to order records using GET parameters
+    """
+
+    order_by = None
+    ordering = None
+
+    def get_context_data(self, **kwargs):
+        """
+        Augments context with:
+
+            * ``order_by`` - name of the field
+            * ``ordering`` - order of ordering, either ``asc`` or ``desc``
+        """
+        ctx = super(OrderableListMixin, self).get_context_data(**kwargs)
+        ctx['order_by'] = self.order_by
+        ctx['ordering'] = self.ordering
+        return ctx
+
+    def get_ordered_queryset(self, qs=None):
+        """
+        Augments ``QuerySet`` with order_by statement if possible
+
+        :param QuerySet qs: ``QuerySet`` to ``order_by``
+        :return: QuerySet
+        """
+        if self.request.GET.get('order_by', None) \
+            in self.model.Orderable.columns:
+            order_by = self.request.GET.get('order_by')
+        elif getattr(self.model.Orderable, 'default', None):
+            order_by = self.model.Orderable.default
+
+        self.order_by = order_by
+        self.ordering = 'asc'
+
+        if order_by and self.request.GET.get('ordering', 'asc') == 'desc':
+            order_by = '-' + order_by
+            self.ordering = 'desc'
+
+        return qs.order_by(order_by)
+
+    def get_queryset(self):
+        """
+        Returns ordered ``QuerySet``
+        """
+        return self.get_ordered_queryset(super(OrderableListMixin, self).
+            get_queryset())

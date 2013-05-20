@@ -197,16 +197,15 @@ class TestOrderableMixin(TestViewHelper, test.TestCase):
     def test_correct_order(self):
         """
         Objects must be properly ordered if requested with valid column names
-        :return:
         """
         a1 = Article.objects.create(title='Alpha')
         a2 = Article.objects.create(title='Zet')
 
         resp = self.dispatch_view(self.build_request(path='?order_by=title&ordering=asc'))
-        self.assertEqual(resp.context_data['object_list'], [a1, a2])
+        self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
 
         resp = self.dispatch_view(self.build_request(path='?order_by=id&ordering=desc'))
-        self.assertEqual(resp.context_data['object_list'], [a2, a1])
+        self.assertEqual(list(resp.context_data['object_list']), [a2, a1])
 
     def test_only_allowed_columns(self):
         self.fail('Finish test')
