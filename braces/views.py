@@ -483,3 +483,7 @@ class AjaxResponseMixin(object):
 
     def delete_ajax(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
+
+
+class OrderableListMixin(object):
+    pass

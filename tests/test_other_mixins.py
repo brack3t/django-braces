@@ -4,7 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 from braces.views import SetHeadlineMixin
 from .models import Article
 from .helpers import TestViewHelper
-from .views import CreateArticleView, ArticleListView, AuthorDetailView
+from .views import CreateArticleView, ArticleListView, AuthorDetailView, \
+    OrderableListView
 from .factories import make_user
 from .compat import force_text
 
@@ -188,3 +189,27 @@ class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
         resp = self.dispatch_view(self.build_request())
         self.assertEqual(200, resp.status_code)
         m.assert_called_once_with('article_set')
+
+
+class TestOrderableMixin(TestViewHelper, test.TestCase):
+    view_class = OrderableListView
+
+    def test_correct_order(self):
+        """
+        Objects must be properly ordered if requested with valid column names
+        :return:
+        """
+        a1 = Article.objects.create(title='Alpha')
+        a2 = Article.objects.create(title='Zet')
+
+        resp = self.dispatch_view(self.build_request(path='?order_by=title&ordering=asc'))
+        self.assertEqual(resp.context_data['object_list'], [a1, a2])
+
+        resp = self.dispatch_view(self.build_request(path='?order_by=id&ordering=desc'))
+        self.assertEqual(resp.context_data['object_list'], [a2, a1])
+
+    def test_only_allowed_columns(self):
+        self.fail('Finish test')
+
+    def test_default_column(self):
+        self.fail('Finish test')

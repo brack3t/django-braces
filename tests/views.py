@@ -173,3 +173,7 @@ class AuthorDetailView(PrefetchRelatedMixin, ListView):
     model = User
     prefetch_related = ['article_set']
     template_name = 'blank.html'
+
+
+class OrderableListView(OrderableListMixin, ListView):
+    model = Article
