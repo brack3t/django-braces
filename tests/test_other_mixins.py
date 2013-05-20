@@ -212,7 +212,10 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         self.assertEqual(list(resp.context_data['object_list']), [a2, a1])
 
     def test_default_column(self):
-        self.fail('Finish test')
+        a1, a2 = self.__make_test_articles()
+
+        resp = self.dispatch_view(self.build_request())
+        self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
 
     def test_no_default_raises(self):
         self.fail('Finish test')
