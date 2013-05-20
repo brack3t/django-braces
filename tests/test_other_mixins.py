@@ -191,7 +191,7 @@ class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
         m.assert_called_once_with('article_set')
 
 
-class TestOrderableMixin(TestViewHelper, test.TestCase):
+class TestOrderableListMixin(TestViewHelper, test.TestCase):
     view_class = OrderableListView
 
     def test_correct_order(self):
