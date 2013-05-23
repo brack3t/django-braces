@@ -501,8 +501,8 @@ class OrderableListMixin(object):
             * ``ordering`` - order of ordering, either ``asc`` or ``desc``
         """
         ctx = super(OrderableListMixin, self).get_context_data(**kwargs)
-        ctx['order_by'] = self.order_by
-        ctx['ordering'] = self.ordering
+        ctx["order_by"] = self.order_by
+        ctx["ordering"] = self.ordering
         return ctx
 
     def get_ordered_queryset(self, queryset=None):
@@ -512,21 +512,21 @@ class OrderableListMixin(object):
         :param QuerySet queryset: ``QuerySet`` to ``order_by``
         :return: QuerySet
         """
-        if self.request.GET.get('order_by', None) \
+        if self.request.GET.get("order_by", None) \
             in self.model.Orderable.columns:
-            order_by = self.request.GET.get('order_by')
-        elif getattr(self.model.Orderable, 'default', None):
+            order_by = self.request.GET.get("order_by")
+        elif getattr(self.model.Orderable, "default", None):
             order_by = self.model.Orderable.default
         else:
             raise ImproperlyConfigured\
-                ('Please define default ordering column in your model')
+                ("Please define default ordering column in your model")
 
         self.order_by = order_by
-        self.ordering = 'asc'
+        self.ordering = "asc"
 
-        if order_by and self.request.GET.get('ordering', 'asc') == 'desc':
-            order_by = '-' + order_by
-            self.ordering = 'desc'
+        if order_by and self.request.GET.get("ordering", "asc") == "desc":
+            order_by = "-" + order_by
+            self.ordering = "desc"
 
         return queryset.order_by(order_by)
 
