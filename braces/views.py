@@ -512,14 +512,13 @@ class OrderableListMixin(object):
         :param QuerySet queryset: ``QuerySet`` to ``order_by``
         :return: QuerySet
         """
-        if self.request.GET.get("order_by", None) \
-            in self.model.Orderable.columns:
+        if self.request.GET.get("order_by") in self.model.Orderable.columns:
             order_by = self.request.GET.get("order_by")
         elif getattr(self.model.Orderable, "default", None):
             order_by = self.model.Orderable.default
         else:
-            raise ImproperlyConfigured\
-                ("Please define default ordering column in your model")
+            raise ImproperlyConfigured("Please define default ordering"
+                                       "column in your model")
 
         self.order_by = order_by
         self.ordering = "asc"
