@@ -12,9 +12,6 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
 
-from django.http import HttpResponseBadRequest
-from django.utils import simplejson as json
-
 ## Django 1.5+ compat
 try:
     import json
@@ -430,7 +427,7 @@ class JSONResponseMixin(object):
             })
         return self.content_type
 
-    def render_json_response(self, context_dict):
+    def render_json_response(self, context_dict, status_code=200):
         """
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
@@ -439,7 +436,7 @@ class JSONResponseMixin(object):
             ensure_ascii=False)
         return HttpResponse(json_context,
                             content_type=self.get_content_type(),
-                            )
+                            status=status_code)
 
     def render_json_object_response(self, objects, **kwargs):
         """
@@ -448,10 +445,6 @@ class JSONResponseMixin(object):
         """
         json_data = serializers.serialize("json", objects, **kwargs)
         return HttpResponse(json_data, content_type=self.get_content_type())
-
-    def render_json_errors(self, errors):
-        return HttpResponseBadRequest(json.dumps(errors),
-                                      mimetype="application/json")
 
 
 class AjaxResponseMixin(object):
