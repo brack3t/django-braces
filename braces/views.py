@@ -535,5 +535,5 @@ class OrderableListMixin(object):
         """
         Returns ordered ``QuerySet``
         """
-        return self.get_ordered_queryset(super(OrderableListMixin, self).
-            get_queryset())
+        unordered_queryset = super(OrderableListMixin, self).get_queryset()
+        return self.get_ordered_queryset(unordered_queryset)
