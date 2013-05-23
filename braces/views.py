@@ -505,11 +505,11 @@ class OrderableListMixin(object):
         ctx['ordering'] = self.ordering
         return ctx
 
-    def get_ordered_queryset(self, qs=None):
+    def get_ordered_queryset(self, queryset=None):
         """
         Augments ``QuerySet`` with order_by statement if possible
 
-        :param QuerySet qs: ``QuerySet`` to ``order_by``
+        :param QuerySet queryset: ``QuerySet`` to ``order_by``
         :return: QuerySet
         """
         if self.request.GET.get('order_by', None) \
@@ -528,7 +528,7 @@ class OrderableListMixin(object):
             order_by = '-' + order_by
             self.ordering = 'desc'
 
-        return qs.order_by(order_by)
+        return queryset.order_by(order_by)
 
     def get_queryset(self):
         """
