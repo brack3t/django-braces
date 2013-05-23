@@ -500,10 +500,10 @@ class OrderableListMixin(object):
             * ``order_by`` - name of the field
             * ``ordering`` - order of ordering, either ``asc`` or ``desc``
         """
-        ctx = super(OrderableListMixin, self).get_context_data(**kwargs)
-        ctx["order_by"] = self.order_by
-        ctx["ordering"] = self.ordering
-        return ctx
+        context = super(OrderableListMixin, self).get_context_data(**kwargs)
+        context["order_by"] = self.order_by
+        context["ordering"] = self.ordering
+        return context
 
     def get_ordered_queryset(self, queryset=None):
         """
