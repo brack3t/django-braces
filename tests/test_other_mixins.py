@@ -218,10 +218,10 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
 
     def test_no_default_raises(self):
-        Article.Orderable.default = None
+        OrderableListView.orderable_columns_default = None
         self.assertRaises(ImproperlyConfigured,
                           lambda: self.dispatch_view(self.build_request()))
-        Article.Orderable.default = 'title'
+        OrderableListView.orderable_columns_default = 'id'
 
     def test_only_allowed_columns(self):
         """

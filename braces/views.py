@@ -514,13 +514,13 @@ class OrderableListMixin(object):
         """
         get_order_by = self.request.GET.get("order_by")
 
-        if get_order_by in self.model.Orderable.columns:
+        if get_order_by in self.orderable_columns:
             order_by = get_order_by
-        elif getattr(self.model.Orderable, "default", None):
-            order_by = self.model.Orderable.default
+        elif getattr(self, "orderable_columns_default", None):
+            order_by = self.orderable_columns_default
         else:
             raise ImproperlyConfigured("Please define default ordering"
-                                       "column in your model")
+                                       "column in your view")
 
         self.order_by = order_by
         self.ordering = "asc"

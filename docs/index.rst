@@ -453,30 +453,18 @@ OrderableListMixin
 A mixin to allow easy ordering of your queryset basing on the GET parameters.
 Works with `ListView`.
 
-To use it, first configure your model by adding `Orderable` subclass and
-specifying allowed ordering columns and the default column to order by. The
-`columns` restriction is here in order to stop your users from launching
-inefficient queries, like ordering by binary columns.
-
-::
-
-    # models.py
-    class Article(models.Model):
-        author = models.ForeignKey('auth.User', null=True, blank=True)
-        title = models.CharField(max_length=30)
-        body = models.TextField()
-
-        class Orderable:
-            columns = ('id', 'title',)
-            default = 'title'
-
-Then, simply use it with you `ListView` subclass.
+To use it, define columns that the data can be order by  as well
+as the default column to order by in your view.
+The `orderable_columns` restriction is here in order to stop your users from
+launching inefficient queries, like ordering by binary columns.
 
 ::
 
     # views.py
     class OrderableListView(OrderableListMixin, ListView):
         model = Article
+        orderable_columns = ('id', 'title',)
+        orderable_columns_default = 'id'
 
 `OrderableListMixin` will order your queryset basing on following GET params:
 
