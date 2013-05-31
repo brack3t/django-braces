@@ -8,9 +8,10 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_page, never_cache
 
 ## Django 1.5+ compat
 try:
@@ -483,3 +484,28 @@ class AjaxResponseMixin(object):
 
     def delete_ajax(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
+
+
+class NeverCacheMixin(object):
+    """
+    Mixin that makes sure View is never cached.
+    """
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
+
+
+
+class CacheMixin(object):
+    """
+    Mixin that allows caching for the view it is applied to.
+    View is being cached for `ttl`s, default is 60 seconds.
+    """
+
+    ttl = 60
+ 
+    def get_ttl(self):
+        return self.ttl
+  
+    def dispatch(self, *args, **kwargs):
+        return cache_page(self.get_ttl())(super(CacheMixin, self).dispatch)(*args, **kwargs)
