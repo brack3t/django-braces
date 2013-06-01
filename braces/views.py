@@ -505,6 +505,8 @@ class CacheMixin(object):
     ttl = 60
  
     def get_ttl(self):
+        if self.ttl is None:
+            raise ImproperlyConfigured("%(cls)s does not have a value for `ttl`. "
         return self.ttl
   
     def dispatch(self, *args, **kwargs):
