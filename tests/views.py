@@ -7,6 +7,7 @@ from braces.views import *
 
 from .models import Article
 from .forms import FormWithUserKwarg
+from .factories import make_article, make_article_with_has_owner
 
 
 class OkView(View):
@@ -24,6 +25,27 @@ class OkView(View):
 
     def delete(self, request):
         return self.get(request)
+
+
+class ObjectView(OkView):
+    """
+    A view that holds an object. Simulates django's UpdateView and DeleteVeiw
+    """
+
+    object = None
+
+    def get_object(self):
+        if self.object is None:
+            path = self.request.path.split('/')
+            status = path[-1]
+
+            if status == '':  # Path ending with /
+                status = path[-2]
+            fun, kwargs = self.object_responses.get(status, (None, None))
+            if fun:
+                return fun(**kwargs)
+
+        return self.object
 
 
 class LoginRequiredView(LoginRequiredMixin, OkView):
@@ -155,6 +177,20 @@ class MultiplePermissionsRequiredView(
         'all': ['tests.add_article', 'tests.change_article'],
         'any': ['auth.add_user', 'auth.change_user'],
     }
+
+
+class OwnerOrPermissionRequiredView(OwnerOrPermissionRequiredMixin,
+                                    ObjectView):
+    """
+    View for testing OwnerOrPermissionRequiredView.
+    """
+    permission_required = 'auth.add_user'
+
+    object_responses = {'owner-true': (make_article_with_has_owner, {}),
+                        'owner-false': (make_article_with_has_owner, {
+                            'owner_result': False}),
+                        'no-owner': (make_article, {}),
+                        }
 
 
 class SuperuserRequiredView(SuperuserRequiredMixin, OkView):

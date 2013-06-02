@@ -127,6 +127,56 @@ If you only need to check a single permission, the ``PermissionRequiredMixin`` i
         raise_exception = True
 
 
+
+OwnerOrPermissionRequiredMixin
+==============================
+
+This mixin has much of the same functionality as
+the ``PermissionRequiredMixin``. In addition it adds a check to see if the
+request's user is regarded as owner of the object tied to the view class. If
+the user is regarded as owner of the object, it is authorized, else the mixin
+runs the same check as the ``PermissionRequiredMixin``.
+
+This mixing uses the view's `get_object` method to fetch the object and then
+tries to run the `has_owner` method on the object with the logged in user as
+the only argument.
+
+The usage of this mixin in completely equal as the ``PermissionRequiredMixin``
+if you also include another mixin with the `get_object` method. Eg. Django's
+`UpdateView` and `DeleteView`. If not you have to implement the
+`get_object` method on the view class.
+
+    .. note::
+        Remember to add the `has_owner` method to your models.
+
+::
+
+    # views.py
+    from braces.views import LoginRequiredMixin, OwnerOrPermissionRequiredMixin
+
+
+    class SomeProtectedView(LoginRequiredMixin, OwnerOrPermissionRequiredMixin, TemplateView):
+        permission_required = "auth.change_user"
+        template_name = "path/to/template.html"
+
+        #optional
+        login_url = "/signup/"
+        redirect_field_name = "hollaback"
+        raise_exception = True
+
+        def get_object(self):
+            return SomeModelObject()
+
+::
+
+    # models.py
+
+    class SomeModelObject(models.Model):
+        owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+        def has_owner(self, user):
+            return user.id == self.owner.id
+
 SuperuserRequiredMixin
 ======================
 

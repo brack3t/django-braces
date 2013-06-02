@@ -35,6 +35,10 @@ urlpatterns = patterns('',
     url(r'^multiple_permissions_required/$',
         views.MultiplePermissionsRequiredView.as_view()),
 
+    # PermissionRequiredMixin tests
+    url(r'^owner_or_permission_required/[\w-]+/$',
+        views.OwnerOrPermissionRequiredView.as_view()),
+
     # SuperuserRequiredMixin tests
     url(r'^superuser_required/$', views.SuperuserRequiredView.as_view()),
 

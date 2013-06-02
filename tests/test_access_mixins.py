@@ -5,7 +5,7 @@ from .factories import make_user
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
-                    LoginRequiredView)
+                    LoginRequiredView, OwnerOrPermissionRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -247,6 +247,40 @@ class TestMultiplePermissionsRequiredMixin(
                 self.build_request(user=user), raise_exception=True,
                 permissions=permissions)
 
+
+class TestOwnerOrPermissionRequiredMixin(_TestAccessBasicsMixin,
+                                         test.TestCase):
+    """
+    Tests for OwnerOrPermissionRequiredMixin.
+    """
+    view_class = OwnerOrPermissionRequiredView
+    owner_true_url = '/owner_or_permission_required/owner-true/'
+    owner_false_url = '/owner_or_permission_required/owner-false/'
+    no_owner_url = '/owner_or_permission_required/no-owner/'
+    view_url = owner_false_url
+
+    def build_authorized_user(self):
+        self.view_url = self.owner_true_url
+        return make_user(permissions=['auth.add_user'])
+
+    def build_unauthorized_user(self):
+        self.view_url = self.owner_false_url
+        return make_user()
+
+    def test_owner_without_permission(self):
+        user = make_user()
+        self.view_url = self.owner_true_url
+
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_no_has_owner_raises_exception(self):
+        self.view_url = self.no_owner_url
+        with self.assertRaises(ImproperlyConfigured):
+            self.dispatch_view(self.build_request(path=self.view_url))
 
 class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = SuperuserRequiredView

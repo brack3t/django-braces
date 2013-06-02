@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User, Permission
-from .models import Article
-
+from .models import Article, ArticleWithHasOwner
 
 _i = 0
 
@@ -49,3 +48,12 @@ def make_article(**kwargs):
                 'body': "Body of article %s" % i}
     defaults.update(kwargs)
     return Article.objects.create(**defaults)
+
+
+def make_article_with_has_owner(**kwargs):
+    i = get_next_id()
+    defaults = {'title': "Article number %s" % i,
+                'body': "Body of article %s" % i,
+                'owner_result': True}
+    defaults.update(kwargs)
+    return ArticleWithHasOwner.objects.create(**defaults)
