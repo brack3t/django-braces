@@ -279,6 +279,7 @@ class OwnerOrPermissionRequiredMixin(AccessMixin):
     """
 
     permission_required = None  # Default required perms to none
+    owner_field_name = None
 
     def dispatch(self, request, *args, **kwargs):
         # Make sure that the permission_required attribute is set on the
@@ -295,10 +296,7 @@ class OwnerOrPermissionRequiredMixin(AccessMixin):
                                        "be implemented on self")
         obj = self.get_object()
 
-        if not hasattr(obj, 'has_owner'):
-            raise ImproperlyConfigured("The object ({0}) need to implement "
-                                       "the 'has_owner' method".format(obj))
-        if not obj.has_owner(request.user):
+        if not self.is_owner(request.user, obj):
             # Check to see if the request's user has the required permission.
             has_permission = request.user.has_perm(self.permission_required)
 
@@ -312,6 +310,12 @@ class OwnerOrPermissionRequiredMixin(AccessMixin):
 
         return super(AccessMixin, self).dispatch(request, *args, **kwargs)
 
+    def is_owner(self, user, obj):
+        if self.owner_field_name is None:
+            raise ImproperlyConfigured("'OwnerOrPermissionRequiredMixin' "
+                                       "requires 'owner_field_name' "
+                                       "attribute to be set.")
+        return user == getattr(obj, self.owner_field_name, None)
 
 class UserFormKwargsMixin(object):
     """
