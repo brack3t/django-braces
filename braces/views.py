@@ -284,13 +284,13 @@ class OwnerOrPermissionRequiredMixin(AccessMixin):
         # Make sure that the permission_required attribute is set on the
         # view, or raise a configuration error.
         if self.permission_required is None:
-            raise ImproperlyConfigured("'PermissionOrOwnerRequiredMixin' "
+            raise ImproperlyConfigured("'OwnerOrPermissionRequiredMixin' "
                                        "requires 'permission_required' "
                                        "attribute to be set.")
 
         # Make sure that we can get the object to check for ownership
         if not hasattr(self, 'get_object'):
-            raise ImproperlyConfigured("The 'PermissionOrOwnerRequiredMixin '"
+            raise ImproperlyConfigured("The 'OwnerOrPermissionRequiredMixin '"
                                        "requres the 'get_object' method to "
                                        "be implemented on self")
         obj = self.get_object()
