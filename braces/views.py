@@ -510,9 +510,13 @@ class OrderableListMixin(object):
         return context
 
     def get_orderable_columns(self):
+        if not self.orderable_columns:
+            raise ImproperlyConfigured("Please define allowed ordering columns")
         return self.orderable_columns
 
     def get_orderable_columns_default(self):
+        if not self.orderable_columns_default:
+            raise ImproperlyConfigured("Please define default ordering column")
         return self.orderable_columns_default
 
     def get_ordered_queryset(self, queryset=None):
@@ -524,13 +528,10 @@ class OrderableListMixin(object):
         """
         get_order_by = self.request.GET.get("order_by")
 
-        if get_order_by in self.orderable_columns:
+        if get_order_by in self.get_orderable_columns():
             order_by = get_order_by
         elif getattr(self, "orderable_columns_default", None):
-            order_by = self.orderable_columns_default
-        else:
-            raise ImproperlyConfigured("Please define default ordering"
-                                       "column in your view")
+            order_by = self.get_orderable_columns_default()
 
         self.order_by = order_by
         self.ordering = "asc"

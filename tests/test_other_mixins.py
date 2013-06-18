@@ -221,11 +221,11 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         view = self.view_class()
         self.assertEqual(view.get_orderable_columns(), view.orderable_columns)
 
-    def test_no_default_raises(self):
-        OrderableListView.orderable_columns_default = None
+    def test_get_orderable_columns_raises_if_None(self):
+        view = self.view_class()
+        view.orderable_columns = None
         self.assertRaises(ImproperlyConfigured,
-                          lambda: self.dispatch_view(self.build_request()))
-        OrderableListView.orderable_columns_default = 'id'
+                          lambda: view.get_orderable_columns())
 
     def test_only_allowed_columns(self):
         """
