@@ -453,10 +453,9 @@ OrderableListMixin
 A mixin to allow easy ordering of your queryset basing on the GET parameters.
 Works with `ListView`.
 
-To use it, define columns that the data can be order by  as well
-as the default column to order by in your view.
-The `orderable_columns` restriction is here in order to stop your users from
-launching inefficient queries, like ordering by binary columns.
+To use it, define columns that the data can be order by as well as the default
+column to order by in your view. This can be done either by simply setting
+the class attributes...
 
 ::
 
@@ -465,6 +464,26 @@ launching inefficient queries, like ordering by binary columns.
         model = Article
         orderable_columns = ('id', 'title',)
         orderable_columns_default = 'id'
+
+...or by using similarly name methods to set the ordering constraints more
+dynamically:
+
+::
+
+    # views.py
+    class OrderableListView(OrderableListMixin, ListView):
+        model = Article
+
+        def get_orderable_columns(self):
+            # return an iterable
+            return ('id', 'title', )
+
+        def get_orderable_columns_default(self):
+            # return a string
+            return 'id'
+
+The `orderable_columns` restriction is here in order to stop your users from
+launching inefficient queries, like ordering by binary columns.
 
 `OrderableListMixin` will order your queryset basing on following GET params:
 
