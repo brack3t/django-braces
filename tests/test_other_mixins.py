@@ -217,6 +217,10 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         resp = self.dispatch_view(self.build_request())
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
 
+    def test_get_orderable_columns_returns_attribute(self):
+        view = self.view_class()
+        self.assertEqual(view.get_orderable_columns(), view.orderable_columns)
+
     def test_no_default_raises(self):
         OrderableListView.orderable_columns_default = None
         self.assertRaises(ImproperlyConfigured,

@@ -177,5 +177,11 @@ class AuthorDetailView(PrefetchRelatedMixin, ListView):
 
 class OrderableListView(OrderableListMixin, ListView):
     model = Article
-    orderable_columns = ('id', 'title',)
+    orderable_columns = ('id', )
     orderable_columns_default = 'id'
+
+    # def get_orderable_columns(self):
+    #     return ('title', )
+    #
+    # def get_orderable_columns_default(self):
+    #     return 'title'

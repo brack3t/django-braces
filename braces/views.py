@@ -492,6 +492,8 @@ class OrderableListMixin(object):
     Mixin allows your users to order records using GET parameters
     """
 
+    orderable_columns = None
+    orderable_columns_default = None
     order_by = None
     ordering = None
 
@@ -506,6 +508,12 @@ class OrderableListMixin(object):
         context["order_by"] = self.order_by
         context["ordering"] = self.ordering
         return context
+
+    def get_orderable_columns(self):
+        return self.orderable_columns
+
+    def get_orderable_columns_default(self):
+        return self.orderable_columns_default
 
     def get_ordered_queryset(self, queryset=None):
         """
