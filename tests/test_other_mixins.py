@@ -227,6 +227,17 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         self.assertRaises(ImproperlyConfigured,
                           lambda: view.get_orderable_columns())
 
+    def test_get_orderable_columns_default_returns_attribute(self):
+        view = self.view_class()
+        self.assertEqual(view.get_orderable_columns_default(),
+                         view.orderable_columns_default)
+
+    def test_get_orderable_columns_default_raises_if_None(self):
+        view = self.view_class()
+        view.orderable_columns_default = None
+        self.assertRaises(ImproperlyConfigured,
+                          lambda: view.get_orderable_columns_default())
+
     def test_only_allowed_columns(self):
         """
         If column is not in Model.Orderable.columns iterable, the objects
