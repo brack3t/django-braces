@@ -530,7 +530,7 @@ class OrderableListMixin(object):
 
         if get_order_by in self.get_orderable_columns():
             order_by = get_order_by
-        elif getattr(self, "orderable_columns_default", None):
+        else:
             order_by = self.get_orderable_columns_default()
 
         self.order_by = order_by

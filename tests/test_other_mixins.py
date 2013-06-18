@@ -205,35 +205,47 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         """
         a1, a2 = self.__make_test_articles()
 
-        resp = self.dispatch_view(self.build_request(path='?order_by=title&ordering=asc'))
+        resp = self.dispatch_view(self.build_request(path='?order_by=title&ordering=asc'),
+                                  orderable_columns=None,
+                                  get_orderable_columns=lambda: ('id', 'title', ))
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
 
-        resp = self.dispatch_view(self.build_request(path='?order_by=id&ordering=desc'))
+        resp = self.dispatch_view(self.build_request(path='?order_by=id&ordering=desc'),
+                                  orderable_columns=None,
+                                  get_orderable_columns=lambda: ('id', 'title', ))
         self.assertEqual(list(resp.context_data['object_list']), [a2, a1])
 
     def test_default_column(self):
+        """
+        When no ordering specified in GET, use
+        View.get_orderable_columns_default()
+        """
         a1, a2 = self.__make_test_articles()
 
         resp = self.dispatch_view(self.build_request())
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
 
-    def test_get_orderable_columns_returns_attribute(self):
+    def test_get_orderable_columns_returns_correct_values(self):
+        """
+        OrderableListMixin.get_orderable_columns() should return
+        View.orderable_columns attribute by default or raise
+        ImproperlyConfigured exception in the attribute is None
+        """
         view = self.view_class()
         self.assertEqual(view.get_orderable_columns(), view.orderable_columns)
-
-    def test_get_orderable_columns_raises_if_None(self):
-        view = self.view_class()
         view.orderable_columns = None
         self.assertRaises(ImproperlyConfigured,
                           lambda: view.get_orderable_columns())
 
-    def test_get_orderable_columns_default_returns_attribute(self):
+    def test_get_orderable_columns_default_returns_correct_values(self):
+        """
+        OrderableListMixin.get_orderable_columns_default() should return
+        View.orderable_columns_default attribute by default or raise
+        ImproperlyConfigured exception in the attribute is None
+        """
         view = self.view_class()
         self.assertEqual(view.get_orderable_columns_default(),
                          view.orderable_columns_default)
-
-    def test_get_orderable_columns_default_raises_if_None(self):
-        view = self.view_class()
         view.orderable_columns_default = None
         self.assertRaises(ImproperlyConfigured,
                           lambda: view.get_orderable_columns_default())
@@ -245,5 +257,7 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         """
         a1, a2 = self.__make_test_articles()
 
-        resp = self.dispatch_view(self.build_request(path='?order_by=body&ordering=asc'))
+        resp = self.dispatch_view(self.build_request(path='?order_by=body&ordering=asc'),
+                                  orderable_columns_default=None,
+                                  get_orderable_columns_default=lambda: 'title')
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
