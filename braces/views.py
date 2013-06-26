@@ -1,6 +1,7 @@
+import warnings
+
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
@@ -8,14 +9,13 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
-from django.utils.http import urlquote
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
 try:
     import json
-except ImportError: # pragma: no cover
+except ImportError:  # pragma: no cover
     from django.utils import simplejson as json
 
 
@@ -26,6 +26,12 @@ class CreateAndRedirectToEditView(CreateView):
     reversible url that uses the objects pk.
     """
     success_url_name = None
+
+    def dispatch(self, request, *args, **kwargs):
+        warnings.warn("CreateAndRedirectToEditView is deprecated and will be "
+            "removed in a future release.", PendingDeprecationWarning)
+        return super(CreateAndRedirectToEditView, self).dispatch(request,
+            *args, **kwargs)
 
     def get_success_url(self):
         # First we check for a name to be provided on the view object.
@@ -40,18 +46,58 @@ class CreateAndRedirectToEditView(CreateView):
             "No URL to reverse. Provide a success_url_name.")
 
 
-class LoginRequiredMixin(object):
+class AccessMixin(object):
     """
-    View mixin which verifies that the user has authenticated.
+    'Abstract' mixin that gives access mixins the same customizable
+    functionality.
+    """
+    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
+    raise_exception = False  # Default whether to raise an exception to none
+    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
+
+    def get_login_url(self):
+        """
+        Override this method to customize the login_url.
+        """
+        if self.login_url is None:
+            raise ImproperlyConfigured("%(cls)s is missing the login_url. "
+                "Define %(cls)s.login_url or override "
+                "%(cls)s.get_login_url()." % {"cls": self.__class__.__name__})
+
+        return self.login_url
+
+    def get_redirect_field_name(self):
+        """
+        Override this method to customize the redirect_field_name.
+        """
+        if self.redirect_field_name is None:
+            raise ImproperlyConfigured("%(cls)s is missing the "
+                "redirect_field_name. Define %(cls)s.redirect_field_name or "
+                "override %(cls)s.get_redirect_field_name()." % {
+                "cls": self.__class__.__name__})
+
+        return self.redirect_field_name
+
+
+class LoginRequiredMixin(AccessMixin):
+    """
+    View mixin which verifies that the user is authenticated.
 
     NOTE:
-        This should be the left-most mixin of a view.
+        This should be the left-most mixin of a view, except when
+        combined with CsrfExemptMixin - which in that case should 
+        be the left-most mixin.
     """
-
-    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        if not request.user.is_authenticated():
+            if self.raise_exception:
+                raise PermissionDenied  # return a forbidden response
+            else:
+                return redirect_to_login(request.get_full_path(),
+                    self.get_login_url(), self.get_redirect_field_name())
+
+        return super(LoginRequiredMixin, self).dispatch(request, *args,
+            **kwargs)
 
 
 class CsrfExemptMixin(object):
@@ -67,7 +113,7 @@ class CsrfExemptMixin(object):
         return super(CsrfExemptMixin, self).dispatch(*args, **kwargs)
 
 
-class PermissionRequiredMixin(object):
+class PermissionRequiredMixin(AccessMixin):
     """
     View mixin which verifies that the logged in user has the specified
     permission.
@@ -91,17 +137,12 @@ class PermissionRequiredMixin(object):
             raise_exception = True
             ...
     """
-    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
     permission_required = None  # Default required perms to none
-    raise_exception = False  # Default whether to raise an exception to none
-    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
 
     def dispatch(self, request, *args, **kwargs):
-        # Make sure that a permission_required is set on the view,
-        # and if it is, that it only has two parts (app.action_model)
-        # or raise a configuration error.
-        if self.permission_required == None or len(
-            self.permission_required.split(".")) != 2:
+        # Make sure that the permission_required attribute is set on the
+        # view, or raise a configuration error.
+        if self.permission_required is None:
             raise ImproperlyConfigured("'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
 
@@ -113,21 +154,22 @@ class PermissionRequiredMixin(object):
                 raise PermissionDenied  # return a forbidden response.
             else:
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         return super(PermissionRequiredMixin, self).dispatch(request,
             *args, **kwargs)
 
 
-class MultiplePermissionsRequiredMixin(object):
+class MultiplePermissionsRequiredMixin(AccessMixin):
     """
     View mixin which allows you to specify two types of permission
     requirements. The `permissions` attribute must be a dict which
     specifies two keys, `all` and `any`. You can use either one on
-    it's own or combine them. Both keys values are required be a list or
-    tuple of permissions in the format of
-    <app label>.<permission codename>
+    its own or combine them. The value of each key is required to be a
+    list or tuple of permissions. The standard Django permissions
+    style is not strictly enforced. If you have created your own
+    permissions in a different format, they should still work.
 
     By specifying the `all` key, the user must have all of
     the permissions in the passed in list.
@@ -138,7 +180,7 @@ class MultiplePermissionsRequiredMixin(object):
     Class Settings
         `permissions` - This is required to be a dict with one or both
             keys of `all` and/or `any` containing a list or tuple of
-            permissions in the format of <app label>.<permission codename>
+            permissions.
         `login_url` - the login url of site
         `redirect_field_name` - defaults to "next"
         `raise_exception` - defaults to False - raise 403 if set to True
@@ -148,8 +190,8 @@ class MultiplePermissionsRequiredMixin(object):
             ...
             #required
             permissions = {
-                "all": (blog.add_post, blog.change_post),
-                "any": (blog.delete_post, user.change_user)
+                "all": ("blog.add_post", "blog.change_post"),
+                "any": ("blog.delete_post", "user.change_user")
             }
 
             #optional
@@ -157,10 +199,7 @@ class MultiplePermissionsRequiredMixin(object):
             redirect_field_name = "hollaback"
             raise_exception = True
     """
-    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
     permissions = None  # Default required perms to none
-    raise_exception = False  # Default whether to raise an exception to none
-    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
 
     def dispatch(self, request, *args, **kwargs):
         self._check_permissions_attr()
@@ -178,8 +217,8 @@ class MultiplePermissionsRequiredMixin(object):
                 if self.raise_exception:
                     raise PermissionDenied
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         # If perms_any, check that user has at least one in the list/tuple
         if perms_any:
@@ -193,8 +232,8 @@ class MultiplePermissionsRequiredMixin(object):
                 if self.raise_exception:
                     raise PermissionDenied
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         return super(MultiplePermissionsRequiredMixin, self).dispatch(request,
             *args, **kwargs)
@@ -258,27 +297,24 @@ class SuccessURLRedirectListMixin(object):
         if self.success_list_url is None:
             raise ImproperlyConfigured("%(cls)s is missing a succes_list_url "
                 "name to reverse and redirect to. Define "
-                "%(cls)s.success_list_url or override %(cls)s.get_success_url()"
+                "%(cls)s.success_list_url or override "
+                "%(cls)s.get_success_url()"
                 "." % {"cls": self.__class__.__name__})
         return reverse(self.success_list_url)
 
 
-class SuperuserRequiredMixin(object):
+class SuperuserRequiredMixin(AccessMixin):
     """
     Mixin allows you to require a user with `is_superuser` set to True.
     """
-    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
-    raise_exception = False  # Default whether to raise an exception to none
-    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
-
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:  # If the user is a standard user,
             if self.raise_exception:  # *and* if an exception was desired
                 raise PermissionDenied  # return a forbidden response.
             else:
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         return super(SuperuserRequiredMixin, self).dispatch(request,
             *args, **kwargs)
@@ -299,8 +335,8 @@ class SetHeadlineMixin(object):
 
     def get_headline(self):
         if self.headline is None:  # If no headline was provided as a view
-                                   # attribute and this method wasn't overridden
-                                   # raise a configuration error.
+                                   # attribute and this method wasn't
+                                   # overridden raise a configuration error.
             raise ImproperlyConfigured("%(cls)s is missing a headline. "
                 "Define %(cls)s.headline, or override "
                 "%(cls)s.get_headline()." % {"cls": self.__class__.__name__
@@ -334,22 +370,44 @@ class SelectRelatedMixin(object):
         return queryset.select_related(*self.select_related)
 
 
-class StaffuserRequiredMixin(object):
+class PrefetchRelatedMixin(object):
+    """
+    Mixin allows you to provide a tuple or list of related models to
+    perform a prefetch_related on.
+    """
+    prefetch_related = None  # Default prefetch fields to none
+
+    def get_queryset(self):
+        if self.prefetch_related is None:  # If no fields were provided,
+                                           # raise a configuration error
+            raise ImproperlyConfigured("%(cls)s is missing the "
+                "prefetch_related property. This must be a tuple or list." % {
+                    "cls": self.__class__.__name__})
+
+        if not isinstance(self.prefetch_related, (tuple, list)):
+            # If the select_related argument is *not* a tuple or list,
+            # raise a configuration error.
+            raise ImproperlyConfigured("%(cls)s's prefetch_related property "
+                "must be a tuple or list." % {"cls": self.__class__.__name__})
+
+        # Get the current queryset of the view
+        queryset = super(PrefetchRelatedMixin, self).get_queryset()
+
+        return queryset.prefetch_related(*self.prefetch_related)
+
+
+class StaffuserRequiredMixin(AccessMixin):
     """
     Mixin allows you to require a user with `is_staff` set to True.
     """
-    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
-    raise_exception = False  # Default whether to raise an exception to none
-    redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
-
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_staff:  # If the request's user is not staff,
             if self.raise_exception:  # *and* if an exception was desired
                 raise PermissionDenied  # return a forbidden response
             else:
                 return redirect_to_login(request.get_full_path(),
-                                         self.login_url,
-                                         self.redirect_field_name)
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
         return super(StaffuserRequiredMixin, self).dispatch(request,
             *args, **kwargs)
@@ -361,6 +419,7 @@ class JSONResponseMixin(object):
     Django models.
     """
     content_type = "application/json"
+    json_dumps_kwargs = None
 
     def get_content_type(self):
         if self.content_type is None:
@@ -371,12 +430,19 @@ class JSONResponseMixin(object):
             })
         return self.content_type
 
+    def get_json_dumps_kwargs(self):
+        if self.json_dumps_kwargs is None:
+            self.json_dumps_kwargs = {}
+        self.json_dumps_kwargs.setdefault('ensure_ascii', False)
+        return self.json_dumps_kwargs
+
     def render_json_response(self, context_dict):
         """
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
-        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder, ensure_ascii=False)
+        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
+                **self.get_json_dumps_kwargs())
         return HttpResponse(json_context, content_type=self.get_content_type())
 
     def render_json_object_response(self, objects, **kwargs):
@@ -405,7 +471,8 @@ class AjaxResponseMixin(object):
             self.kwargs = kwargs
             return handler(request, *args, **kwargs)
 
-        return super(AjaxResponseMixin, self).dispatch(request, *args, **kwargs)
+        return super(AjaxResponseMixin, self).dispatch(request, *args,
+            **kwargs)
 
     def get_ajax(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
