@@ -278,17 +278,19 @@ class OwnerOrPermissionRequiredMixin(AccessMixin):
     Same usage as PermissionRequiredMixin
     """
 
-    permission_required = None  # Default required perms to none
+    permission_required = None  # Default required perm to none
     owner_field_name = None
 
-    def dispatch(self, request, *args, **kwargs):
+    def get_permission_required(self):
         # Make sure that the permission_required attribute is set on the
         # view, or raise a configuration error.
         if self.permission_required is None:
             raise ImproperlyConfigured("'OwnerOrPermissionRequiredMixin' "
                                        "requires 'permission_required' "
                                        "attribute to be set.")
+        return self.permission_required
 
+    def dispatch(self, request, *args, **kwargs):
         # Make sure that we can get the object to check for ownership
         if not hasattr(self, 'get_object'):
             raise ImproperlyConfigured("The 'OwnerOrPermissionRequiredMixin '"
@@ -298,7 +300,8 @@ class OwnerOrPermissionRequiredMixin(AccessMixin):
 
         if not self.is_owner(request.user, obj):
             # Check to see if the request's user has the required permission.
-            has_permission = request.user.has_perm(self.permission_required)
+            has_permission = request.user.has_perm(self
+                .get_permission_required())
 
             if not has_permission:  # If the user lacks the permission
                 if self.raise_exception:  # *and* if an exception was desired
