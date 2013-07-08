@@ -6,7 +6,7 @@ from braces.views import AjaxResponseMixin
 from .compat import force_text
 from .factories import make_article, make_user
 from .helpers import TestViewHelper
-from .views import SimpleJsonView
+from .views import SimpleJsonView, JsonRequestView
 from .compat import json
 
 
@@ -130,3 +130,60 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         pretty_json = json.loads(pretty_content)
         self.assertEqual(normal_json, pretty_json)
         self.assertTrue(len(pretty_content) > len(normal_content))
+
+
+class TestJsonRequestMixin(TestViewHelper, test.TestCase):
+    view_class = JsonRequestView 
+    request_dict = {'status': 'operational'}
+
+    def test_get_request_json_properly_formatted(self):
+        """
+        Properly formatted JSON requests should result in a JSON object
+        """
+        response = self.client.post(
+            '/json_request/',
+            content_type='application/json',
+            data=json.dumps(self.request_dict)
+        )
+        response_json = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_json, self.request_dict)
+
+
+    def test_get_request_json_improperly_formatted(self):
+        """
+        Improperly formatted JSON requests should make request_json == None
+        """
+        response = self.client.post(
+            '/json_request/',
+            data=self.request_dict
+        )
+        response_json = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_json, None)
+
+    def test_bad_request_response(self):
+        """
+        If a view calls render_bad_request_response when request_json is empty
+        or None, the client should get a 400 error
+        """
+        response = self.client.post(
+            '/json_bad_request/',
+            data=self.request_dict
+        )
+        response_json = json.loads(response.content)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json, self.view_class.error_response_dict)
+
+    def test_bad_request_response_with_custom_error_message(self):
+        """
+        If a view calls render_bad_request_response when request_json is empty
+        or None, the client should get a 400 error
+        """
+        response = self.client.post(
+            '/json_custom_bad_request/',
+            data=self.request_dict
+        )
+        response_json = json.loads(response.content)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json, {'error': 'you messed up'})

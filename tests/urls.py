@@ -47,7 +47,12 @@ urlpatterns = patterns('',
     # JSONResponseMixin tests
     url(r'^simple_json/$', views.SimpleJsonView.as_view()),
     url(r'^article_list_json/$', views.ArticleListJsonView.as_view()),
+    url(r'^json_request/$', views.JsonRequestView.as_view()),
+    url(r'^json_bad_request/$', views.JsonBadRequestView.as_view()),
+    url(r'^json_custom_bad_request/$', views.JsonCustomBadRequestView.as_view()),
+
 )
+
 
 urlpatterns += patterns('django.contrib.auth.views',
     # login page, required by some tests

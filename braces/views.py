@@ -7,7 +7,7 @@ from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
@@ -485,3 +485,48 @@ class AjaxResponseMixin(object):
 
     def delete_ajax(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
+
+
+class JsonRequestMixin(JSONResponseMixin):
+    """
+    Extends JSONResponseMixin.  Attempts to parse request as JSON.  If request
+    is properly formatted, the json is saved to self.request_json as a Python
+    object.  request_json will be None for imparsible requests.
+
+    Note: To allow public access to your view, you'll need to use the 
+    csrf_exempt decorator or CsrfExemptMixin.
+
+    Example Usage:
+
+        class SomeView(CsrfExemptMixin, JsonRequestMixin):
+            def post(self, request, *args, **kwargs):
+                # catch empty and improperly formatted requests
+                if not self.request_json:
+                    # This method will return a HTTP400 error:
+                    return self.render_bad_request_response()
+                do_stuff_with_contents_of_request_json()
+                return self.render_json_response(
+                    {'message': 'Thanks!'})
+    """
+    error_response_dict = { 'errors': ['Improperly formatted request'] }
+
+    def render_bad_request_response(self, error_dict=None):
+        if error_dict is None:
+            error_dict = self.error_response_dict
+        json_context = json.dumps(
+            error_dict,
+            cls=DjangoJSONEncoder,
+            **self.get_json_dumps_kwargs()
+        )
+        return HttpResponseBadRequest(
+            json_context, content_type=self.get_content_type())
+
+    def get_request_json(self):
+        try:
+            return json.loads(self.request.body)
+        except ValueError:
+            return None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.request_json = self.get_request_json()
+        return super(JsonRequestMixin, self).dispatch(request, *args, **kwargs)

@@ -69,6 +69,37 @@ class ArticleListJsonView(JSONResponseMixin, View):
             queryset, fields=('title',))
 
 
+class JsonRequestView(JsonRequestMixin, View):
+    """
+    A view for testing JsonRequestMixin's json conversion
+    """ 
+    def post(self, request):
+        return self.render_json_response(self.request_json)
+
+
+class JsonBadRequestView(JsonRequestMixin, View):
+    """
+    A view for testing JsonRequestMixin's render_bad_request_response method 
+    """
+    def post(self, request, *args, **kwargs):
+        # catch empty and improperly formatted requests
+        if not self.request_json:
+            return self.render_bad_request_response()
+        return self.render_json_response(self.request_json)
+
+
+class JsonCustomBadRequestView(JsonRequestMixin, View):
+    """
+    A view for testing JsonRequestMixin's render_bad_request_response method
+    with a custom error message
+    """
+    def post(self, request, *args, **kwargs):
+        if not self.request_json:
+            return self.render_bad_request_response(
+                {'error': 'you messed up'})
+        return self.render_json_response(self.request_json)
+
+
 class CreateArticleView(CreateAndRedirectToEditView):
     """
     View for testing CreateAndRedirectEditToView.

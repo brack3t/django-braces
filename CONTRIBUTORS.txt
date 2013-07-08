@@ -16,6 +16,7 @@ Project Leads
 * * Baptiste Mispelon
 * * Derek Payton
 * * Rafal Stozek
+* * Ethan Soergel
 *
 * Other Contributors
 * ==================

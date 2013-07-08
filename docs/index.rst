@@ -447,6 +447,40 @@ the standard view methods.
             return self.render_json_response(json_dict)
 
 
+JsonRequestMixin
+================
+    
+A mixin that attempts to parse request as JSON.  If request is properly formatted, the json is saved to self.request_json as a Python object.  request_json will be None for imparsible requests.
+
+Override the class attribute error_response_dict to customize the default error message.
+
+It extends JSONResponseMixin, so those utilities are available as well.
+
+Note: To allow public access to your view, you'll need to use the csrf_exempt decorator or CsrfExemptMixin.
+
+::
+    from django.views.generic import View
+
+    from braces.views import CsrfExemptMixin, JsonRequestMixin
+
+    class SomeView(CsrfExemptMixin, JsonRequestMixin):
+        def post(self, request, *args, **kwargs):
+            # catch empty and improperly formatted requests
+            if not self.request_json:
+                # This method will return a HTTP400 error:
+                return self.render_bad_request_response()
+            try:
+                burrito = self.request_json['burrito']
+                toppings = self.request_json['toppings']
+            except:
+                error_dict = {'message':
+                    'your order must include a burrito AND toppings'}
+                return self.render_bad_request_response(error_dict)
+            place_order(burrito, toppings)
+            return self.render_json_response(
+                {'message': 'Your order has been placed!'})
+
+
 Indices and tables
 ==================
 
