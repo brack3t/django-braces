@@ -1,7 +1,13 @@
 language: python
+env:
+    - DJANGO_VERSION=1.4.5
+    - DJANGO_VERSION=1.5.1
 python:
     - "3.3"
     - "2.7"
     - "2.6"
-install: "pip install -r requirements.txt django==1.5.1"
+install:
+    - "pip install -q django==$DJANGO_VERSION"
+    - "python setup.py -q install"
+    - "pip install -r requirements.txt"
 script: "py.test"
