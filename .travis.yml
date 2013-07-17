@@ -3,5 +3,5 @@ python:
     - "3.3"
     - "2.7"
     - "2.6"
-install: "pip install -r requirements.txt"
+install: "pip install -r requirements.txt django==1.5.1"
 script: "py.test"
