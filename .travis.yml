@@ -11,4 +11,8 @@ install:
     - "pip install -q django==$DJANGO_VERSION"
     - "python setup.py -q install"
     - "pip install -r requirements.txt"
-script: "py.test"
+script: "py.test tests/ --cov=braces --cov-report=html"
+matrix:
+    exclude:
+        - python: 3.3
+          env: DJANGO_VERSION=1.4.5
