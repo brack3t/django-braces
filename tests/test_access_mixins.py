@@ -96,7 +96,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
                 redirect_field_name=None)
 
 
-class TestLoginRequiredMixin(TestViewHelper):
+class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
     """
     Tests for LoginRequiredMixin.
     """
