@@ -12,7 +12,7 @@ install:
     - "python setup.py -q install"
     - "pip install -r requirements.txt"
     - "pip install pysqlite"
-script: "py.test tests/ --cov=braces --cov-report=html"
+script: "py.test tests/"
 matrix:
     exclude:
         - python: 3.3
