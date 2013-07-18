@@ -11,7 +11,6 @@ install:
     - "pip install -q django==$DJANGO_VERSION"
     - "python setup.py -q install"
     - "pip install -r requirements.txt"
-    - "pip install pysqlite"
 script: "py.test tests/"
 matrix:
     exclude:
