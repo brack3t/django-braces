@@ -1,4 +1,14 @@
 .. image:: https://drone.io/github.com/brack3t/django-braces/status.png
+    :target: https://drone.io/github.com/brack3t/django-braces
+    :alt: Latest drone.io status
+
+.. image:: https://pypip.in/v/django-braces/badge.png
+    :target: https://crate.io/packages/django-braces/
+    :alt: Latest PyPI version
+
+.. image:: https://pypip.in/d/django-braces/badge.png
+    :target: https://crate.io/packages/django-braces/
+    :alt: Number of PyPI downloads
 
 Here are the generic mixins we've been using a lot lately. If you have any that you find useful, feel free to send them to us in a pull request. Please include example usage.
 
