@@ -23,8 +23,6 @@ All development dependencies are available in `requirements.txt` file.
 To run the test suite, execute the following in your shell (Django install is required):
 `py.test tests/ --cov=braces --cov-report=html`
 
-===
-
 ## Change Log
 
 
