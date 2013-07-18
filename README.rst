@@ -1,3 +1,5 @@
+.. image:: https://drone.io/github.com/brack3t/django-braces/status.png
+
 Here are the generic mixins we've been using a lot lately. If you have any that you find useful, feel free to send them to us in a pull request. Please include example usage.
 
 http://django-braces.readthedocs.org/en/latest/index.html
@@ -18,6 +20,14 @@ To run the test suite, execute the following in your shell (Django install is re
 
 CHANGE LOG
 ==========
+
+1.1.0
+-----
+* ``JSONResponseMixin.render_json_response`` method updated to accept a status code.
+* ``JSONResponseMixin`` added ``json_dumps_kwargs`` attribute & get method to pass args to the json encoder.
+* New ``OrderableListMixin`` allows ordering of list views by GET params.
+* Tests updated to test against latest stable Django release (1.5.1)
+* Small fixes and additions to documentation.
 
 1.0.0
 -----
