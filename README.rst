@@ -19,6 +19,14 @@ To run the test suite, execute the following in your shell (Django install is re
 CHANGE LOG
 ==========
 
+1.1.0
+-----
+* ``JSONResponseMixin.render_json_response`` method updated to accept a status code.
+* ``JSONResponseMixin`` added ``json_dumps_kwargs`` attribute & get method to pass args to the json encoder.
+* New ``OrderableListMixin`` allows ordering of list views by GET params.
+* Tests updated to test against latest stable Django release (1.5.1)
+* Small fixes and additions to documentation.
+
 1.0.0
 -----
 * New 'abstract' ``AccessMixin`` which provides overridable ``get_login_url`` and ``get_redirect_field_name methods`` for all access-based mixins.
