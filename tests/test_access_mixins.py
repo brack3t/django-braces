@@ -82,8 +82,8 @@ class _TestAccessBasicsMixin(TestViewHelper):
         ImproperlyConfigured.
         """
         with self.assertRaises(ImproperlyConfigured):
-            self.dispatch_view(self.build_request(path=self.view_url),
-                login_url=None)
+            self.dispatch_view(
+                self.build_request(path=self.view_url), login_url=None)
 
     def test_get_redirect_field_name_raises_exception(self):
         """
@@ -91,7 +91,8 @@ class _TestAccessBasicsMixin(TestViewHelper):
         ImproperlyConfigured.
         """
         with self.assertRaises(ImproperlyConfigured):
-            self.dispatch_view(self.build_request(path=self.view_url),
+            self.dispatch_view(
+                self.build_request(path=self.view_url),
                 redirect_field_name=None)
 
 
@@ -108,8 +109,8 @@ class TestLoginRequiredMixin(TestViewHelper):
 
     def test_anonymous_raises_exception(self):
         with self.assertRaises(PermissionDenied):
-            self.dispatch_view(self.build_request(path=self.view_url),
-                raise_exception=True)
+            self.dispatch_view(
+                self.build_request(path=self.view_url), raise_exception=True)
 
     def test_authenticated(self):
         user = make_user()
