@@ -85,7 +85,7 @@ class LoginRequiredMixin(AccessMixin):
 
     NOTE:
         This should be the left-most mixin of a view, except when
-        combined with CsrfExemptMixin - which in that case should 
+        combined with CsrfExemptMixin - which in that case should
         be the left-most mixin.
     """
     def dispatch(self, request, *args, **kwargs):
@@ -436,14 +436,16 @@ class JSONResponseMixin(object):
         self.json_dumps_kwargs.setdefault('ensure_ascii', False)
         return self.json_dumps_kwargs
 
-    def render_json_response(self, context_dict):
+    def render_json_response(self, context_dict, status=200):
         """
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
         json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
                 **self.get_json_dumps_kwargs())
-        return HttpResponse(json_context, content_type=self.get_content_type())
+        return HttpResponse(json_context,
+                            content_type=self.get_content_type(),
+                            status=status)
 
     def render_json_object_response(self, objects, **kwargs):
         """
