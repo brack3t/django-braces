@@ -4,7 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 from braces.views import SetHeadlineMixin
 from .models import Article
 from .helpers import TestViewHelper
-from .views import CreateArticleView, ArticleListView, AuthorDetailView
+from .views import CreateArticleView, ArticleListView, AuthorDetailView, \
+    OrderableListView
 from .factories import make_user
 from .compat import force_text
 
@@ -188,3 +189,75 @@ class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
         resp = self.dispatch_view(self.build_request())
         self.assertEqual(200, resp.status_code)
         m.assert_called_once_with('article_set')
+
+
+class TestOrderableListMixin(TestViewHelper, test.TestCase):
+    view_class = OrderableListView
+
+    def __make_test_articles(self):
+        a1 = Article.objects.create(title='Alpha', body='Zet')
+        a2 = Article.objects.create(title='Zet', body='Alpha')
+        return a1, a2
+
+    def test_correct_order(self):
+        """
+        Objects must be properly ordered if requested with valid column names
+        """
+        a1, a2 = self.__make_test_articles()
+
+        resp = self.dispatch_view(self.build_request(path='?order_by=title&ordering=asc'),
+                                  orderable_columns=None,
+                                  get_orderable_columns=lambda: ('id', 'title', ))
+        self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
+
+        resp = self.dispatch_view(self.build_request(path='?order_by=id&ordering=desc'),
+                                  orderable_columns=None,
+                                  get_orderable_columns=lambda: ('id', 'title', ))
+        self.assertEqual(list(resp.context_data['object_list']), [a2, a1])
+
+    def test_default_column(self):
+        """
+        When no ordering specified in GET, use
+        View.get_orderable_columns_default()
+        """
+        a1, a2 = self.__make_test_articles()
+
+        resp = self.dispatch_view(self.build_request())
+        self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
+
+    def test_get_orderable_columns_returns_correct_values(self):
+        """
+        OrderableListMixin.get_orderable_columns() should return
+        View.orderable_columns attribute by default or raise
+        ImproperlyConfigured exception in the attribute is None
+        """
+        view = self.view_class()
+        self.assertEqual(view.get_orderable_columns(), view.orderable_columns)
+        view.orderable_columns = None
+        self.assertRaises(ImproperlyConfigured,
+                          lambda: view.get_orderable_columns())
+
+    def test_get_orderable_columns_default_returns_correct_values(self):
+        """
+        OrderableListMixin.get_orderable_columns_default() should return
+        View.orderable_columns_default attribute by default or raise
+        ImproperlyConfigured exception in the attribute is None
+        """
+        view = self.view_class()
+        self.assertEqual(view.get_orderable_columns_default(),
+                         view.orderable_columns_default)
+        view.orderable_columns_default = None
+        self.assertRaises(ImproperlyConfigured,
+                          lambda: view.get_orderable_columns_default())
+
+    def test_only_allowed_columns(self):
+        """
+        If column is not in Model.Orderable.columns iterable, the objects
+        should be ordered by default column.
+        """
+        a1, a2 = self.__make_test_articles()
+
+        resp = self.dispatch_view(self.build_request(path='?order_by=body&ordering=asc'),
+                                  orderable_columns_default=None,
+                                  get_orderable_columns_default=lambda: 'title')
+        self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
