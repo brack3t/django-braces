@@ -193,6 +193,7 @@ class OrderableListView(views.OrderableListMixin, ListView):
 
 class FormMessagesView(views.FormMessagesMixin, CreateView):
     form_class = ArticleForm
-    model = Article
-    form_valid_message = 'Valid'
     form_invalid_message = 'Invalid'
+    form_valid_message = 'Valid'
+    model = Article
+    template_name = 'form.html'
