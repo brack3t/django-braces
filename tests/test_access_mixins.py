@@ -284,6 +284,16 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     def build_unauthorized_user(self):
         return make_user()
 
+    def test_with_group_list(self):
+        view = self.view_class()
+        view.group_required = ['test_group', 'editors']
+
+        user = self.build_authorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
     def test_improperly_configured(self):
         view = self.view_class()
         view.group_required = None

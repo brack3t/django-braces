@@ -282,7 +282,9 @@ class GroupRequiredMixin(AccessMixin):
 
     def get_group_required(self):
         if self.group_required is None or (
-            not isinstance(self.group_required, (str, unicode, list, tuple))):
+                not isinstance(self.group_required,
+                               (str, unicode, list, tuple))):
+
             raise ImproperlyConfigured(
                 "'GroupRequiredMixin' requires "
                 "'group_required' attribute to be set and be one of the "
