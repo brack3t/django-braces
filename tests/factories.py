@@ -1,4 +1,5 @@
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Group, Permission, User
+
 from .models import Article
 
 
@@ -40,6 +41,15 @@ def make_user(permissions=None, password='asdf1234', **kwargs):
     obj.save()
     if permissions:
         obj.user_permissions.add(*[_get_perm(pn) for pn in permissions])
+    return obj
+
+
+def make_group(**kwargs):
+    i = get_next_id()
+    defaults = {'name': 'group{}'.format(i)}
+    defaults.update(**kwargs)
+    obj = Group(**defaults)
+    obj.save()
     return obj
 
 

@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
 import mock
 from django import test
 from django.core.exceptions import ImproperlyConfigured
-from braces.views import SetHeadlineMixin
+from braces.views import (SetHeadlineMixin, FormValidMessageMixin,
+                          FormInvalidMessageMixin)
 from .models import Article
 from .helpers import TestViewHelper
-from .views import CreateArticleView, ArticleListView, AuthorDetailView, \
-    OrderableListView
+from .views import (CreateArticleView, ArticleListView, AuthorDetailView,
+                    OrderableListView, FormMessagesView)
 from .factories import make_user
 from .compat import force_text
 
@@ -205,14 +207,16 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         """
         a1, a2 = self.__make_test_articles()
 
-        resp = self.dispatch_view(self.build_request(path='?order_by=title&ordering=asc'),
-                                  orderable_columns=None,
-                                  get_orderable_columns=lambda: ('id', 'title', ))
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=title&ordering=asc'),
+            orderable_columns=None,
+            get_orderable_columns=lambda: ('id', 'title', ))
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
 
-        resp = self.dispatch_view(self.build_request(path='?order_by=id&ordering=desc'),
-                                  orderable_columns=None,
-                                  get_orderable_columns=lambda: ('id', 'title', ))
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=id&ordering=desc'),
+            orderable_columns=None,
+            get_orderable_columns=lambda: ('id', 'title', ))
         self.assertEqual(list(resp.context_data['object_list']), [a2, a1])
 
     def test_default_column(self):
@@ -257,7 +261,69 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         """
         a1, a2 = self.__make_test_articles()
 
-        resp = self.dispatch_view(self.build_request(path='?order_by=body&ordering=asc'),
-                                  orderable_columns_default=None,
-                                  get_orderable_columns_default=lambda: 'title')
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=body&ordering=asc'),
+            orderable_columns_default=None,
+            get_orderable_columns_default=lambda: 'title')
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
+
+
+class TestFormMessageMixins(test.TestCase):
+    def setUp(self):
+        self.good_data = {
+            'title': 'Good',
+            'body': 'Body'
+        }
+        self.bad_data = {
+            'body': 'Missing title'
+        }
+
+    def test_valid_message(self):
+        url = '/form_messages/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(url, self.good_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, FormMessagesView().form_valid_message)
+
+    def test_invalid_message(self):
+        url = '/form_messages/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(url, self.bad_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, FormMessagesView().form_invalid_message)
+
+    def test_form_valid_message_not_set(self):
+        mixin = FormValidMessageMixin()
+        with self.assertRaises(ImproperlyConfigured):
+            mixin.get_form_valid_message()
+
+    def test_form_valid_message_not_str(self):
+        mixin = FormValidMessageMixin()
+        mixin.form_valid_message = ['bad']
+        with self.assertRaises(ImproperlyConfigured):
+            mixin.get_form_valid_message()
+
+    def test_form_valid_returns_message(self):
+        mixin = FormValidMessageMixin()
+        mixin.form_valid_message = u'Good øø'
+        self.assertEqual(u'Good øø', mixin.get_form_valid_message())
+
+    def test_form_invalid_message_not_set(self):
+        mixin = FormInvalidMessageMixin()
+        with self.assertRaises(ImproperlyConfigured):
+            mixin.get_form_invalid_message()
+
+    def test_form_invalid_message_not_str(self):
+        mixin = FormInvalidMessageMixin()
+        mixin.form_invalid_message = ['bad']
+        with self.assertRaises(ImproperlyConfigured):
+            mixin.get_form_invalid_message()
+
+    def test_form_invalid_returns_message(self):
+        mixin = FormInvalidMessageMixin()
+        mixin.form_invalid_message = u'Bad øø'
+        self.assertEqual(u'Bad øø', mixin.get_form_invalid_message())

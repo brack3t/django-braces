@@ -127,6 +127,32 @@ If you only need to check a single permission, the ``PermissionRequiredMixin`` i
         raise_exception = True
 
 
+GroupRequiredMixin
+==================
+
+The group required view mixin ensures that the requesting user is in the group or groups specified.
+This view mixin can handle multiple groups by setting the mandatory ``group_required`` attribute as a list or tuple.
+
+    .. note::
+        The mixin assumes you're using Django's default Group model and that your user model provides ``groups`` as a ManyToMany relationship.
+        If this isn't the case, you'll need to override `dispatch` in the mixin to handle your custom set up.
+
+::
+
+    from braces.views import GroupRequiredMixin
+
+
+    class SomeProtectedView(GroupRequiredMixin, TemplateView):
+
+        #required
+        group_required = u'editors'
+
+        #optional
+        login_url = "/signup/"
+        redirect_field_name = "hollaback"
+        raise_exception = True
+
+
 SuperuserRequiredMixin
 ======================
 
@@ -493,6 +519,123 @@ launching inefficient queries, like ordering by binary columns.
 Example url: http://127.0.0.1:8000/articles/?order_by=title&ordering=asc
 
 
+FormValidMessageMixin
+=====================
+
+The ``FormValidMessageMixin`` allows you to to *statically* or *programmatically* set a message to be returned using Django's `messages`
+framework when the form is valid. The returned message is controlled by the ``form_valid_message`` property which can either be set on the
+view or returned by the ``get_form_valid_message`` method. The message is not processed until the end of the ``form_valid`` method.
+
+
+    .. note::
+        This mixin is designed for use with Django's generic form class-based views, e.g. ``FormView``, ``CreateView``, ``UpdateView``
+
+
+Static Example
+--------------
+
+::
+
+    from django.views.generic import CreateView
+
+    from braces.views import FormValidMessageMixin
+
+
+    class BlogPostCreateView(FormValidMessageMixin, CreateView):
+        form_class = PostForm
+        model = Post
+        form_valid_message = 'Blog post created!'
+
+
+Dynamic Example
+---------------
+
+::
+
+    from django.views.generic import CreateView
+
+    from braces.views import FormValidMessageMixin
+
+
+    class BlogPostCreateView(FormValidMessageMixin, CreateView):
+        form_class = PostForm
+        model = Post
+
+        def get_form_valid_message(self):
+            return '{0} created!'.format(self.object.title)
+
+
+
+FormInvalidMessageMixin
+=======================
+
+The ``FormInvalidMessageMixin`` allows you to to *statically* or *programmatically* set a message to be returned using Django's `messages`
+framework when the form is invalid. The returned message is controlled by the ``form_invalid_message`` property which can either be set on the
+view or returned by the ``get_form_invalid_message`` method. The message is not processed until the end of the ``form_invalid`` method.
+
+    .. note::
+        This mixin is designed for use with Django's generic form class-based views, e.g. ``FormView``, ``CreateView``, ``UpdateView``
+
+Static Example
+--------------
+
+::
+
+    from django.views.generic import CreateView
+
+    from braces.views import FormInvalidMessageMixin
+
+
+    class BlogPostCreateView(FormInvalidMessageMixin, CreateView):
+        form_class = PostForm
+        model = Post
+        form_invalid_message = 'Oh snap, something went wrong!'
+
+
+Dynamic Example
+---------------
+
+::
+
+    from django.views.generic import CreateView
+
+    from braces.views import FormInvalidMessageMixin
+
+
+    class BlogPostCreateView(FormInvalidMessageMixin, CreateView):
+        form_class = PostForm
+        model = Post
+
+        def get_form_invalid_message(self):
+            return 'Some custom message'
+
+
+FormMessagesMixin
+=================
+
+``FormMessagesMixin`` is a convenience mixin which combines ``FormValidMessageMixin`` and ``FormInvalidMessageMixin`` since we commonly
+provide messages for both states (form_valid, form_invalid).
+
+
+Static & Dynamic Example
+---------------
+
+::
+
+    from django.views.generic import CreateView
+
+    from braces.views import FormMessagesMixin
+
+
+    class BlogPostCreateView(FormMessagesMixin, CreateView):
+        form_class = PostForm
+        form_invalid_message = 'Something went wrong, post was not saved'
+        model = Post
+
+        def get_form_valid_message(self):
+            return '{0} created!'.format(self.object.title)
+
+
 Indices and tables
 ==================
 
@@ -509,3 +652,4 @@ Indices and tables
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
 .. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
 .. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related
+.. _messages: https://docs.djangoproject.com/en/1.5/ref/contrib/messages/
