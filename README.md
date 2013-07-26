@@ -25,6 +25,11 @@ To run the test suite, execute the following in your shell (Django install is re
 
 ## Change Log
 
+### 1.2.0
+* `FormValidMessageMixin` which provides a `messages` message when the processed form is valid.
+* `FormInvalidMessageMixin` which provides a `messages` message when the processed form is invalid.
+* `FormMessagesMixin` which provides the functionality of both of the above mixins.
+* `GroupRequiredMixin` which is a new access-level mixin which requires that a user be part of a specified group to access a view.
 
 ### 1.1.0
 * `JSONResponseMixin.render_json_response` method updated to accept a status code.
