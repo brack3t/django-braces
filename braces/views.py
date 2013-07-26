@@ -615,8 +615,7 @@ class FormValidMessageMixin(object):
                 '{0}.get_form_valid_message().'.format(self.__class__.__name__)
             )
 
-        if (not isinstance(self.form_valid_message, unicode) and
-                not isinstance(self.form_valid_message, str)):
+        if not isinstance(self.form_valid_message, (unicode, str)):
             raise ImproperlyConfigured(
                 '{0}.form_valid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
@@ -656,8 +655,7 @@ class FormInvalidMessageMixin(object):
                     self.__class__.__name__)
             )
 
-        if (not isinstance(self.form_invalid_message, unicode) and
-                not isinstance(self.form_invalid_message, str)):
+        if not isinstance(self.form_invalid_message, (unicode, str)):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
