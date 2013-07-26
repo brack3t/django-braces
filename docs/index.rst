@@ -526,6 +526,8 @@ The ``FormValidMessageMixin`` allows you to to *statically* or *programmatically
 framework when the form is valid. The returned message is controlled by the ``form_valid_message`` property which can either be set on the
 view or returned by the ``get_form_valid_message`` method. The message is not processed until the end of the ``form_valid`` method.
 
+    .. warning::
+        This mixin requires the Django `messages` app to be enabled.
 
     .. note::
         This mixin is designed for use with Django's generic form class-based views, e.g. ``FormView``, ``CreateView``, ``UpdateView``
@@ -573,6 +575,9 @@ The ``FormInvalidMessageMixin`` allows you to to *statically* or *programmatical
 framework when the form is invalid. The returned message is controlled by the ``form_invalid_message`` property which can either be set on the
 view or returned by the ``get_form_invalid_message`` method. The message is not processed until the end of the ``form_invalid`` method.
 
+    .. warning::
+        This mixin requires the Django `messages` app to be enabled.
+
     .. note::
         This mixin is designed for use with Django's generic form class-based views, e.g. ``FormView``, ``CreateView``, ``UpdateView``
 
@@ -616,6 +621,8 @@ FormMessagesMixin
 ``FormMessagesMixin`` is a convenience mixin which combines ``FormValidMessageMixin`` and ``FormInvalidMessageMixin`` since we commonly
 provide messages for both states (form_valid, form_invalid).
 
+    .. warning::
+        This mixin requires the Django `messages` app to be enabled.
 
 Static & Dynamic Example
 ---------------
