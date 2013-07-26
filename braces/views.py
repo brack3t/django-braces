@@ -28,18 +28,19 @@ class CreateAndRedirectToEditView(CreateView):
     success_url_name = None
 
     def dispatch(self, request, *args, **kwargs):
-        warnings.warn("CreateAndRedirectToEditView is deprecated and will be "
+        warnings.warn(
+            "CreateAndRedirectToEditView is deprecated and will be "
             "removed in a future release.", PendingDeprecationWarning)
-        return super(CreateAndRedirectToEditView, self).dispatch(request,
-            *args, **kwargs)
+        return super(CreateAndRedirectToEditView, self).dispatch(
+            request, *args, **kwargs)
 
     def get_success_url(self):
         # First we check for a name to be provided on the view object.
         # If one is, we reverse it and finish running the method,
         # otherwise we raise a configuration error.
         if self.success_url_name:
-            self.success_url = reverse(self.success_url_name,
-                kwargs={'pk': self.object.pk})
+            self.success_url = reverse(
+                self.success_url_name, kwargs={'pk': self.object.pk})
             return super(CreateAndRedirectToEditView, self).get_success_url()
 
         raise ImproperlyConfigured(
@@ -60,7 +61,8 @@ class AccessMixin(object):
         Override this method to customize the login_url.
         """
         if self.login_url is None:
-            raise ImproperlyConfigured("%(cls)s is missing the login_url. "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing the login_url. "
                 "Define %(cls)s.login_url or override "
                 "%(cls)s.get_login_url()." % {"cls": self.__class__.__name__})
 
@@ -71,7 +73,8 @@ class AccessMixin(object):
         Override this method to customize the redirect_field_name.
         """
         if self.redirect_field_name is None:
-            raise ImproperlyConfigured("%(cls)s is missing the "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing the "
                 "redirect_field_name. Define %(cls)s.redirect_field_name or "
                 "override %(cls)s.get_redirect_field_name()." % {
                 "cls": self.__class__.__name__})
@@ -94,10 +97,11 @@ class LoginRequiredMixin(AccessMixin):
                 raise PermissionDenied  # return a forbidden response
             else:
                 return redirect_to_login(request.get_full_path(),
-                    self.get_login_url(), self.get_redirect_field_name())
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
-        return super(LoginRequiredMixin, self).dispatch(request, *args,
-            **kwargs)
+        return super(LoginRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class CsrfExemptMixin(object):
@@ -143,7 +147,8 @@ class PermissionRequiredMixin(AccessMixin):
         # Make sure that the permission_required attribute is set on the
         # view, or raise a configuration error.
         if self.permission_required is None:
-            raise ImproperlyConfigured("'PermissionRequiredMixin' requires "
+            raise ImproperlyConfigured(
+                "'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
 
         # Check to see if the request's user has the required permission.
@@ -157,8 +162,8 @@ class PermissionRequiredMixin(AccessMixin):
                                          self.get_login_url(),
                                          self.get_redirect_field_name())
 
-        return super(PermissionRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        return super(PermissionRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class MultiplePermissionsRequiredMixin(AccessMixin):
@@ -235,15 +240,16 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
                                          self.get_login_url(),
                                          self.get_redirect_field_name())
 
-        return super(MultiplePermissionsRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        return super(MultiplePermissionsRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
     def _check_permissions_attr(self):
         """
         Check permissions attribute is set and that it is a dict.
         """
         if self.permissions is None or not isinstance(self.permissions, dict):
-            raise ImproperlyConfigured("'PermissionsRequiredMixin' requires "
+            raise ImproperlyConfigured(
+                "'PermissionsRequiredMixin' requires "
                 "'permissions' attribute to be set to a dict.")
 
     def _check_permissions_keys_set(self, perms_all=None, perms_any=None):
@@ -253,7 +259,8 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         came in. Both are invalid and should raise an exception.
         """
         if perms_all is None and perms_any is None:
-            raise ImproperlyConfigured("'PermissionsRequiredMixin' requires"
+            raise ImproperlyConfigured(
+                "'PermissionsRequiredMixin' requires"
                 "'permissions' attribute to be set to a dict and the 'any' "
                 "or 'all' key to be set.")
 
@@ -263,7 +270,8 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         sure that it is of the type list or tuple.
         """
         if perms and not isinstance(perms, (list, tuple)):
-            raise ImproperlyConfigured("'MultiplePermissionsRequiredMixin' "
+            raise ImproperlyConfigured(
+                "'MultiplePermissionsRequiredMixin' "
                 "requires permissions dict '%s' value to be a list "
                 "or tuple." % key)
 
@@ -295,7 +303,8 @@ class SuccessURLRedirectListMixin(object):
     def get_success_url(self):
         # Return the reversed success url.
         if self.success_list_url is None:
-            raise ImproperlyConfigured("%(cls)s is missing a succes_list_url "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing a succes_list_url "
                 "name to reverse and redirect to. Define "
                 "%(cls)s.success_list_url or override "
                 "%(cls)s.get_success_url()"
@@ -316,8 +325,8 @@ class SuperuserRequiredMixin(AccessMixin):
                                          self.get_login_url(),
                                          self.get_redirect_field_name())
 
-        return super(SuperuserRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        return super(SuperuserRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class SetHeadlineMixin(object):
@@ -337,10 +346,11 @@ class SetHeadlineMixin(object):
         if self.headline is None:  # If no headline was provided as a view
                                    # attribute and this method wasn't
                                    # overridden raise a configuration error.
-            raise ImproperlyConfigured("%(cls)s is missing a headline. "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing a headline. "
                 "Define %(cls)s.headline, or override "
-                "%(cls)s.get_headline()." % {"cls": self.__class__.__name__
-            })
+                "%(cls)s.get_headline()." % {"cls": self.__class__.__name__}
+            )
         return self.headline
 
 
@@ -354,14 +364,16 @@ class SelectRelatedMixin(object):
     def get_queryset(self):
         if self.select_related is None:  # If no fields were provided,
                                          # raise a configuration error
-            raise ImproperlyConfigured("%(cls)s is missing the "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing the "
                 "select_related property. This must be a tuple or list." % {
                     "cls": self.__class__.__name__})
 
         if not isinstance(self.select_related, (tuple, list)):
             # If the select_related argument is *not* a tuple or list,
             # raise a configuration error.
-            raise ImproperlyConfigured("%(cls)s's select_related property "
+            raise ImproperlyConfigured(
+                "%(cls)s's select_related property "
                 "must be a tuple or list." % {"cls": self.__class__.__name__})
 
         # Get the current queryset of the view
@@ -380,14 +392,16 @@ class PrefetchRelatedMixin(object):
     def get_queryset(self):
         if self.prefetch_related is None:  # If no fields were provided,
                                            # raise a configuration error
-            raise ImproperlyConfigured("%(cls)s is missing the "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing the "
                 "prefetch_related property. This must be a tuple or list." % {
                     "cls": self.__class__.__name__})
 
         if not isinstance(self.prefetch_related, (tuple, list)):
             # If the select_related argument is *not* a tuple or list,
             # raise a configuration error.
-            raise ImproperlyConfigured("%(cls)s's prefetch_related property "
+            raise ImproperlyConfigured(
+                "%(cls)s's prefetch_related property "
                 "must be a tuple or list." % {"cls": self.__class__.__name__})
 
         # Get the current queryset of the view
@@ -409,8 +423,8 @@ class StaffuserRequiredMixin(AccessMixin):
                                          self.get_login_url(),
                                          self.get_redirect_field_name())
 
-        return super(StaffuserRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        return super(StaffuserRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class JSONResponseMixin(object):
@@ -423,11 +437,12 @@ class JSONResponseMixin(object):
 
     def get_content_type(self):
         if self.content_type is None:
-            raise ImproperlyConfigured("%(cls)s is missing a content type. "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing a content type. "
                 "Define %(cls)s.content_type, or override "
                 "%(cls)s.get_content_type()." % {
-                "cls": self.__class__.__name__
-            })
+                "cls": self.__class__.__name__}
+            )
         return self.content_type
 
     def get_json_dumps_kwargs(self):
@@ -442,7 +457,7 @@ class JSONResponseMixin(object):
         or other complex or custom objects.
         """
         json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
-                **self.get_json_dumps_kwargs())
+                                  **self.get_json_dumps_kwargs())
         return HttpResponse(json_context,
                             content_type=self.get_content_type(),
                             status=status)
@@ -467,14 +482,14 @@ class AjaxResponseMixin(object):
 
         if request.is_ajax() and request_method in self.http_method_names:
             handler = getattr(self, '%s_ajax' % request_method,
-                self.http_method_not_allowed)
+                              self.http_method_not_allowed)
             self.request = request
             self.args = args
             self.kwargs = kwargs
             return handler(request, *args, **kwargs)
 
-        return super(AjaxResponseMixin, self).dispatch(request, *args,
-            **kwargs)
+        return super(AjaxResponseMixin, self).dispatch(
+            request, *args, **kwargs)
 
     def get_ajax(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
@@ -513,7 +528,8 @@ class OrderableListMixin(object):
 
     def get_orderable_columns(self):
         if not self.orderable_columns:
-            raise ImproperlyConfigured("Please define allowed ordering columns")
+            raise ImproperlyConfigured(
+                "Please define allowed ordering columns")
         return self.orderable_columns
 
     def get_orderable_columns_default(self):
