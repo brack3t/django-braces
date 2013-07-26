@@ -196,4 +196,5 @@ class FormMessagesView(views.FormMessagesMixin, CreateView):
     form_invalid_message = 'Invalid'
     form_valid_message = 'Valid'
     model = Article
+    success_url = '/form_messages/'
     template_name = 'form.html'
