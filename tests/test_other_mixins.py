@@ -4,8 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 from braces.views import SetHeadlineMixin
 from .models import Article
 from .helpers import TestViewHelper
-from .views import CreateArticleView, ArticleListView, AuthorDetailView, \
-    OrderableListView
+from .views import (CreateArticleView, ArticleListView, AuthorDetailView,
+                    OrderableListView)
 from .factories import make_user
 from .compat import force_text
 
@@ -205,14 +205,16 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         """
         a1, a2 = self.__make_test_articles()
 
-        resp = self.dispatch_view(self.build_request(path='?order_by=title&ordering=asc'),
-                                  orderable_columns=None,
-                                  get_orderable_columns=lambda: ('id', 'title', ))
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=title&ordering=asc'),
+            orderable_columns=None,
+            get_orderable_columns=lambda: ('id', 'title', ))
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
 
-        resp = self.dispatch_view(self.build_request(path='?order_by=id&ordering=desc'),
-                                  orderable_columns=None,
-                                  get_orderable_columns=lambda: ('id', 'title', ))
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=id&ordering=desc'),
+            orderable_columns=None,
+            get_orderable_columns=lambda: ('id', 'title', ))
         self.assertEqual(list(resp.context_data['object_list']), [a2, a1])
 
     def test_default_column(self):
@@ -257,7 +259,14 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         """
         a1, a2 = self.__make_test_articles()
 
-        resp = self.dispatch_view(self.build_request(path='?order_by=body&ordering=asc'),
-                                  orderable_columns_default=None,
-                                  get_orderable_columns_default=lambda: 'title')
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=body&ordering=asc'),
+            orderable_columns_default=None,
+            get_orderable_columns_default=lambda: 'title')
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
+
+
+class TestFormMessageMixins(test.TestCase):
+    def test_it(self):
+        resp = self.client.get('/form_messages/')
+
