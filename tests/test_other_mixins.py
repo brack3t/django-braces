@@ -267,4 +267,6 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
 
 
 class TestFormMessageMixins(test.TestCase):
-    pass
+    def test_it(self):
+        resp = self.client.get('/form_messages/')
+

@@ -1,12 +1,12 @@
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.views.generic import (View, UpdateView, FormView, TemplateView,
-                                  ListView)
+                                  ListView, CreateView)
 
 from braces import views
 
 from .models import Article
-from .forms import FormWithUserKwarg
+from .forms import ArticleForm, FormWithUserKwarg
 
 
 class OkView(View):
@@ -189,3 +189,10 @@ class OrderableListView(views.OrderableListMixin, ListView):
     model = Article
     orderable_columns = ('id', 'title', )
     orderable_columns_default = 'id'
+
+
+class FormMessagesView(views.FormMessagesMixin, CreateView):
+    form_class = ArticleForm
+    model = Article
+    form_valid_message = 'Valid'
+    form_invalid_message = 'Invalid'
