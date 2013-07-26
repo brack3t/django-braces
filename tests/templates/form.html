@@ -1,6 +1,12 @@
 <html>
 <head></head>
 <body>
+    {% if messages %}
+    {% for message in messages %}
+    {{ message }}
+    {% endfor %}
+    {% endif %}
+
     {{ form.as_p }}
 </body>
 </html>
