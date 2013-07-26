@@ -522,12 +522,12 @@ Example url: http://127.0.0.1:8000/articles/?order_by=title&ordering=asc
 FormValidMessageMixin
 =====================
 
-The ``FormValidMessageMixin`` allows you to to *statically* or *programmatically* set a message to be returned using Django's `messages`
+The ``FormValidMessageMixin`` allows you to to *statically* or *programmatically* set a message to be returned using Django's `messages`_
 framework when the form is valid. The returned message is controlled by the ``form_valid_message`` property which can either be set on the
 view or returned by the ``get_form_valid_message`` method. The message is not processed until the end of the ``form_valid`` method.
 
     .. warning::
-        This mixin requires the Django `messages` app to be enabled.
+        This mixin requires the Django `messages`_ app to be enabled.
 
     .. note::
         This mixin is designed for use with Django's generic form class-based views, e.g. ``FormView``, ``CreateView``, ``UpdateView``
@@ -571,12 +571,12 @@ Dynamic Example
 FormInvalidMessageMixin
 =======================
 
-The ``FormInvalidMessageMixin`` allows you to to *statically* or *programmatically* set a message to be returned using Django's `messages`
+The ``FormInvalidMessageMixin`` allows you to to *statically* or *programmatically* set a message to be returned using Django's `messages`_
 framework when the form is invalid. The returned message is controlled by the ``form_invalid_message`` property which can either be set on the
 view or returned by the ``get_form_invalid_message`` method. The message is not processed until the end of the ``form_invalid`` method.
 
     .. warning::
-        This mixin requires the Django `messages` app to be enabled.
+        This mixin requires the Django `messages`_ app to be enabled.
 
     .. note::
         This mixin is designed for use with Django's generic form class-based views, e.g. ``FormView``, ``CreateView``, ``UpdateView``
@@ -622,7 +622,7 @@ FormMessagesMixin
 provide messages for both states (form_valid, form_invalid).
 
     .. warning::
-        This mixin requires the Django `messages` app to be enabled.
+        This mixin requires the Django `messages`_ app to be enabled.
 
 Static & Dynamic Example
 ---------------
