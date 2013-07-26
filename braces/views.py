@@ -573,13 +573,48 @@ class FormValidMessageMixin(object):
     form_valid_message = None
 
     def get_form_valid_message(self):
-        if self.headline is None:
+        if self.form_valid_message is None:
             raise ImproperlyConfigured(
                 '{0}.form_valid_message is not set. Define '
                 '{0}.form_valid_message, or override '
                 '{0}.get_form_valid_message().'.format(self.__class__.__name__)
             )
 
+        if (not isinstance(self.form_valid_message, unicode) and
+                not isinstance(self.form_valid_message, str)):
+            raise ImproperlyConfigured(
+                '{0}.form_valid_message must be a str or unicode '
+                'object.'.format(self.__class__.__name__)
+            )
+
+        return self.form_valid_message
+
+    def form_valid(self, form):
+        messages.success(self.request, self.get_form_valid_message())
+        return super(FormValidMessageMixin, self).form_valid(form)
+
 
 class FormInValidMessageMixin(object):
     form_invalid_message = None
+
+    def get_form_invalid_message(self):
+        if self.form_invalid_message is None:
+            raise ImproperlyConfigured(
+                '{0}.form_invalid_message is not set. Define '
+                '{0}.form_invalid_message, or override '
+                '{0}.get_form_invalid_message().'.format(
+                    self.__class__.__name__)
+            )
+
+        if (not isinstance(self.form_invalid_message, unicode) and
+                not isinstance(self.form_invalid_message, str)):
+            raise ImproperlyConfigured(
+                '{0}.form_invalid_message must be a str or unicode '
+                'object.'.format(self.__class__.__name__)
+            )
+
+        return self.form_invalid_message
+
+    def form_invalid(self, form):
+        messages.error(self.request, self.get_form_invalid_message())
+        return super(FormInValidMessageMixin, self).form_invalid(form)
