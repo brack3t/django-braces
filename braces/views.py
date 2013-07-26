@@ -570,9 +570,18 @@ class OrderableListMixin(object):
 
 
 class FormValidMessageMixin(object):
-    form_valid_message = None
+    """
+    Mixin allows you to set static message which is displayed by
+    Django's messages framework through a static property on the class
+    or programmatically by overloading the get_form_valid_message method.
+    """
+    form_valid_message = None  # Default to None
 
     def get_form_valid_message(self):
+        """
+        Validate that form_valid_message is set and is either a
+        unicode or str object.
+        """
         if self.form_valid_message is None:
             raise ImproperlyConfigured(
                 '{0}.form_valid_message is not set. Define '
@@ -590,14 +599,29 @@ class FormValidMessageMixin(object):
         return self.form_valid_message
 
     def form_valid(self, form):
-        messages.success(self.request, self.get_form_valid_message())
-        return super(FormValidMessageMixin, self).form_valid(form)
+        """
+        Call the super first, so that when overriding
+        get_form_valid_message, we have access to the newly saved object.
+        """
+        response = super(FormValidMessageMixin, self).form_valid(form)
+        messages.success(self.request, self.get_form_valid_message(),
+                         fail_silently=True)
+        return response
 
 
-class FormInValidMessageMixin(object):
+class FormInvalidMessageMixin(object):
+    """
+    Mixin allows you to set static message which is displayed by
+    Django's messages framework through a static property on the class
+    or programmatically by overloading the get_form_invalid_message method.
+    """
     form_invalid_message = None
 
     def get_form_invalid_message(self):
+        """
+        Validate that form_invalid_message is set and is either a
+        unicode or str object.
+        """
         if self.form_invalid_message is None:
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message is not set. Define '
@@ -616,5 +640,15 @@ class FormInValidMessageMixin(object):
         return self.form_invalid_message
 
     def form_invalid(self, form):
-        messages.error(self.request, self.get_form_invalid_message())
-        return super(FormInValidMessageMixin, self).form_invalid(form)
+        response = super(FormInvalidMessageMixin, self).form_invalid(form)
+        messages.error(self.request, self.get_form_invalid_message(),
+                       fail_silently=True)
+        return response
+
+
+class FormMessagesMixin(FormValidMessageMixin, FormInvalidMessageMixin):
+    """
+    Mixin is a shortcut to use both FormValidMessageMixin and
+    FormInvalidMessageMixin.
+    """
+    pass
