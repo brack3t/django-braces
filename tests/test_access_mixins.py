@@ -289,3 +289,8 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         view.group_required = None
         with self.assertRaises(ImproperlyConfigured):
             view.get_group_required()
+
+        view.group_required = {'foo': 'bar'}
+        with self.assertRaises(ImproperlyConfigured):
+            view.get_group_required()
+
