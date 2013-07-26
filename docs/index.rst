@@ -617,6 +617,25 @@ FormMessagesMixin
 provide messages for both states (form_valid, form_invalid).
 
 
+Static & Dynamic Example
+---------------
+
+::
+
+    from django.views.generic import CreateView
+
+    from braces.views import FormMessagesMixin
+
+
+    class BlogPostCreateView(FormMessagesMixin, CreateView):
+        form_class = PostForm
+        form_invalid_message = 'Something went wrong, post was not saved'
+        model = Post
+
+        def get_form_valid_message(self):
+            return '{0} created!'.format(self.object.title)
+
+
 Indices and tables
 ==================
 
