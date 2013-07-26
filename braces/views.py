@@ -268,6 +268,32 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
                 "or tuple." % key)
 
 
+class GroupRequiredMixin(AccessMixin):
+    group_required = None
+
+    def get_group_required(self):
+        if self.group_required is None or (
+            not isinstance(self.group_required, (str, unicode, list, tuple))):
+            raise ImproperlyConfigured(
+                "'GroupRequiredMixin' requires "
+                "'group_required' attribute to be set and be one of the "
+                "following types: string, unicode, list, or tuple.")
+        return self.group_required
+
+    def dispatch(self, request, *args, **kwargs):
+        required_group = self.get_group_required()
+        if not required_group in request.user.groups.values_list('name',
+                                                                 flat=True):
+            if self.raise_exception:
+                raise PermissionDenied
+            else:
+                return redirect_to_login(request.get_full_path(),
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
+        return super(GroupRequiredMixin, self).dispatch(request, *args,
+                                                        **kwargs)
+
+
 class UserFormKwargsMixin(object):
     """
     CBV mixin which puts the user from the request into the form kwargs.
