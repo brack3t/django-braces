@@ -197,3 +197,7 @@ class FormMessagesView(views.FormMessagesMixin, CreateView):
     form_valid_message = 'Valid'
     model = Article
     template_name = 'form.html'
+
+
+class GroupRequiredView(views.GroupRequiredMixin, OkView):
+    group_required = 'test_group'
