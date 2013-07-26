@@ -2,7 +2,8 @@ from . import views
 from .compat import patterns, url
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     # LoginRequiredMixin tests
     url(r'^login_required/$', views.LoginRequiredView.as_view()),
 
@@ -41,6 +42,9 @@ urlpatterns = patterns('',
     # StaffuserRequiredMixin tests
     url(r'^staffuser_required/$', views.StaffuserRequiredView.as_view()),
 
+    # GroupRequiredMixin tests
+    url(r'^group_required/$', views.GroupRequiredView.as_view()),
+
     # CsrfExemptMixin tests
     url(r'^csrf_exempt/$', views.CsrfExemptView.as_view()),
 
@@ -48,9 +52,13 @@ urlpatterns = patterns('',
     url(r'^simple_json/$', views.SimpleJsonView.as_view()),
     url(r'^simple_json_400/$', views.SimpleJsonBadRequestView.as_view()),
     url(r'^article_list_json/$', views.ArticleListJsonView.as_view()),
+
+    # FormMessagesMixin tests
+    url(r'form_messages/$', views.FormMessagesView.as_view()),
 )
 
-urlpatterns += patterns('django.contrib.auth.views',
+urlpatterns += patterns(
+    'django.contrib.auth.views',
     # login page, required by some tests
     url(r'^accounts/login/$', 'login', {'template_name': 'blank.html'}),
 )

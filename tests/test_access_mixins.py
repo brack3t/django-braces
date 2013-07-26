@@ -1,11 +1,11 @@
 from django import test
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from .compat import force_text
-from .factories import make_user
+from .factories import make_group, make_user
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
-                    LoginRequiredView)
+                    LoginRequiredView, GroupRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -269,3 +269,38 @@ class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
 
     def build_unauthorized_user(self):
         return make_user()
+
+
+class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
+    view_class = GroupRequiredView
+    view_url = '/group_required/'
+
+    def build_authorized_user(self):
+        user = make_user()
+        group = make_group(name='test_group')
+        user.groups.add(group)
+        return user
+
+    def build_unauthorized_user(self):
+        return make_user()
+
+    def test_with_group_list(self):
+        view = self.view_class()
+        view.group_required = ['test_group', 'editors']
+
+        user = self.build_authorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_improperly_configured(self):
+        view = self.view_class()
+        view.group_required = None
+        with self.assertRaises(ImproperlyConfigured):
+            view.get_group_required()
+
+        view.group_required = {'foo': 'bar'}
+        with self.assertRaises(ImproperlyConfigured):
+            view.get_group_required()
+
