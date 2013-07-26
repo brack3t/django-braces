@@ -127,6 +127,32 @@ If you only need to check a single permission, the ``PermissionRequiredMixin`` i
         raise_exception = True
 
 
+GroupRequiredMixin
+==================
+
+The group required view mixin ensures that the requesting user is in the group or groups specified.
+This view mixin can handle multiple groups by setting the mandatory ``group_required`` attribute as a list or tuple.
+
+    .. note::
+        The mixin assumes you're using Django's default Group model and that your user model provides ``groups`` as a ManyToMany relationship.
+        If this isn't the case, you'll need to override `dispatch` in the mixin to handle your custom set up.
+
+::
+
+    from braces.views import GroupRequiredMixin
+
+
+    class SomeProtectedView(GroupRequiredMixin, TemplateView):
+
+        #required
+        group_required = u'editors'
+
+        #optional
+        login_url = "/signup/"
+        redirect_field_name = "hollaback"
+        raise_exception = True
+
+
 SuperuserRequiredMixin
 ======================
 

@@ -42,6 +42,9 @@ urlpatterns = patterns(
     # StaffuserRequiredMixin tests
     url(r'^staffuser_required/$', views.StaffuserRequiredView.as_view()),
 
+    # GroupRequiredMixin tests
+    url(r'^group_required/$', views.GroupRequiredView.as_view()),
+
     # CsrfExemptMixin tests
     url(r'^csrf_exempt/$', views.CsrfExemptView.as_view()),
 
