@@ -291,18 +291,26 @@ class GroupRequiredMixin(AccessMixin):
                 "following types: string, unicode, list, or tuple.")
         return self.group_required
 
+    def check_membership(self, group):
+        """ Check required group(s) """
+        if not group in self.request.user.groups.values_list('name',
+                                                             flat=True):
+            return False
+        return True
+
     def dispatch(self, request, *args, **kwargs):
-        required_group = self.get_group_required()
-        if not required_group in request.user.groups.values_list('name',
-                                                                 flat=True):
+        in_group = self.check_membership(self.get_group_required())
+
+        if not in_group:
             if self.raise_exception:
                 raise PermissionDenied
             else:
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
-        return super(GroupRequiredMixin, self).dispatch(request, *args,
-                                                        **kwargs)
+                return redirect_to_login(
+                    request.get_full_path(),
+                    self.get_login_url(),
+                    self.get_redirect_field_name())
+        return super(GroupRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class UserFormKwargsMixin(object):

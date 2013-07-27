@@ -99,7 +99,10 @@ The group required view mixin ensures that the requesting user is in the group o
 
     .. note::
         The mixin assumes you're using Django's default Group model and that your user model provides ``groups`` as a ManyToMany relationship.
-        If this **is not** the case, you'll need to override `dispatch` in the mixin to handle your custom set up.
+        If this **is not** the case, you'll need to override `check_membership` in the mixin to handle your custom set up.
+
+Standard Django Usage
+---------------------
 
 ::
 
@@ -110,6 +113,28 @@ The group required view mixin ensures that the requesting user is in the group o
 
         #required
         group_required = u'editors'
+
+
+Custom Group Usage
+------------------
+
+::
+
+    from braces.views import GroupRequiredMixin
+
+
+    class SomeProtectedView(GroupRequiredMixin, TemplateView):
+
+        #required
+        group_required = u'editors'
+
+        def check_membership(self, group):
+            ...
+            # Check some other system for group membership
+            if user_in_group:
+                return True
+            else:
+                return False
 
 
 SuperuserRequiredMixin
