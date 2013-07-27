@@ -6,7 +6,7 @@ All of these mixins, with one exception, modify how forms are handled within vie
 .. contents::
 
 CsrfExemptMixin
-===============
+---------------
 
 If you have Django's `CSRF protection` middleware enabled you can exempt views using the `csrf_exempt` decorator. This mixin exempts POST requests from the CSRF protection middleware without requiring that you decorate the ``dispatch`` method.
 
@@ -24,14 +24,14 @@ If you have Django's `CSRF protection` middleware enabled you can exempt views u
 
 
 UserFormKwargsMixin
-===================
+-------------------
 
 In one of our client's CMS, we have a lot of form-based views that require a user to be passed in for permission-based form tools. For example, only superusers can delete or disable certain objects. To custom tailor the form for users, we have to pass that user instance into the form and based on their permission level, change certain fields or add specific options within the forms ``__init__`` method.
 
 This mixin automates the process of overloading the ``get_form_kwargs`` (this method is available in any generic view which handles a form) method and stuffs the user instance into the form kwargs. We can then pop the user off in the form and do with it what we need. **Always** remember to pop the user from the kwargs before calling ``super`` on your form, otherwise the form gets an unexpected keyword argument and everything blows up.
 
 Usage
------
+^^^^^
 
 ::
 
@@ -52,13 +52,13 @@ This obviously pairs very nicely with the following ``Form`` mixin.
 
 
 UserKwargModelFormMixin
-=======================
+-----------------------
 
 The ``UserKwargModelFormMixin`` is a form mixin to go along with our ``UserFormKwargsMixin``.
 This becomes the first inherited class of our forms that receive the user keyword argument. With this mixin, we have automated the popping off of the keyword argument in our form and no longer have to do it manually on every form that works this way. While this may be overkill for a weekend project, for us, it speeds up adding new features.
 
 Usage
------
+^^^^^
 
 ::
 
@@ -77,7 +77,7 @@ Usage
 
 
 SuccessURLRedirectListMixin
-===========================
+---------------------------
 
 The ``SuccessURLRedirectListMixin`` is a bit more tailored to how we have handled CRUD_ within the CMSes we've built. One CMS's workflow, by design, redirects the user to the ``ListView`` for whatever model they are working with, whether they are creating a new instance, editing an existing one or deleting one. Rather than having to override ``get_success_url`` on every view, we simply use this mixin and pass it a reversible route name. Example:
 
@@ -102,7 +102,7 @@ The ``SuccessURLRedirectListMixin`` is a bit more tailored to how we have handle
 
 
 CreateAndRedirectToEditView
-===========================
+---------------------------
 
 Mostly used for CRUD, where you're going to create an object and then move direct to the update view for that object. Your URL for the update view has to accept a PK for the object. This ``mixin`` extends from `CreateView`.
 
@@ -126,7 +126,9 @@ Mostly used for CRUD, where you're going to create an object and then move direc
         ...
 
 FormValidMessageMixin
-=====================
+---------------------
+
+.. versionadded:: 1.2
 
 The ``FormValidMessageMixin`` allows you to to *statically* or *programmatically* set a message to be returned using Django's `messages`_ framework when the form is valid. The returned message is controlled by the ``form_valid_message`` property which can either be set on the view or returned by the ``get_form_valid_message`` method. The message is not processed until the end of the ``form_valid`` method.
 
@@ -138,7 +140,7 @@ The ``FormValidMessageMixin`` allows you to to *statically* or *programmatically
 
 
 Static Example
---------------
+^^^^^^^^^^^^^^
 
 ::
 
@@ -154,7 +156,7 @@ Static Example
 
 
 Dynamic Example
----------------
+^^^^^^^^^^^^^^^
 
 ::
 
@@ -173,7 +175,9 @@ Dynamic Example
 
 
 FormInvalidMessageMixin
-=======================
+-----------------------
+
+.. versionadded:: 1.2
 
 The ``FormInvalidMessageMixin`` allows you to to *statically* or *programmatically* set a message to be returned using Django's `messages`_ framework when the form is invalid. The returned message is controlled by the ``form_invalid_message`` property which can either be set on the view or returned by the ``get_form_invalid_message`` method. The message is not processed until the end of the ``form_invalid`` method.
 
@@ -184,7 +188,7 @@ The ``FormInvalidMessageMixin`` allows you to to *statically* or *programmatical
         This mixin is designed for use with Django's generic form class-based views, e.g. ``FormView``, ``CreateView``, ``UpdateView``
 
 Static Example
---------------
+^^^^^^^^^^^^^^
 
 ::
 
@@ -200,7 +204,7 @@ Static Example
 
 
 Dynamic Example
----------------
+^^^^^^^^^^^^^^^
 
 ::
 
@@ -218,7 +222,9 @@ Dynamic Example
 
 
 FormMessagesMixin
-=================
+-----------------
+
+.. versionadded:: 1.2
 
 ``FormMessagesMixin`` is a convenience mixin which combines ``FormValidMessageMixin`` and ``FormInvalidMessageMixin`` since we commonly provide messages for both states (form_valid, form_invalid).
 
@@ -226,7 +232,7 @@ FormMessagesMixin
         This mixin requires the Django `messages`_ app to be enabled.
 
 Static & Dynamic Example
----------------
+^^^^^^^^^^^^^^^
 
 ::
 

@@ -14,7 +14,7 @@ The ``raise_exception`` attribute will cause the view to raise a ``PermissionDen
 .. contents::
 
 LoginRequiredMixin
-==================
+------------------
 
 This mixin is rather simple and is generally the first inherited class in any of our views. If we don't have an authenticated user there's no need to go any further. If you've used Django before you are probably familiar with the ``login_required`` decorator.  All we are doing here is requiring a user to be authenticated to be able to get to this view.
 
@@ -43,7 +43,7 @@ While this doesn't look like much, it frees us up from having to manually overlo
             return self.render_to_response({})
 
 PermissionRequiredMixin
-=======================
+-----------------------
 
 This mixin was originally written, I believe, by `Daniel Sokolowski`_ (`code here`_), but we have updated it to eliminate an unneeded render if the permissions check fails.
 
@@ -67,7 +67,7 @@ In our normal use case for this mixin, ``LoginRequiredMixin`` comes first, then 
 
 
 MultiplePermissionsRequiredMixin
-================================
+--------------------------------
 
 The multiple permissions required view mixin is a more powerful version of the ``PermissionRequiredMixin``.  This view mixin can handle multiple permissions by setting the mandatory ``permissions`` attribute as a dict with the keys ``any`` and/or ``all`` to a list/tuple of permissions.  The ``all`` key requires the request.user to have all of the specified permissions. The ``any`` key requires the request.user to have at least ONE of the specified permissions. If you only need to check a single permission, the ``PermissionRequiredMixin`` is all you need.
 
@@ -91,7 +91,9 @@ The multiple permissions required view mixin is a more powerful version of the `
 
 
 GroupRequiredMixin
-==================
+------------------
+
+.. versionadded:: 1.2
 
 The group required view mixin ensures that the requesting user is in the group or groups specified. This view mixin can handle multiple groups by setting the mandatory ``group_required`` attribute as a list or tuple.
 
@@ -111,7 +113,7 @@ The group required view mixin ensures that the requesting user is in the group o
 
 
 SuperuserRequiredMixin
-======================
+----------------------
 
 Another permission-based mixin. This is specifically for requiring a user to be a superuser. Comes in handy for tools that only privileged users should have access to.
 
@@ -125,7 +127,7 @@ Another permission-based mixin. This is specifically for requiring a user to be 
 
 
 StaffuserRequiredMixin
-======================
+----------------------
 
 Similar to ``SuperuserRequiredMixin``, this mixin allows you to require a user with ``is_staff`` set to True.
 

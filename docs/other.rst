@@ -6,14 +6,14 @@ These mixins handle other random bits of Django's views, like controlling output
 .. contents::
 
 SetHeadlineMixin
-================
+----------------
 
 The ``SetHeadlineMixin`` is a newer edition to our client's CMS. It allows us to *statically* or *programmatically* set the headline of any
 of our views. We like to write as few templates as possible, so a mixin like this helps us reuse generic templates. Its usage is amazingly
 straightforward and works much like Django's built-in ``get_queryset`` method. This mixin has two ways of being used.
 
 Static Example
---------------
+^^^^^^^^^^^^^^
 
 ::
 
@@ -26,7 +26,7 @@ Static Example
 
 
 Dynamic Example
----------------
+^^^^^^^^^^^^^^^
 
 ::
 
@@ -47,7 +47,7 @@ In both usages, in the template, just print out ``{{ headline }}`` to show the g
 
 
 SelectRelatedMixin
-==================
+------------------
 
 A simple mixin which allows you to specify a list or tuple of foreign key fields to perform a `select_related`_ on.
 See Django's docs for more information on `select_related`_.
@@ -69,7 +69,7 @@ See Django's docs for more information on `select_related`_.
 
 
 PrefetchRelatedMixin
-==================
+------------------
 
 A simple mixin which allows you to specify a list or tuple of reverse foreign key or ManyToMany fields to perform a `prefetch_related`_ on.
 See Django's docs for more information on `prefetch_related`_.
@@ -90,7 +90,11 @@ See Django's docs for more information on `prefetch_related`_.
 
 
 JSONResponseMixin
-=================
+-----------------
+
+.. versionchanged:: 1.1
+    ``render_json_response`` now accepts a ``status_code`` keyword argument.
+    ``json_dumps_kwargs`` class-attribute and ``get_json_dumps_kwargs`` method to provide arguments to the ``json.dumps()`` method.
 
 A simple mixin to handle very simple serialization as a response to the browser.
 
@@ -156,7 +160,7 @@ overriding the `get_content_type()` method.
             return 'application/javascript'
 
 AjaxResponseMixin
-=================
+-----------------
 
 A mixin to allow you to provide alternative methods for handling AJAX requests.
 
@@ -181,7 +185,9 @@ the standard view methods.
 
 
 OrderableListMixin
-==================
+------------------
+
+.. versionadded:: 1.1
 
 A mixin to allow easy ordering of your queryset basing on the GET parameters.
 Works with `ListView`.
