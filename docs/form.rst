@@ -1,5 +1,5 @@
-django-braces Form Mixins
-=========================
+Form Mixins
+===========
 
 All of these mixins, with one exception, modify how forms are handled within views. The ``UserKwargModelFormMixin`` is a mixin for use in forms to auto-pop a ``user`` kwarg.
 

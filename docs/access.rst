@@ -1,5 +1,5 @@
-django-braces Access Mixins
-===========================
+Access Mixins
+=============
 
 These mixins all control a user's access to a given view. Since they all extend the ``AccessMixin``, the implement a common API that includes the following class attributes:
 

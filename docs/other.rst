@@ -1,5 +1,5 @@
-django-braces Other Mixins
-==========================
+Other Mixins
+============
 
 These mixins handle other random bits of Django's views, like controlling output, controlling content types, or setting values in the context.
 
