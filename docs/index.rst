@@ -9,10 +9,14 @@ Welcome to django-braces's documentation!
 You can view the code of our project or fork it and add your own mixins (please, send them back to us), on `Github`_.
 
 
+Access Mixins
+-------------
+
+Mixins that control access to views:
+
 .. toctree::
+    :maxdepth: 1
     access
-    form
-    other
 
 
 Indices and tables
