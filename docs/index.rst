@@ -10,7 +10,6 @@ You can view the code of our project or fork it and add your own mixins (please,
 
 
 .. toctree::
-    :maxdepth: 2
     Access Mixins <access>
     Form-based Mixins <form>
     Other Mixins <other>
