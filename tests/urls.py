@@ -26,7 +26,7 @@ urlpatterns = patterns(
     url(r'^form_with_user_kwarg/$', views.FormWithUserKwargView.as_view()),
 
     # SetHeadlineMixin tests
-    url(r'^headline/$', views.HeadlineView.as_view()),
+    url(r'^headline/$', views.HeadlineView.as_view(), name='headline'),
     url(r'^headline/(?P<s>[\w-]+)/$', views.DynamicHeadlineView.as_view()),
 
     # PermissionRequiredMixin tests

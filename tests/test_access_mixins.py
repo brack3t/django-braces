@@ -1,5 +1,6 @@
 from django import test
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.urlresolvers import reverse_lazy
 from .compat import force_text
 from .factories import make_group, make_user
 from .helpers import TestViewHelper
@@ -65,6 +66,11 @@ class _TestAccessBasicsMixin(TestViewHelper):
         req = self.build_request(user=user, path=self.view_url)
         resp = self.dispatch_view(req, login_url='/login/')
         self.assertEqual('/login/?next=%s' % self.view_url, resp['Location'])
+
+        # Test with reverse_lazy
+        resp = self.dispatch_view(req, login_url=reverse_lazy('headline'))
+        self.assertEqual('/headline/?next={}'.format(
+            self.view_url), resp['Location'])
 
     def test_custom_redirect_field_name(self):
         """

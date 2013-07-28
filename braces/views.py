@@ -10,6 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_text
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
 
@@ -67,7 +68,7 @@ class AccessMixin(object):
                 "Define %(cls)s.login_url or override "
                 "%(cls)s.get_login_url()." % {"cls": self.__class__.__name__})
 
-        return self.login_url
+        return force_text(self.login_url)
 
     def get_redirect_field_name(self):
         """
