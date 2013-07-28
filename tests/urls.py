@@ -54,7 +54,7 @@ urlpatterns = patterns(
     url(r'^article_list_json/$', views.ArticleListJsonView.as_view()),
 
     # JsonRequestResponseMixin tests
-    url(r'^json_request/$', views.JsonRequestView.as_view()),
+    url(r'^json_request/$', views.JsonRequestResponseView.as_view()),
     url(r'^json_bad_request/$', views.JsonBadRequestView.as_view()),
     url(r'^json_custom_bad_request/$', views.JsonCustomBadRequestView.as_view()),
 

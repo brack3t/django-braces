@@ -6,7 +6,7 @@ from braces.views import AjaxResponseMixin
 from .compat import force_text
 from .factories import make_article, make_user
 from .helpers import TestViewHelper
-from .views import SimpleJsonView, JsonRequestView
+from .views import SimpleJsonView, JsonRequestResponseView
 from .compat import json
 
 
@@ -132,8 +132,8 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         self.assertTrue(len(pretty_content) > len(normal_content))
 
 
-class TestJsonRequestMixin(TestViewHelper, test.TestCase):
-    view_class = JsonRequestView 
+class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
+    view_class = JsonRequestResponseView
     request_dict = {'status': 'operational'}
 
     def test_get_request_json_properly_formatted(self):
