@@ -1,11 +1,12 @@
 from django import test
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.urlresolvers import reverse_lazy
 from .compat import force_text
-from .factories import make_user
+from .factories import make_group, make_user
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
-                    LoginRequiredView)
+                    LoginRequiredView, GroupRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -66,6 +67,11 @@ class _TestAccessBasicsMixin(TestViewHelper):
         resp = self.dispatch_view(req, login_url='/login/')
         self.assertEqual('/login/?next=%s' % self.view_url, resp['Location'])
 
+        # Test with reverse_lazy
+        resp = self.dispatch_view(req, login_url=reverse_lazy('headline'))
+        self.assertEqual('/headline/?next={}'.format(
+            self.view_url), resp['Location'])
+
     def test_custom_redirect_field_name(self):
         """
         Redirect field name should be customizable.
@@ -82,8 +88,8 @@ class _TestAccessBasicsMixin(TestViewHelper):
         ImproperlyConfigured.
         """
         with self.assertRaises(ImproperlyConfigured):
-            self.dispatch_view(self.build_request(path=self.view_url),
-                login_url=None)
+            self.dispatch_view(
+                self.build_request(path=self.view_url), login_url=None)
 
     def test_get_redirect_field_name_raises_exception(self):
         """
@@ -91,11 +97,12 @@ class _TestAccessBasicsMixin(TestViewHelper):
         ImproperlyConfigured.
         """
         with self.assertRaises(ImproperlyConfigured):
-            self.dispatch_view(self.build_request(path=self.view_url),
+            self.dispatch_view(
+                self.build_request(path=self.view_url),
                 redirect_field_name=None)
 
 
-class TestLoginRequiredMixin(TestViewHelper):
+class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
     """
     Tests for LoginRequiredMixin.
     """
@@ -108,8 +115,8 @@ class TestLoginRequiredMixin(TestViewHelper):
 
     def test_anonymous_raises_exception(self):
         with self.assertRaises(PermissionDenied):
-            self.dispatch_view(self.build_request(path=self.view_url),
-                raise_exception=True)
+            self.dispatch_view(
+                self.build_request(path=self.view_url), raise_exception=True)
 
     def test_authenticated(self):
         user = make_user()
@@ -268,3 +275,38 @@ class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
 
     def build_unauthorized_user(self):
         return make_user()
+
+
+class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
+    view_class = GroupRequiredView
+    view_url = '/group_required/'
+
+    def build_authorized_user(self):
+        user = make_user()
+        group = make_group(name='test_group')
+        user.groups.add(group)
+        return user
+
+    def build_unauthorized_user(self):
+        return make_user()
+
+    def test_with_group_list(self):
+        view = self.view_class()
+        view.group_required = ['test_group', 'editors']
+
+        user = self.build_authorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_improperly_configured(self):
+        view = self.view_class()
+        view.group_required = None
+        with self.assertRaises(ImproperlyConfigured):
+            view.get_group_required()
+
+        view.group_required = {'foo': 'bar'}
+        with self.assertRaises(ImproperlyConfigured):
+            view.get_group_required()
+

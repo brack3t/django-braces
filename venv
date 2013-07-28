@@ -1,0 +1,31 @@
+#!/bin/bash
+# This file is run whenever you activate this virtualenv.
+# Add environment variables and local aliases here
+echo "running local venv"
+
+
+# ------------------
+# EmceeVirtualEnv generated stuff:
+
+# The following shoud be the full file path to theroot of your django project - where manage.py goes.
+export DJANGO_PROJECT_ROOT=/home/ethan/web_dev/django-braces
+
+# This should be the python dot path to get to your settings module
+# If your settings module is in the root of your project, it'll be "settings"
+# Otherwise it'll be something like "myproject.settings"
+export DJANGO_SETTINGS_MODULE=test_project.settings
+
+# This is adds the project root to your PYTHONPATH so things inside it can be imported
+export PYTHONPATH=$PYTHONPATH:$DJANGO_PROJECT_ROOT:$DJANGO_PROJECT_ROOT/test_project/
+
+
+# example secret key setting (please change the key if you use this)
+# export DJANGO_SECRET_KEY='1of*b8rert1h^yxfte1kkl3tr#_k+orinrbw(d!p_=l6bd(v#2'
+
+# You should also use environment variables to turn debug on and off
+# rather than changing the code every time.
+# export DJANGO_DEBUG="True"
+
+# You can also use a DJANGO_ENV (or similar) variable to differentiate
+# between development, staging, and production settings.
+# export DJANGO_ENV="DEV"

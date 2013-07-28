@@ -2,7 +2,7 @@ from django import test
 from django.contrib.auth.models import AnonymousUser
 
 
-class TestViewHelper(test.TestCase):
+class TestViewHelper(object):
     """
     Helper class for unit-testing class based views.
     """
