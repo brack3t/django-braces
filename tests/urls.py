@@ -53,9 +53,15 @@ urlpatterns = patterns(
     url(r'^simple_json_400/$', views.SimpleJsonBadRequestView.as_view()),
     url(r'^article_list_json/$', views.ArticleListJsonView.as_view()),
 
+    # JsonRequestResponseMixin tests
+    url(r'^json_request/$', views.JsonRequestResponseView.as_view()),
+    url(r'^json_bad_request/$', views.JsonBadRequestView.as_view()),
+    url(r'^json_custom_bad_request/$', views.JsonCustomBadRequestView.as_view()),
+
     # FormMessagesMixin tests
     url(r'form_messages/$', views.FormMessagesView.as_view()),
 )
+
 
 urlpatterns += patterns(
     'django.contrib.auth.views',
