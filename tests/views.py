@@ -69,28 +69,28 @@ class ArticleListJsonView(JSONResponseMixin, View):
             queryset, fields=('title',))
 
 
-class JsonRequestView(JsonRequestMixin, View):
+class JsonRequestResponseView(JsonRequestResponseMixin, View):
     """
-    A view for testing JsonRequestMixin's json conversion
-    """ 
+    A view for testing JsonRequestResponseMixin's json conversion
+    """
     def post(self, request):
         return self.render_json_response(self.request_json)
 
 
-class JsonBadRequestView(JsonRequestMixin, View):
+class JsonBadRequestView(JsonRequestResponseMixin, View):
     """
-    A view for testing JsonRequestMixin's render_bad_request_response method 
+    A view for testing JsonRequestResponseMixin's require_json
+    and render_bad_request_response methods
     """
+    require_json = True
+
     def post(self, request, *args, **kwargs):
-        # catch empty and improperly formatted requests
-        if not self.request_json:
-            return self.render_bad_request_response()
         return self.render_json_response(self.request_json)
 
 
-class JsonCustomBadRequestView(JsonRequestMixin, View):
+class JsonCustomBadRequestView(JsonRequestResponseMixin, View):
     """
-    A view for testing JsonRequestMixin's render_bad_request_response method
+    A view for testing JsonRequestResponseMixin's render_bad_request_response method
     with a custom error message
     """
     def post(self, request, *args, **kwargs):

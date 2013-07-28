@@ -85,7 +85,7 @@ class LoginRequiredMixin(AccessMixin):
 
     NOTE:
         This should be the left-most mixin of a view, except when
-        combined with CsrfExemptMixin - which in that case should 
+        combined with CsrfExemptMixin - which in that case should
         be the left-most mixin.
     """
     def dispatch(self, request, *args, **kwargs):
@@ -487,27 +487,26 @@ class AjaxResponseMixin(object):
         return self.get(request, *args, **kwargs)
 
 
-class JsonRequestMixin(JSONResponseMixin):
+class JsonRequestResponseMixin(JSONResponseMixin):
     """
     Extends JSONResponseMixin.  Attempts to parse request as JSON.  If request
     is properly formatted, the json is saved to self.request_json as a Python
     object.  request_json will be None for imparsible requests.
+    Set the attribute require_json to True to return a 400 "Bad Request" error
+    for requests that don't contain JSON.
 
-    Note: To allow public access to your view, you'll need to use the 
+    Note: To allow public access to your view, you'll need to use the
     csrf_exempt decorator or CsrfExemptMixin.
 
     Example Usage:
 
-        class SomeView(CsrfExemptMixin, JsonRequestMixin):
+        class SomeView(CsrfExemptMixin, JsonRequestResponseMixin):
             def post(self, request, *args, **kwargs):
-                # catch empty and improperly formatted requests
-                if not self.request_json:
-                    # This method will return a HTTP400 error:
-                    return self.render_bad_request_response()
                 do_stuff_with_contents_of_request_json()
                 return self.render_json_response(
                     {'message': 'Thanks!'})
     """
+    require_json = False
     error_response_dict = { 'errors': ['Improperly formatted request'] }
 
     def render_bad_request_response(self, error_dict=None):
@@ -529,4 +528,6 @@ class JsonRequestMixin(JSONResponseMixin):
 
     def dispatch(self, request, *args, **kwargs):
         self.request_json = self.get_request_json()
-        return super(JsonRequestMixin, self).dispatch(request, *args, **kwargs)
+        if self.require_json and ( self.request_json is None ):
+            return self.render_bad_request_response()
+        return super(JsonRequestResponseMixin, self).dispatch(request, *args, **kwargs)
