@@ -25,6 +25,9 @@ To run the test suite, execute the following in your shell (Django install is re
 
 ## Change Log
 
+### 1.2.1
+* Fix to allow `reverse_lazy` on all `AccessMixin`-derived mixins.
+
 ### 1.2.0
 * `FormValidMessageMixin` which provides a `messages` message when the processed form is valid.
 * `FormInvalidMessageMixin` which provides a `messages` message when the processed form is invalid.
