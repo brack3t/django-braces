@@ -4,10 +4,12 @@ from django import test
 from django.core.exceptions import ImproperlyConfigured
 from braces.views import (SetHeadlineMixin, FormValidMessageMixin,
                           FormInvalidMessageMixin)
-from .models import Article
+from .models import Article, CanonicalArticle
 from .helpers import TestViewHelper
 from .views import (CreateArticleView, ArticleListView, AuthorDetailView,
-                    OrderableListView, FormMessagesView)
+                    OrderableListView, CanonicalSlugDetailView,
+                    OverriddenCanonicalSlugDetailView,
+                    ModelCanonicalSlugDetailView, FormMessagesView)
 from .factories import make_user
 from .compat import force_text
 
@@ -197,8 +199,8 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
     view_class = OrderableListView
 
     def __make_test_articles(self):
-        a1 = Article.objects.create(title='Alpha', body='Zet')
-        a2 = Article.objects.create(title='Zet', body='Alpha')
+        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
         return a1, a2
 
     def test_correct_order(self):
@@ -266,6 +268,140 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
             orderable_columns_default=None,
             get_orderable_columns_default=lambda: 'title')
         self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
+
+
+class TestCanonicalSlugDetailMixin(TestViewHelper, test.TestCase):
+    view_class = CanonicalSlugDetailView
+
+    def setUp(self):
+        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+
+    def test_canonical_slug(self):
+        """
+        Test that no redirect occurs when slug is canonical.
+        """
+        resp = self.client.get('/article/canonical/1-alpha')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.clientlget('/article/canonical/2-zet')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_canonical_slug(self):
+        """
+        Test that a redirect occurs when the slug is non-canonical.
+        """
+        resp = self.client.get('/article/canonical/1-bad-slug')
+        self.assertEqual(resp.status_code, 301)
+        resp = self.client.get('/article/canonical/2-bad-slug')
+        self.assertEqual(resp.status_code, 301)
+
+
+class TestOverriddenCanonicalSlugDetailView(TestViewHelper, test.TestCase):
+    view_class = OverriddenCanonicalSlugDetailView
+
+    def setUp(self):
+        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+
+    def test_canonical_slug(self):
+        """
+        Test that no redirect occurs when slug is canonical according to the
+        overridden canonical slug.
+        """
+        resp = self.client.get('/article/canonical-override/1-nycun')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.clientlget('/article/canonical-override/2-mrg')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_canonical_slug(self):
+        """
+        Test that a redirect occurs when the slug is non-canonical.
+        """
+        resp = self.client.get('/article/canonical-override/1-bad-slug')
+        self.assertEqual(resp.status_code, 301)
+        resp = self.client.get('/article/canonical-override/2-bad-slug')
+        self.assertEqual(resp.status_code, 301)
+
+
+class TestModelCanonicalSlugDetailView(TestViewHelper, test.TestCase):
+    view_class = ModelCanonicalSlugDetailView
+
+    def setUp(self):
+        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+
+    def test_canonical_slug(self):
+        """
+        Test that no redirect occurs when slug is canonical according to the
+        overridden canonical slug.
+        """
+        resp = self.client.get('/article/canonical-model/1-unauthored-alpha')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.clientlget('/article/canonical-model/2-unauthored-zet')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_canonical_slug(self):
+        """
+        Test that a redirect occurs when the slug is non-canonical.
+        """
+        resp = self.client.get('/article/canonical-model/1-bad-slug')
+        self.assertEqual(resp.status_code, 301)
+        resp = self.client.get('/article/canonical-model/2-bad-slug')
+        self.assertEqual(resp.status_code, 301)
+
+
+class TestOverriddenCanonicalSlugDetailView(TestViewHelper, test.TestCase):
+    view_class = OverriddenCanonicalSlugDetailView
+
+    def setUp(self):
+        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+
+    def test_canonical_slug(self):
+        """
+        Test that no redirect occurs when slug is canonical according to the
+        overridden canonical slug.
+        """
+        resp = self.client.get('/article/canonical/1-nycun')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.clientlget('/article/canonical/2-mrg')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_canonical_slug(self):
+        """
+        Test that a redirect occurs when the slug is non-canonical.
+        """
+        resp = self.client.get('/article/canonical/1-bad-slug')
+        self.assertEqual(resp.status_code, 301)
+        resp = self.client.get('/article/canonical/2-bad-slug')
+        self.assertEqual(resp.status_code, 301)
+
+
+class TestOverriddenCanonicalSlugDetailView(TestViewHelper, test.TestCase):
+    view_class = OverriddenCanonicalSlugDetailView
+
+    def setUp(self):
+        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+
+    def test_canonical_slug(self):
+        """
+        Test that no redirect occurs when slug is canonical according to the
+        overridden canonical slug.
+        """
+        resp = self.client.get('/article/canonical/1-nycun')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.clientlget('/article/canonical/2-mrg')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_canonical_slug(self):
+        """
+        Test that a redirect occurs when the slug is non-canonical.
+        """
+        resp = self.client.get('/article/canonical/1-bad-slug')
+        self.assertEqual(resp.status_code, 301)
+        resp = self.client.get('/article/canonical/2-bad-slug')
+        self.assertEqual(resp.status_code, 301)
 
 
 class TestFormMessageMixins(test.TestCase):
