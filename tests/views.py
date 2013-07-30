@@ -1,11 +1,13 @@
+import codecs
+
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.views.generic import (View, UpdateView, FormView, TemplateView,
-                                  ListView, CreateView)
+                                  ListView, DetailView, CreateView)
 
 from braces import views
 
-from .models import Article
+from .models import Article, CanonicalArticle
 from .forms import ArticleForm, FormWithUserKwarg
 
 
@@ -189,6 +191,26 @@ class OrderableListView(views.OrderableListMixin, ListView):
     model = Article
     orderable_columns = ('id', 'title', )
     orderable_columns_default = 'id'
+
+
+class CanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailView):
+    model = Article
+    template_name = 'blank.html'
+
+
+class OverriddenCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
+                                        DetailView):
+    model = Article
+    template_name = 'blank.html'
+
+    def get_canonical_slug(self):
+        return codecs.encode(self.get_object().slug, 'rot_13')
+
+
+class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
+                                            DetailView):
+    model = CanonicalArticle
+    template_name = 'blank.html'
 
 
 class FormMessagesView(views.FormMessagesMixin, CreateView):
