@@ -195,19 +195,22 @@ class OrderableListView(views.OrderableListMixin, ListView):
 
 class CanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailView):
     model = Article
+    template_name = 'blank.html'
 
 
 class OverriddenCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
                                         DetailView):
     model = Article
+    template_name = 'blank.html'
 
-    def get_canonical_slug():
+    def get_canonical_slug(self):
         return codecs.encode(self.get_object().slug, 'rot_13')
 
 
 class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
                                             DetailView):
     model = CanonicalArticle
+    template_name = 'blank.html'
 
 
 class FormMessagesView(views.FormMessagesMixin, CreateView):

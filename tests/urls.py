@@ -23,11 +23,11 @@ urlpatterns = patterns(
         name='article_list'),
 
     # CanonicalSlugDetailMixin tests
-    url(r'^article/canonical/(?P<pk>\d+)-(?P<slug>[-\w]+)$',
+    url(r'^article-canonical/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.CanonicalSlugDetailView.as_view()),
-    url(r'^article/canonical-override/(?P<pk>\d+)-(?P<slug>[-\w]+)$',
-        views.CanonicalSlugDetailView.as_view()),
-    url(r'^article/canonical-model/(?P<pk>\d+)-(?P<slug>[-\w]+)$',
+    url(r'^article-canonical-override/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
+        views.OverriddenCanonicalSlugDetailView.as_view()),
+    url(r'^article-canonical-model/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.ModelCanonicalSlugDetailView.as_view()),
 
     # UserFormKwargsMixin tests
