@@ -168,7 +168,7 @@ overriding the `get_content_type()` method.
 JsonRequestResponseMixin
 ------------------------
 
-.. versionadded:: 1.1
+.. versionadded:: 1.3
 
 A mixin that attempts to parse request as JSON.  If request is properly formatted, the json is saved to self.request_json as a Python object.  request_json will be None for imparsible requests.
 
