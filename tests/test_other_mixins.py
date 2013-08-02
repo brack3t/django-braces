@@ -12,30 +12,6 @@ from .factories import make_user
 from .compat import force_text
 
 
-class TestCreateAndRedirectToEditView(TestViewHelper, test.TestCase):
-    """
-    Tests for CreateAndRedirectToEditView.
-    """
-    view_class = CreateArticleView
-
-    def test_redirect(self):
-        """
-        Test if browser is redirected to edit view.
-        """
-        data = {'title': "Test body", 'body': "Test body"}
-        resp = self.client.post('/article/create/', data)
-        article = Article.objects.get()
-        self.assertRedirects(resp, '/article/%d/edit/' % article.id)
-
-    def test_missing_success_url_name(self):
-        """
-        Test if missing success_url_name causes ImproperlyConfigured error.
-        """
-        view = self.build_view(self.build_request(), success_url_name=None)
-        with self.assertRaises(ImproperlyConfigured):
-            view.get_success_url()
-
-
 class TestSuccessURLRedirectListMixin(test.TestCase):
     """
     Tests for SuccessURLRedirectListMixin.
