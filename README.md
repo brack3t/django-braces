@@ -25,6 +25,13 @@ To run the test suite, execute the following in your shell (Django install is re
 
 ## Change Log
 
+### Dev
+
+* Removed `CreateAndRedirectToEditView` mixin. It was marked for deprecation and removal since 1.0.
+* Added `JsonRequestAndResponseMixin` mixin which attempts to parse requests as JSON.
+* Added `CanonicalSlugDetailMixin` mixin which allows for the specification of a canonical slug on a `DetailView` to help with SEO by redirecting on non-canonical requests.
+* Tests and documentation changes for all of the above.
+
 ### 1.2.1
 * Fix to allow `reverse_lazy` on all `AccessMixin`-derived mixins.
 
