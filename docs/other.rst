@@ -5,12 +5,12 @@ These mixins handle other random bits of Django's views, like controlling output
 
 .. contents::
 
+.. _SetHeadlineMixin:
+
 SetHeadlineMixin
 ----------------
 
-The ``SetHeadlineMixin`` is a newer edition to our client's CMS. It allows us to *statically* or *programmatically* set the headline of any
-of our views. We like to write as few templates as possible, so a mixin like this helps us reuse generic templates. Its usage is amazingly
-straightforward and works much like Django's built-in ``get_queryset`` method. This mixin has two ways of being used.
+The ``SetHeadlineMixin`` is a newer edition to our client's CMS. It allows us to *statically* or *programmatically* set the headline of any of our views. We like to write as few templates as possible, so a mixin like this helps us reuse generic templates. Its usage is amazingly straightforward and works much like Django's built-in ``get_queryset`` method. This mixin has two ways of being used.
 
 Static Example
 ^^^^^^^^^^^^^^
@@ -46,11 +46,12 @@ In both usages, in the template, just print out ``{{ headline }}`` to show the g
 
 
 
+.. _SelectRelatedMixin:
+
 SelectRelatedMixin
 ------------------
 
-A simple mixin which allows you to specify a list or tuple of foreign key fields to perform a `select_related`_ on.
-See Django's docs for more information on `select_related`_.
+A simple mixin which allows you to specify a list or tuple of foreign key fields to perform a `select_related`_ on.  See Django's docs for more information on `select_related`_.
 
 ::
 
@@ -68,11 +69,12 @@ See Django's docs for more information on `select_related`_.
         template_name = "profiles/detail.html"
 
 
+.. _PrefetchRelatedMixin:
+
 PrefetchRelatedMixin
 ------------------
 
-A simple mixin which allows you to specify a list or tuple of reverse foreign key or ManyToMany fields to perform a `prefetch_related`_ on.
-See Django's docs for more information on `prefetch_related`_.
+A simple mixin which allows you to specify a list or tuple of reverse foreign key or ManyToMany fields to perform a `prefetch_related`_ on. See Django's docs for more information on `prefetch_related`_.
 
 ::
 
@@ -88,6 +90,8 @@ See Django's docs for more information on `prefetch_related`_.
         prefetch_related = ["post_set"]  # where the Post model has an FK to the User model as an author.
         template_name = "users/detail.html"
 
+
+.. _JSONResponseMixin:
 
 JSONResponseMixin
 -----------------
@@ -159,14 +163,51 @@ overriding the `get_content_type()` method.
             # Shown just for illustrative purposes
             return 'application/javascript'
 
+.. _JsonRequestResponseMixin:
+
+JsonRequestResponseMixin
+------------------------
+
+A mixin that attempts to parse request as JSON.  If request is properly formatted, the json is saved to self.request_json as a Python object.  request_json will be None for imparsible requests.
+
+To catch requests that aren't JSON-formatted, set the class attribute ``require_json`` to True.
+
+Override the class attribute ``error_response_dict`` to customize the default error message.
+
+It extends :ref:`JSONResponseMixin`, so those utilities are available as well.
+
+Note: To allow public access to your view, you'll need to use the ``csrf_exempt`` decorator or :ref:`CsrfExemptMixin`.
+
+::
+
+    from django.views.generic import View
+
+    from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
+
+    class SomeView(CsrfExemptMixin, JsonRequestResponseMixin):
+        require_json = True
+
+        def post(self, request, *args, **kwargs):
+            try:
+                burrito = self.request_json['burrito']
+                toppings = self.request_json['toppings']
+            except:
+                error_dict = {'message':
+                    'your order must include a burrito AND toppings'}
+                return self.render_bad_request_response(error_dict)
+            place_order(burrito, toppings)
+            return self.render_json_response(
+                {'message': 'Your order has been placed!'})
+
+
+.. _AjaxResponseMixin:
+
 AjaxResponseMixin
 -----------------
 
 A mixin to allow you to provide alternative methods for handling AJAX requests.
 
-To control AJAX-specific behavior, override `get_ajax`, `post_ajax`, `put_ajax`,
-or `delete_ajax`. All four methods take `request`, `*args`, and `**kwargs` like
-the standard view methods.
+To control AJAX-specific behavior, override ``get_ajax``, ``post_ajax``, ``put_ajax``, or ``delete_ajax``. All four methods take ``request``, ``*args``, and ``**kwargs`` like the standard view methods.
 
 ::
 
@@ -184,17 +225,16 @@ the standard view methods.
             return self.render_json_response(json_dict)
 
 
+.. _OrderableListMixin:
+
 OrderableListMixin
 ------------------
 
 .. versionadded:: 1.1
 
-A mixin to allow easy ordering of your queryset basing on the GET parameters.
-Works with `ListView`.
+A mixin to allow easy ordering of your queryset basing on the GET parameters. Works with `ListView`.
 
-To use it, define columns that the data can be order by as well as the default
-column to order by in your view. This can be done either by simply setting
-the class attributes...
+To use it, define columns that the data can be order by as well as the default column to order by in your view. This can be done either by simply setting the class attributes...
 
 ::
 
@@ -204,8 +244,7 @@ the class attributes...
         orderable_columns = ('id', 'title',)
         orderable_columns_default = 'id'
 
-...or by using similarly name methods to set the ordering constraints more
-dynamically:
+...or by using similarly name methods to set the ordering constraints more dynamically:
 
 ::
 
@@ -221,30 +260,28 @@ dynamically:
             # return a string
             return 'id'
 
-The `orderable_columns` restriction is here in order to stop your users from
-launching inefficient queries, like ordering by binary columns.
+The ``orderable_columns`` restriction is here in order to stop your users from launching inefficient queries, like ordering by binary columns.
 
-`OrderableListMixin` will order your queryset basing on following GET params:
+``OrderableListMixin`` will order your queryset basing on following GET params:
 
-    * `order_by`: column name, e.g. `'title'`
-    * `ordering`: `'asc'` (default) or `'desc'`
+    * ``order_by``: column name, e.g. ``'title'``
+    * ``ordering``: `'asc'` (default) or ``'desc'``
 
-Example url: http://127.0.0.1:8000/articles/?order_by=title&ordering=asc
+Example url: `http://127.0.0.1:8000/articles/?order_by=title&ordering=asc`
 
+
+.. _CanonicalSlugDetailMixin:
 
 CanonicalSlugDetailMixin
 ------------------------
 
 .. versionadded:: 1.3
 
-A mixin that enforces a canonical slug in the url. Works with `DetailView`.
+A mixin that enforces a canonical slug in the url. Works with ``DetailView``.
 
-If a urlpattern takes a object's pk and slug as arguments and the slug url
-argument does not equal the object's canonical slug, this mixin will redirect
-to the url containing the canonical slug.
+If a urlpattern takes a object's pk and slug as arguments and the slug url argument does not equal the object's canonical slug, this mixin will redirect to the url containing the canonical slug.
 
-To use it, the urlpattern must accept both a `pk` and `slug` argument in its
-regex:
+To use it, the urlpattern must accept both a ``pk`` and ``slug`` argument in its regex:
 
 ::
 
@@ -262,14 +299,9 @@ Then create a standard DetailView that inherits this mixin:
     class ArticleView(CanonicalSlugDetailMixin, DetailView):
         model = Article
 
-Now, given an Article object with `{pk: 1, slug: 'hello-world'}`, the url
-http://127.0.0.1:8000/article/1-goodbye-moon will redirect to
-http://127.0.0.1:8000/article/1-hello-world with the HTTP status code 301 Moved
-Permanently. Any other non-canonical slug, not just 'goodbye-moon', will trigger the
-redirect as well.
+Now, given an Article object with ``{pk: 1, slug: 'hello-world'}``, the url `http://127.0.0.1:8000/article/1-goodbye-moon` will redirect to `http://127.0.0.1:8000/article/1-hello-world` with the HTTP status code 301 Moved Permanently. Any other non-canonical slug, not just 'goodbye-moon', will trigger the redirect as well.
 
-Control the canonical slug by either implementing the method
-`get_canonical_slug()` on the model class:
+Control the canonical slug by either implementing the method ``get_canonical_slug()`` on the model class:
 
 ::
 
@@ -280,7 +312,7 @@ Control the canonical slug by either implementing the method
         def get_canonical_slug(self):
           return "{}-{}".format(self.blog.get_canonical_slug(), self.slug)
 
-Or by overriding the `get_canonical_slug()` method on the view:
+Or by overriding the ``get_canonical_slug()`` method on the view:
 
 ::
 
@@ -291,9 +323,7 @@ Or by overriding the `get_canonical_slug()` method on the view:
             import codecs
             return codecs.encode(self.get_object().slug, 'rot_13')
 
-Given the same Article as before, this will generate urls of
-http://127.0.0.1:8000/article/1-my-blog-hello-world and
-http://127.0.0.1:8000/article/1-uryyb-jbeyq, respectively.
+Given the same Article as before, this will generate urls of `http://127.0.0.1:8000/article/1-my-blog-hello-world` and `http://127.0.0.1:8000/article/1-uryyb-jbeyq`, respectively.
 
 .. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
 .. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related

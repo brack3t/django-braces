@@ -7,19 +7,20 @@ Project Leads
 
 * Kenneth Love <kenneth@gigantuan.net>
 * Chris Jones <chris@brack3t.com>
-*
-* Direct Contributors
-* ===================
-*
-* * Daniel Greenfeld
-* * Drew Tempelmeyer
-* * Baptiste Mispelon
-* * Derek Payton
-* * Rafal Stozek
-* * Piotr Kilczuk
-* * Rodney Folz
-*
-* Other Contributors
-* ==================
-*
-* * The entire Python and Django communities for providing us the tools and desire we to build these things.
+
+Direct Contributors
+===================
+
+* Daniel Greenfeld
+* Drew Tempelmeyer
+* Baptiste Mispelon
+* Derek Payton
+* Rafal Stozek
+* Ethan Soergel
+* Piotr Kilczuk
+* Rodney Folz
+
+Other Contributors
+==================
+
+* The entire Python and Django communities for providing us the tools and desire we to build these things.

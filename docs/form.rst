@@ -5,6 +5,8 @@ All of these mixins, with one exception, modify how forms are handled within vie
 
 .. contents::
 
+.. _CsrfExemptMixin:
+
 CsrfExemptMixin
 ---------------
 
@@ -22,6 +24,8 @@ If you have Django's `CSRF protection` middleware enabled you can exempt views u
     class UpdateProfileView(LoginRequiredMixin, CsrfExemptMixin, UpdateView):
         model = Profile
 
+
+.. _UserFormKwargsMixin:
 
 UserFormKwargsMixin
 -------------------
@@ -51,10 +55,12 @@ Usage
 This obviously pairs very nicely with the following ``Form`` mixin.
 
 
+.. _UserKwargModelFormMixin:
+
 UserKwargModelFormMixin
 -----------------------
 
-The ``UserKwargModelFormMixin`` is a form mixin to go along with our ``UserFormKwargsMixin``.
+The ``UserKwargModelFormMixin`` is a form mixin to go along with our :ref:`UserFormKwargsMixin`.
 This becomes the first inherited class of our forms that receive the user keyword argument. With this mixin, we have automated the popping off of the keyword argument in our form and no longer have to do it manually on every form that works this way. While this may be overkill for a weekend project, for us, it speeds up adding new features.
 
 Usage
@@ -75,6 +81,8 @@ Usage
             if not self.user.is_superuser:
                 del self.fields["group"]
 
+
+.. _SuccessURLRedirectListMixin:
 
 SuccessURLRedirectListMixin
 ---------------------------
@@ -101,6 +109,8 @@ The ``SuccessURLRedirectListMixin`` is a bit more tailored to how we have handle
         ...
 
 
+.. _CreateAndRedirectToEditView:
+
 CreateAndRedirectToEditView
 ---------------------------
 
@@ -124,6 +134,8 @@ Mostly used for CRUD, where you're going to create an object and then move direc
     class UserCreateView(CreateAndRedirectToEditView):
         model = User
         ...
+
+.. _FormValidMessageMixin:
 
 FormValidMessageMixin
 ---------------------
@@ -174,6 +186,8 @@ Dynamic Example
 
 
 
+.. _FormInvalidMessageMixin:
+
 FormInvalidMessageMixin
 -----------------------
 
@@ -221,12 +235,14 @@ Dynamic Example
             return 'Some custom message'
 
 
+.. _FormMessagesMixin:
+
 FormMessagesMixin
 -----------------
 
 .. versionadded:: 1.2
 
-``FormMessagesMixin`` is a convenience mixin which combines ``FormValidMessageMixin`` and ``FormInvalidMessageMixin`` since we commonly provide messages for both states (form_valid, form_invalid).
+``FormMessagesMixin`` is a convenience mixin which combines :ref:`FormValidMessageMixin` and :ref:`FormInvalidMessageMixin` since we commonly provide messages for both states (``form_valid``, ``form_invalid``).
 
     .. warning::
         This mixin requires the Django `messages`_ app to be enabled.
