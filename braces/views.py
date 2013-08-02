@@ -7,11 +7,13 @@ from django.contrib.auth.views import redirect_to_login
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import resolve, reverse
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
 from django.views.generic import CreateView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
@@ -651,6 +653,45 @@ class OrderableListMixin(object):
         """
         unordered_queryset = super(OrderableListMixin, self).get_queryset()
         return self.get_ordered_queryset(unordered_queryset)
+
+
+class CanonicalSlugDetailMixin(SingleObjectMixin):
+    """
+    A mixin that enforces a canonical slug in the url.
+
+    If a urlpattern takes a object's pk and slug as arguments and the slug url
+    argument does not equal the object's canonical slug, this mixin will
+    redirect to the url containing the canonical slug.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        # Get the current object, url slug, and urlpattern name.
+        obj = self.get_object()
+        slug = self.kwargs.get(self.slug_url_kwarg, None)
+        current_urlpattern = resolve(request.path_info).url_name
+
+        # Figure out what the slug is supposed to be.
+        canonical_slug = self.get_canonical_slug()
+        if hasattr(obj, 'get_canonical_slug'):
+            canonical_slug = obj.get_canonical_slug()
+
+        # If there's a discrepancy between the slug in the url and the
+        # canonical slug, redirect to the canonical slug.
+        if canonical_slug != slug:
+            return redirect(current_urlpattern, pk=obj.pk, slug=canonical_slug,
+                            permanent=True)
+
+        return super(CanonicalSlugDetailMixin, self).dispatch(
+            request, *args, **kwargs)
+
+    def get_canonical_slug(self):
+        """
+        Override this method to customize what slug should be considered
+        canonical.
+
+        Alternatively, define the get_canonical_slug method on this view's
+        object class.
+        """
+        return self.get_object().slug
 
 
 class FormValidMessageMixin(object):

@@ -18,6 +18,7 @@ Project Leads
 * * Rafal Stozek
 * * Ethan Soergel
 * * Piotr Kilczuk
+* * Rodney Folz
 *
 * Other Contributors
 * ==================
