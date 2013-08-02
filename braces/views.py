@@ -562,7 +562,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
                     {'message': 'Thanks!'})
     """
     require_json = False
-    error_response_dict = { 'errors': ['Improperly formatted request'] }
+    error_response_dict = {'errors': ['Improperly formatted request']}
 
     def render_bad_request_response(self, error_dict=None):
         if error_dict is None:
@@ -583,9 +583,10 @@ class JsonRequestResponseMixin(JSONResponseMixin):
 
     def dispatch(self, request, *args, **kwargs):
         self.request_json = self.get_request_json()
-        if self.require_json and ( self.request_json is None ):
+        if self.require_json and self.request_json is None:
             return self.render_bad_request_response()
-        return super(JsonRequestResponseMixin, self).dispatch(request, *args, **kwargs)
+        return super(JsonRequestResponseMixin, self).dispatch(request,
+                                                              *args, **kwargs)
 
 
 class OrderableListMixin(object):
