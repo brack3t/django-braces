@@ -112,12 +112,11 @@ class JsonCustomBadRequestView(views.JsonRequestResponseMixin, View):
         return self.render_json_response(self.request_json)
 
 
-class CreateArticleView(views.CreateAndRedirectToEditView):
+class CreateArticleView(CreateView):
     """
     View for testing CreateAndRedirectEditToView.
     """
     model = Article
-    success_url_name = 'edit_article'
     template_name = 'form.html'
 
 

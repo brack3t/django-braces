@@ -109,32 +109,6 @@ The ``SuccessURLRedirectListMixin`` is a bit more tailored to how we have handle
         ...
 
 
-.. _CreateAndRedirectToEditView:
-
-CreateAndRedirectToEditView
----------------------------
-
-Mostly used for CRUD, where you're going to create an object and then move direct to the update view for that object. Your URL for the update view has to accept a PK for the object. This ``mixin`` extends from `CreateView`.
-
-    .. warning::
-        This mixin is pending deprecation and will be removed in a future release.
-
-::
-
-    # urls.py
-    ...
-    url(r"^users/create/$", UserCreateView.as_view(), name="cms_users_create"),
-    url(r"^users/edit/(?P<pk>\d+)/$", UserUpdateView.as_view(), name="cms_users_update"),
-    ...
-
-    # views.py
-    from braces.views import CreateAndRedirectToEditView
-
-
-    class UserCreateView(CreateAndRedirectToEditView):
-        model = User
-        ...
-
 .. _FormValidMessageMixin:
 
 FormValidMessageMixin
