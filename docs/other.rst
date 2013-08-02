@@ -231,5 +231,69 @@ launching inefficient queries, like ordering by binary columns.
 
 Example url: http://127.0.0.1:8000/articles/?order_by=title&ordering=asc
 
+
+CanonicalSlugDetailMixin
+------------------------
+
+.. versionadded:: 1.3
+
+A mixin that enforces a canonical slug in the url. Works with `DetailView`.
+
+If a urlpattern takes a object's pk and slug as arguments and the slug url
+argument does not equal the object's canonical slug, this mixin will redirect
+to the url containing the canonical slug.
+
+To use it, the urlpattern must accept both a `pk` and `slug` argument in its
+regex:
+
+::
+
+    # urls.py
+    urlpatterns = patterns('',
+        url(r'^article/(?P<pk>\d+)-(?P<slug>[-\w]+)$')
+        ArticleView.as_view(),
+        'view_article'
+    )
+
+Then create a standard DetailView that inherits this mixin:
+
+::
+
+    class ArticleView(CanonicalSlugDetailMixin, DetailView):
+        model = Article
+
+Now, given an Article object with `{pk: 1, slug: 'hello-world'}`, the url
+http://127.0.0.1:8000/article/1-goodbye-moon will redirect to
+http://127.0.0.1:8000/article/1-hello-world with the HTTP status code 301 Moved
+Permanently. Any other non-canonical slug, not just 'goodbye-moon', will trigger the
+redirect as well.
+
+Control the canonical slug by either implementing the method
+`get_canonical_slug()` on the model class:
+
+::
+
+    class Article(models.Model):
+        blog = models.ForeignKey('Blog')
+        slug = models.SlugField()
+
+        def get_canonical_slug(self):
+          return "{}-{}".format(self.blog.get_canonical_slug(), self.slug)
+
+Or by overriding the `get_canonical_slug()` method on the view:
+
+::
+
+    class ArticleView(CanonicalSlugDetailMixin, DetailView):
+        model = Article
+
+        def get_canonical_slug():
+            import codecs
+            return codecs.encode(self.get_object().slug, 'rot_13')
+
+Given the same Article as before, this will generate urls of
+http://127.0.0.1:8000/article/1-my-blog-hello-world and
+http://127.0.0.1:8000/article/1-uryyb-jbeyq, respectively.
+
 .. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
 .. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related
