@@ -1,3 +1,4 @@
+import six
 import warnings
 
 from django.conf import settings
@@ -284,7 +285,7 @@ class GroupRequiredMixin(AccessMixin):
     def get_group_required(self):
         if self.group_required is None or (
                 not isinstance(self.group_required,
-                               (str, unicode, list, tuple))):
+                               (list, tuple) + six.string_types)):
 
             raise ImproperlyConfigured(
                 "'GroupRequiredMixin' requires "
@@ -626,7 +627,7 @@ class FormValidMessageMixin(object):
                 '{0}.get_form_valid_message().'.format(self.__class__.__name__)
             )
 
-        if not isinstance(self.form_valid_message, (unicode, str)):
+        if not isinstance(self.form_valid_message, six.string_types):
             raise ImproperlyConfigured(
                 '{0}.form_valid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
@@ -666,7 +667,7 @@ class FormInvalidMessageMixin(object):
                     self.__class__.__name__)
             )
 
-        if not isinstance(self.form_invalid_message, (unicode, str)):
+        if not isinstance(self.form_invalid_message, six.string_types):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
