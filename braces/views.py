@@ -1,3 +1,5 @@
+import six
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -255,7 +257,8 @@ class GroupRequiredMixin(AccessMixin):
     def get_group_required(self):
         if self.group_required is None or (
                 not isinstance(self.group_required,
-                               (str, unicode, list, tuple))):
+                               (list, tuple) + six.string_types)
+        ):
 
             raise ImproperlyConfigured(
                 "'GroupRequiredMixin' requires "
@@ -441,23 +444,23 @@ class JSONResponseMixin(object):
     A mixin that allows you to easily serialize simple data such as a dict or
     Django models.
     """
-    content_type = "application/json"
+    content_type = u"application/json"
     json_dumps_kwargs = None
 
     def get_content_type(self):
         if self.content_type is None:
             raise ImproperlyConfigured(
-                "%(cls)s is missing a content type. "
-                "Define %(cls)s.content_type, or override "
-                "%(cls)s.get_content_type()." % {
-                "cls": self.__class__.__name__}
+                u"%(cls)s is missing a content type. "
+                u"Define %(cls)s.content_type, or override "
+                u"%(cls)s.get_content_type()." % {
+                u"cls": self.__class__.__name__}
             )
         return self.content_type
 
     def get_json_dumps_kwargs(self):
         if self.json_dumps_kwargs is None:
             self.json_dumps_kwargs = {}
-        self.json_dumps_kwargs.setdefault('ensure_ascii', False)
+        self.json_dumps_kwargs.setdefault(u'ensure_ascii', False)
         return self.json_dumps_kwargs
 
     def render_json_response(self, context_dict, status=200):
@@ -476,7 +479,7 @@ class JSONResponseMixin(object):
         Serializes objects using Django's builtin JSON serializer. Additional
         kwargs can be used the same way for django.core.serializers.serialize.
         """
-        json_data = serializers.serialize("json", objects, **kwargs)
+        json_data = serializers.serialize(u"json", objects, **kwargs)
         return HttpResponse(json_data, content_type=self.get_content_type())
 
 
@@ -533,7 +536,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
                     {'message': 'Thanks!'})
     """
     require_json = False
-    error_response_dict = {'errors': ['Improperly formatted request']}
+    error_response_dict = {u"errors": [u"Improperly formatted request"]}
 
     def render_bad_request_response(self, error_dict=None):
         if error_dict is None:
@@ -683,7 +686,7 @@ class FormValidMessageMixin(object):
                 '{0}.get_form_valid_message().'.format(self.__class__.__name__)
             )
 
-        if not isinstance(self.form_valid_message, (unicode, str)):
+        if not isinstance(self.form_valid_message, six.string_types):
             raise ImproperlyConfigured(
                 '{0}.form_valid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
@@ -723,7 +726,8 @@ class FormInvalidMessageMixin(object):
                     self.__class__.__name__)
             )
 
-        if not isinstance(self.form_invalid_message, (unicode, str)):
+        if not isinstance(self.form_invalid_message,
+                          (six.string_types, six.text_type)):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)

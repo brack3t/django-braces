@@ -12,7 +12,7 @@ setup(
     license="BSD",
     packages=["braces"],
     zip_safe=False,
-    install_requires=[],
+    install_requires=["six"],
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python",

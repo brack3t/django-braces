@@ -14,7 +14,7 @@ class TestAjaxResponseMixin(TestViewHelper, test.TestCase):
     """
     Tests for AjaxResponseMixin.
     """
-    methods = ['get', 'post', 'put', 'delete']
+    methods = [u'get', u'post', u'put', u'delete']
 
     def test_xhr(self):
         """
@@ -23,9 +23,9 @@ class TestAjaxResponseMixin(TestViewHelper, test.TestCase):
         # AjaxResponseView returns 'AJAX_OK' when requested with XmlHttpRequest
         for m in self.methods:
             fn = getattr(self.client, m)
-            resp = fn('/ajax_response/',
-                      HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-            assert force_text(resp.content) == 'AJAX_OK'
+            resp = fn(u'/ajax_response/',
+                      HTTP_X_REQUESTED_WITH=u'XMLHttpRequest')
+            assert force_text(resp.content) == u'AJAX_OK'
 
     def test_not_xhr(self):
         """
@@ -34,18 +34,18 @@ class TestAjaxResponseMixin(TestViewHelper, test.TestCase):
         """
         for m in self.methods:
             fn = getattr(self.client, m)
-            resp = fn('/ajax_response/')
-            assert force_text(resp.content) == 'OK'
+            resp = fn(u'/ajax_response/')
+            assert force_text(resp.content) == u'OK'
 
     def test_fallback_to_normal_methods(self):
         """
         Ajax methods should fallback to normal methods by default.
         """
         test_cases = [
-            ('get', 'get'),
-            ('post', 'post'),
-            ('put', 'get'),
-            ('delete', 'get'),
+            (u'get', u'get'),
+            (u'post', u'post'),
+            (u'put', u'get'),
+            (u'delete', u'get'),
         ]
 
         for ajax_method, fallback in test_cases:
@@ -69,8 +69,8 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
 
     def assert_json_response(self, resp, status_code=200):
         self.assertEqual(status_code, resp.status_code)
-        self.assertEqual('application/json',
-                         resp['content-type'].split(';')[0])
+        self.assertEqual(u'application/json',
+                         resp[u'content-type'].split(';')[0])
 
     def get_content(self, url):
         """
@@ -86,9 +86,9 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         Tests render_json_response() method.
         """
         user = make_user()
-        self.client.login(username=user.username, password='asdf1234')
-        data = json.loads(self.get_content('/simple_json/'))
-        self.assertEqual({'username': user.username}, data)
+        self.client.login(username=user.username, password=u'asdf1234')
+        data = json.loads(self.get_content(u'/simple_json/'))
+        self.assertEqual({u'username': user.username}, data)
 
     def test_serialization(self):
         """
@@ -96,14 +96,14 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         using django's serializer framework.
         """
         a1, a2 = [make_article() for __ in range(2)]
-        data = json.loads(self.get_content('/article_list_json/'))
+        data = json.loads(self.get_content(u'/article_list_json/'))
         self.assertIsInstance(data, list)
         self.assertEqual(2, len(data))
         titles = []
         for row in data:
             # only title has been serialized
-            self.assertEqual(1, len(row['fields']))
-            titles.append(row['fields']['title'])
+            self.assertEqual(1, len(row[u'fields']))
+            titles.append(row[u'fields'][u'title'])
 
         self.assertIn(a1.title, titles)
         self.assertIn(a2.title, titles)
@@ -122,10 +122,10 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         is longer than the normal one.
         """
         user = make_user()
-        self.client.login(username=user.username, password='asfa')
-        normal_content = self.get_content('/simple_json/')
-        self.view_class.json_dumps_kwargs = {'indent': 2}
-        pretty_content = self.get_content('/simple_json/')
+        self.client.login(username=user.username, password=u'asfa')
+        normal_content = self.get_content(u'/simple_json/')
+        self.view_class.json_dumps_kwargs = {u'indent': 2}
+        pretty_content = self.get_content(u'/simple_json/')
         normal_json = json.loads(normal_content)
         pretty_json = json.loads(pretty_content)
         self.assertEqual(normal_json, pretty_json)
@@ -134,7 +134,7 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
 
 class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
     view_class = JsonRequestResponseView
-    request_dict = {'status': 'operational'}
+    request_dict = {u'status': u'operational'}
 
     def test_get_request_json_properly_formatted(self):
         """
@@ -186,4 +186,4 @@ class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
         )
         response_json = json.loads(response.content)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response_json, {'error': 'you messed up'})
+        self.assertEqual(response_json, {u'error': u'you messed up'})

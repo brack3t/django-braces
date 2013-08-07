@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django import test
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
@@ -310,3 +311,15 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         with self.assertRaises(ImproperlyConfigured):
             view.get_group_required()
 
+    def test_with_unicode(self):
+        view = self.view_class()
+        view.group_required = u'niño'
+
+        user = self.build_authorized_user()
+        user.groups.all()[0].name = u'niño'
+        user.groups.all()[0].save()
+
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
