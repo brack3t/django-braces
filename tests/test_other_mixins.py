@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
-import mock
 from django import test
+from django import get_version
 from django.core.exceptions import ImproperlyConfigured
+
 from braces.views import (SetHeadlineMixin, FormValidMessageMixin,
                           FormInvalidMessageMixin)
+import mock
+import pytest
+
 from .models import Article
 from .helpers import TestViewHelper
 from .views import (CreateArticleView, ArticleListView, AuthorDetailView,
@@ -157,6 +161,7 @@ class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
         m.assert_called_once_with('author')
 
 
+@pytest.mark.skipif("get_version().startswith('1.3')")
 class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
     view_class = AuthorDetailView
 

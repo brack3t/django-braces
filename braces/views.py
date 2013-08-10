@@ -11,7 +11,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
-from django.utils.encoding import force_text
+from django.utils.encoding import smart_unicode
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
 
@@ -69,7 +69,7 @@ class AccessMixin(object):
                 "Define %(cls)s.login_url or override "
                 "%(cls)s.get_login_url()." % {"cls": self.__class__.__name__})
 
-        return force_text(self.login_url)
+        return smart_unicode(self.login_url)
 
     def get_redirect_field_name(self):
         """
@@ -293,15 +293,14 @@ class GroupRequiredMixin(AccessMixin):
                 "following types: string, unicode, list, or tuple.")
         return self.group_required
 
-    def check_membership(self, group):
+    def check_membership(self, request, group):
         """ Check required group(s) """
-        if not group in self.request.user.groups.values_list('name',
-                                                             flat=True):
+        if not group in request.user.groups.values_list('name', flat=True):
             return False
         return True
 
     def dispatch(self, request, *args, **kwargs):
-        in_group = self.check_membership(self.get_group_required())
+        in_group = self.check_membership(request, self.get_group_required())
 
         if not in_group:
             if self.raise_exception:

@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
+import pytest
+
 from django import test
+from django import get_version
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.core.urlresolvers import reverse_lazy
+try:
+    from django.core.urlresolvers import reverse_lazy
+except ImportError:
+    from django.core.urlresolvers import reverse
+
 from .compat import force_text
 from .factories import make_group, make_user
 from .helpers import TestViewHelper
@@ -59,6 +66,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(req, raise_exception=True)
 
+    @pytest.mark.skipif("get_version().startswith('1.3')")
     def test_custom_login_url(self):
         """
         Login url should be customizable.
@@ -72,6 +80,16 @@ class _TestAccessBasicsMixin(TestViewHelper):
         resp = self.dispatch_view(req, login_url=reverse_lazy('headline'))
         self.assertEqual('/headline/?next={}'.format(
             self.view_url), resp['Location'])
+
+    @pytest.mark.skipif("not get_version().startswith('1.3')")
+    def test_custom_login_url(self):
+        """
+        Login url should be customizable.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+        resp = self.dispatch_view(req, login_url='/login/')
+        self.assertEqual('/login/?next=%s' % self.view_url, resp['Location'])
 
     def test_custom_redirect_field_name(self):
         """

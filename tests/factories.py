@@ -46,7 +46,7 @@ def make_user(permissions=None, password='asdf1234', **kwargs):
 
 def make_group(**kwargs):
     i = get_next_id()
-    defaults = {'name': 'group{}'.format(i)}
+    defaults = {'name': 'group{0}'.format(i)}
     defaults.update(**kwargs)
     obj = Group(**defaults)
     obj.save()
