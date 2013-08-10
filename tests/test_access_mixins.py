@@ -78,11 +78,11 @@ class _TestAccessBasicsMixin(TestViewHelper):
 
         # Test with reverse_lazy
         resp = self.dispatch_view(req, login_url=reverse_lazy('headline'))
-        self.assertEqual('/headline/?next={}'.format(
+        self.assertEqual('/headline/?next={0}'.format(
             self.view_url), resp['Location'])
 
     @pytest.mark.skipif("not get_version().startswith('1.3')")
-    def test_custom_login_url(self):
+    def test_custom_login_url_13(self):
         """
         Login url should be customizable.
         """
@@ -304,6 +304,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         user = make_user()
         group = make_group(name='test_group')
         user.groups.add(group)
+        user.save()
         return user
 
     def build_unauthorized_user(self):
@@ -341,4 +342,3 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
         self.assertEqual('OK', force_text(resp.content))
-

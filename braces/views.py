@@ -11,7 +11,10 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
-from django.utils.encoding import smart_unicode
+try:
+    from django.utils.encoding import smart_unicode
+except ImportError:
+    from django.utils.encoding import force_text as smart_unicode
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
 
@@ -294,13 +297,15 @@ class GroupRequiredMixin(AccessMixin):
         return self.group_required
 
     def check_membership(self, request, group):
-        """ Check required group(s) """
         if not group in request.user.groups.values_list('name', flat=True):
             return False
         return True
 
     def dispatch(self, request, *args, **kwargs):
-        in_group = self.check_membership(request, self.get_group_required())
+        in_group = False
+        if request.user.groups.all():
+            in_group = self.check_membership(
+                request, self.get_group_required())
 
         if not in_group:
             if self.raise_exception:

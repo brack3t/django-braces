@@ -33,8 +33,10 @@ def make_user(permissions=None, password='asdf1234', **kwargs):
     `password` is raw (not hashed) password. It defaults to 'asdf1234'.
     """
     i = get_next_id()
-    defaults = {'username': 'user%s' % i, 'first_name': 'John %s' % i,
-                'last_name': 'Doe %s' % i, 'email': 'user%s@example.com' % i}
+    defaults = {'username': 'user{0}'.format(i),
+                'first_name': 'John{0}'.format(i),
+                'last_name': 'Doe{0}'.format(i),
+                'email': 'user{0}@example.com'.format(i)}
     defaults.update(**kwargs)
     obj = User(**defaults)
     obj.set_password(password)
@@ -55,7 +57,7 @@ def make_group(**kwargs):
 
 def make_article(**kwargs):
     i = get_next_id()
-    defaults = {'title': "Article number %s" % i,
-                'body': "Body of article %s" % i}
+    defaults = {'title': "Article number {0}".format(i),
+                'body': "Body of article {0}".format(i)}
     defaults.update(kwargs)
     return Article.objects.create(**defaults)
