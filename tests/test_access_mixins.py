@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 try:
     from django.core.urlresolvers import reverse_lazy
 except ImportError:
-    from django.core.urlresolvers import reverse
+    pass
 
 from .compat import force_text
 from .factories import make_group, make_user
