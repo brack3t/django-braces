@@ -118,7 +118,12 @@ class PermissionRequiredMixin(AccessMixin):
     """
     permission_required = None  # Default required perms to none
 
-    def dispatch(self, request, *args, **kwargs):
+    def get_permission_required(self, request=None):
+        """
+        Get the required permissions and return them.
+
+        Override this to allow for custom permission_required values.
+        """
         # Make sure that the permission_required attribute is set on the
         # view, or raise a configuration error.
         if self.permission_required is None:
@@ -126,16 +131,29 @@ class PermissionRequiredMixin(AccessMixin):
                 "'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
 
+        return self.permission_required
+
+    def check_permissions(self, request):
+        "Returns whether or not the user has permissions"
+        perms = self.get_permission_required(request)
+        return request.user.has_perm(perms)
+
+    def no_permissions_fail(self, request=None):
+        return redirect_to_login(request.get_full_path(),
+                                 self.get_login_url(),
+                                 self.get_redirect_field_name())
+
+    def dispatch(self, request, *args, **kwargs):
         # Check to see if the request's user has the required permission.
-        has_permission = request.user.has_perm(self.permission_required)
+        has_permission = self.check_permissions(request)
 
         if not has_permission:  # If the user lacks the permission
-            if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied  # return a forbidden response.
+            if self.raise_exception:
+                raise PermissionDenied
             else:
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+                resp = self.no_permissions_fail(request)
+                if resp:
+                    return resp
 
         return super(PermissionRequiredMixin, self).dispatch(
             request, *args, **kwargs)
