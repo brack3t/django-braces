@@ -159,7 +159,7 @@ class PermissionRequiredMixin(AccessMixin):
             request, *args, **kwargs)
 
 
-class MultiplePermissionsRequiredMixin(AccessMixin):
+class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
     """
     View mixin which allows you to specify two types of permission
     requirements. The `permissions` attribute must be a dict which
@@ -199,11 +199,14 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
     """
     permissions = None  # Default required perms to none
 
-    def dispatch(self, request, *args, **kwargs):
+    def get_permission_required(self, request=None):
         self._check_permissions_attr()
+        return self.permissions
 
-        perms_all = self.permissions.get('all') or None
-        perms_any = self.permissions.get('any') or None
+    def check_permissions(self, request):
+        permissions = self.get_permission_required()
+        perms_all = permissions.get('all') or None
+        perms_any = permissions.get('any') or None
 
         self._check_permissions_keys_set(perms_all, perms_any)
         self._check_perms_keys("all", perms_all)
@@ -212,11 +215,7 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         # If perms_all, check that user has all permissions in the list/tuple
         if perms_all:
             if not request.user.has_perms(perms_all):
-                if self.raise_exception:
-                    raise PermissionDenied
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+                return False
 
         # If perms_any, check that user has at least one in the list/tuple
         if perms_any:
@@ -227,14 +226,9 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
                     break
 
             if not has_one_perm:
-                if self.raise_exception:
-                    raise PermissionDenied
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+                return False
 
-        return super(MultiplePermissionsRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+        return True
 
     def _check_permissions_attr(self):
         """
