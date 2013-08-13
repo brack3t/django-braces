@@ -139,6 +139,12 @@ class PermissionRequiredMixin(AccessMixin):
         return request.user.has_perm(perms)
 
     def no_permissions_fail(self, request=None):
+        """
+        Called when the user has no permissions. This should only return a
+        valid http response or False/None if using for just the side effects.
+
+        By default we redirect to login.
+        """
         return redirect_to_login(request.get_full_path(),
                                  self.get_login_url(),
                                  self.get_redirect_field_name())
@@ -149,9 +155,11 @@ class PermissionRequiredMixin(AccessMixin):
 
         if not has_permission:  # If the user lacks the permission
             if self.raise_exception:
-                raise PermissionDenied
-            else:
+                raise PermissionDenied # Return a 403
+            else:  # use our fallback failure method
                 resp = self.no_permissions_fail(request)
+                # Only return if we have a return value (a response).
+                # It may be overriden to just cause a side effect
                 if resp:
                     return resp
 
