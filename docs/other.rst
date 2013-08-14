@@ -186,7 +186,7 @@ Note: To allow public access to your view, you'll need to use the ``csrf_exempt`
 
     from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
-    class SomeView(CsrfExemptMixin, JsonRequestResponseMixin):
+    class SomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
         require_json = True
 
         def post(self, request, *args, **kwargs):
