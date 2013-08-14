@@ -8,7 +8,7 @@ from .models import Article, CanonicalArticle
 from .helpers import TestViewHelper
 from .views import (CreateArticleView, ArticleListView, AuthorDetailView,
                     OrderableListView, FormMessagesView)
-from .factories import make_user
+from .factories import UserFactory
 from .compat import force_text
 
 
@@ -38,13 +38,13 @@ class TestUserFormKwargsMixin(test.TestCase):
     Tests for UserFormKwargsMixin.
     """
     def test_post_method(self):
-        user = make_user()
+        user = UserFactory()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.post('/form_with_user_kwarg/', {'field1': 'foo'})
         assert force_text(resp.content) == "username: %s" % user.username
 
     def test_get_method(self):
-        user = make_user()
+        user = UserFactory()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get('/form_with_user_kwarg/')
         assert resp.context['form'].user == user
