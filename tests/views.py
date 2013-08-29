@@ -7,7 +7,7 @@ from braces.views import *
 
 from .models import Article
 from .forms import FormWithUserKwarg
-from .factories import make_article, make_article_with_has_owner
+from .factories import make_article
 
 
 class OkView(View):
@@ -43,6 +43,7 @@ class ObjectView(OkView):
                 status = path[-2]
             fun, kwargs = self.object_responses.get(status, (None, None))
             if fun:
+                kwargs['user'] = self.request.user
                 return fun(**kwargs)
 
         return self.object
@@ -185,11 +186,10 @@ class OwnerOrPermissionRequiredView(OwnerOrPermissionRequiredMixin,
     View for testing OwnerOrPermissionRequiredView.
     """
     permission_required = 'auth.add_user'
+    owner_field_name = 'owner'
 
-    object_responses = {'owner-true': (make_article_with_has_owner, {}),
-                        'owner-false': (make_article_with_has_owner, {
-                            'owner_result': False}),
-                        'no-owner': (make_article, {}),
+    object_responses = {'owner-ok': (make_article, {'set_owner': True}),
+                        'owner-none': (make_article, {}),
                         }
 
 

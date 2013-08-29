@@ -254,22 +254,21 @@ class TestOwnerOrPermissionRequiredMixin(_TestAccessBasicsMixin,
     Tests for OwnerOrPermissionRequiredMixin.
     """
     view_class = OwnerOrPermissionRequiredView
-    owner_true_url = '/owner_or_permission_required/owner-true/'
-    owner_false_url = '/owner_or_permission_required/owner-false/'
-    no_owner_url = '/owner_or_permission_required/no-owner/'
-    view_url = owner_false_url
+    owner_set_url = '/owner_or_permission_required/owner-ok/'
+    owner_none_url = '/owner_or_permission_required/owner-none/'
+    view_url = owner_none_url
 
     def build_authorized_user(self):
-        self.view_url = self.owner_true_url
+        self.view_url = self.owner_none_url
         return make_user(permissions=['auth.add_user'])
 
     def build_unauthorized_user(self):
-        self.view_url = self.owner_false_url
+        self.view_url = self.owner_none_url
         return make_user()
 
     def test_owner_without_permission(self):
         user = make_user()
-        self.view_url = self.owner_true_url
+        self.view_url = self.owner_set_url.format(user.username)
 
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
@@ -277,10 +276,16 @@ class TestOwnerOrPermissionRequiredMixin(_TestAccessBasicsMixin,
         self.assertEqual(200, resp.status_code)
         self.assertEqual('OK', force_text(resp.content))
 
-    def test_no_has_owner_raises_exception(self):
-        self.view_url = self.no_owner_url
-        with self.assertRaises(ImproperlyConfigured):
-            self.dispatch_view(self.build_request(path=self.view_url))
+    def test_owner_with_permission(self):
+        user = make_user()
+        self.view_url = self.owner_set_url.format(user.username)
+
+        self.client.login(username=user.username, password='asdf1234',
+                          permissions=['auth.add_user'])
+        resp = self.client.get(self.view_url)
+
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
 
 class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = SuperuserRequiredView
