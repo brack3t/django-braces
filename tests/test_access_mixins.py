@@ -7,7 +7,8 @@ from .factories import GroupFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
-                    LoginRequiredView, GroupRequiredView)
+                    LoginRequiredView, GroupRequiredView,
+                    OwnerOrPermissionRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -255,6 +256,45 @@ class TestMultiplePermissionsRequiredMixin(
                 self.build_request(user=user), raise_exception=True,
                 permissions=permissions)
 
+
+class TestOwnerOrPermissionRequiredMixin(_TestAccessBasicsMixin,
+                                         test.TestCase):
+    """
+    Tests for OwnerOrPermissionRequiredMixin.
+    """
+    view_class = OwnerOrPermissionRequiredView
+    owner_set_url = '/owner_or_permission_required/owner-ok/'
+    owner_none_url = '/owner_or_permission_required/owner-none/'
+    view_url = owner_none_url
+
+    def build_authorized_user(self):
+        self.view_url = self.owner_none_url
+        return UserFactory(permissions=['auth.add_user'])
+
+    def build_unauthorized_user(self):
+        self.view_url = self.owner_none_url
+        return UserFactory()
+
+    def test_owner_without_permission(self):
+        user = UserFactory()
+        self.view_url = self.owner_set_url.format(user.username)
+
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_owner_with_permission(self):
+        user = UserFactory()
+        self.view_url = self.owner_set_url.format(user.username)
+
+        self.client.login(username=user.username, password='asdf1234',
+                          permissions=['auth.add_user'])
+        resp = self.client.get(self.view_url)
+
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
 
 class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = SuperuserRequiredView

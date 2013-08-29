@@ -95,6 +95,48 @@ The multiple permissions required view mixin is a more powerful version of the `
             "any": ("blog.delete_post", "user.change_user")
         }
 
+.. _OwnerOrPermissionRequiredMixin:
+
+OwnerOrPermissionRequiredMixin
+--------------------------------
+
+This mixin has much of the same functionality as
+the ``PermissionRequiredMixin``. In addition it adds a check to see if the
+request's user is regarded as owner of the object tied to the view class. If
+the user is regarded as owner of the object, it is authorized, else the mixin
+runs the same check as the ``PermissionRequiredMixin``.
+
+By default this mixing uses the view's `get_object` method to fetch the object and then
+compares the current logged in user with the one in the `owner_field_name` on the given model object.
+
+This owner check may be altered by overriding the mixin method `is_owner`.
+
+Other than this the usage of this mixin in completely equal as the ``PermissionRequiredMixin``
+if you also include another mixin with the `get_object` method. Eg. Django's
+`UpdateView` and `DeleteView`. If not you have to implement the
+`get_object` method on the view class.
+
+
+::
+
+    # views.py
+    from braces.views import LoginRequiredMixin, OwnerOrPermissionRequiredMixin
+
+
+    class SomeProtectedView(LoginRequiredMixin, OwnerOrPermissionRequiredMixin, TemplateView):
+        permission_required = "auth.change_user"
+        template_name = "path/to/template.html"
+        owner_field_name = "owner"
+
+        #optional
+        login_url = "/signup/"
+        redirect_field_name = "hollaback"
+        raise_exception = True
+
+        def get_object(self):
+            return SomeModelObject()
+
+
 
 .. _GroupRequiredMixin:
 

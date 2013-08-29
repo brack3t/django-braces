@@ -6,7 +6,8 @@ class Article(models.Model):
     title = models.CharField(max_length=30)
     body = models.TextField()
     slug = models.SlugField(blank=True)
-
+    owner = models.ForeignKey('auth.User', null=True, blank=True,
+                              related_name='articles_owned')
 
 class CanonicalArticle(models.Model):
     author = models.ForeignKey('auth.User', null=True, blank=True)

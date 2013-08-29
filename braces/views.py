@@ -288,6 +288,63 @@ class GroupRequiredMixin(AccessMixin):
             request, *args, **kwargs)
 
 
+class OwnerOrPermissionRequiredMixin(AccessMixin):
+    """
+    Check if the current user is regarded as owner of the object manipulated
+    by the view. If not the user has to have the correct permission set in
+    permission_required.
+
+    Useful when editing or deleting objects. The owner of the object will be
+     allowed to change the object regardless of permissions.
+
+    Same usage as PermissionRequiredMixin
+    """
+
+    permission_required = None  # Default required perm to none
+    owner_field_name = None
+
+    def get_permission_required(self):
+        # Make sure that the permission_required attribute is set on the
+        # view, or raise a configuration error.
+        if self.permission_required is None:
+            raise ImproperlyConfigured("'OwnerOrPermissionRequiredMixin' "
+                                       "requires 'permission_required' "
+                                       "attribute to be set.")
+        return self.permission_required
+
+    def dispatch(self, request, *args, **kwargs):
+        # Make sure that we can get the object to check for ownership
+        if not hasattr(self, 'get_object'):
+            raise ImproperlyConfigured("The 'OwnerOrPermissionRequiredMixin '"
+                                       "requres the 'get_object' method to "
+                                       "be implemented on self")
+        obj = self.get_object()
+
+        if not self.is_owner(request.user, obj):
+            # Check to see if the request's user has the required permission.
+            has_permission = request.user.has_perm(self
+                .get_permission_required())
+
+            if not has_permission:  # If the user lacks the permission
+                return self.handle_no_permission(request)
+
+        return super(AccessMixin, self).dispatch(request, *args, **kwargs)
+
+    def is_owner(self, user, obj):
+        if self.owner_field_name is None:
+            raise ImproperlyConfigured("'OwnerOrPermissionRequiredMixin' "
+                                       "requires 'owner_field_name' "
+                                       "attribute to be set.")
+        return user == getattr(obj, self.owner_field_name, None)
+
+    def handle_no_permission(self, request):
+        if self.raise_exception:  # if an exception was desired
+            raise PermissionDenied  # return a forbidden response.
+        else:
+            return redirect_to_login(request.get_full_path(),
+                                     self.get_login_url(),
+                                     self.get_redirect_field_name())
+
 class UserFormKwargsMixin(object):
     """
     CBV mixin which puts the user from the request into the form kwargs.

@@ -22,6 +22,17 @@ class ArticleFactory(factory.django.DjangoModelFactory):
     title = factory.Sequence(lambda n: 'Article number {0}'.format(n))
     body = factory.Sequence(lambda n: 'Body of article {0}'.format(n))
 
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        if 'user' in kwargs:
+            owner = kwargs.pop('user')
+        set_owner = 'set_owner' in kwargs and kwargs.pop('set_owner')
+
+        article = super(ArticleFactory, cls)._prepare(create, **kwargs)
+        if set_owner:
+            article.owner = owner
+        return article
+
 
 class GroupFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = Group
