@@ -304,12 +304,7 @@ class OwnerOrPermissionRequiredMixin(AccessMixin):
                 .get_permission_required())
 
             if not has_permission:  # If the user lacks the permission
-                if self.raise_exception:  # *and* if an exception was desired
-                    raise PermissionDenied  # return a forbidden response.
-                else:
-                    return redirect_to_login(request.get_full_path(),
-                                             self.get_login_url(),
-                                             self.get_redirect_field_name())
+                return self.handle_no_permission(request)
 
         return super(AccessMixin, self).dispatch(request, *args, **kwargs)
 
@@ -319,6 +314,14 @@ class OwnerOrPermissionRequiredMixin(AccessMixin):
                                        "requires 'owner_field_name' "
                                        "attribute to be set.")
         return user == getattr(obj, self.owner_field_name, None)
+
+    def handle_no_permission(self, request):
+        if self.raise_exception:  # if an exception was desired
+            raise PermissionDenied  # return a forbidden response.
+        else:
+            return redirect_to_login(request.get_full_path(),
+                                     self.get_login_url(),
+                                     self.get_redirect_field_name())
 
 class UserFormKwargsMixin(object):
     """
