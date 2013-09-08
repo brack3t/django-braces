@@ -145,6 +145,24 @@ Custom Group Usage
                 return False
 
 
+.. _UserPassesTestMixin:
+
+UserPassesTestMixin
+------------------
+
+.. versionadded:: dev
+
+Mixin that is reimplementing decorator user_passes_test. This is helpful for much more complicated cases than checking if user is_superuser (for example if his email is from specific domain).
+
+::
+
+    from braces.views import UserPassesTestMixin
+
+    class SomeUserPassView(UserPassesTestMixin, TemplateView):
+        def test_func(self, user):
+            return user.is_staff and not user.is_superuser and user.email.endswith('mydomain.com')
+
+
 .. _SuperuserRequiredMixin:
 
 SuperuserRequiredMixin
