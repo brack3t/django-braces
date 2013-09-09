@@ -642,9 +642,10 @@ class CanonicalSlugDetailMixin(SingleObjectMixin):
         current_urlpattern = resolve(request.path_info).url_name
 
         # Figure out what the slug is supposed to be.
-        canonical_slug = self.get_canonical_slug()
         if hasattr(obj, 'get_canonical_slug'):
             canonical_slug = obj.get_canonical_slug()
+        else:
+            canonical_slug = self.get_canonical_slug()
 
         # If there's a discrepancy between the slug in the url and the
         # canonical slug, redirect to the canonical slug.
@@ -661,7 +662,7 @@ class CanonicalSlugDetailMixin(SingleObjectMixin):
         canonical.
 
         Alternatively, define the get_canonical_slug method on this view's
-        object class.
+        object class. In that case, this method will never be called.
         """
         return self.get_object().slug
 
