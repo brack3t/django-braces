@@ -1,5 +1,5 @@
 from . import views
-from .compat import patterns, url
+from .compat import patterns, include, url
 
 
 urlpatterns = patterns(
@@ -25,6 +25,8 @@ urlpatterns = patterns(
     # CanonicalSlugDetailMixin tests
     url(r'^article-canonical/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.CanonicalSlugDetailView.as_view()),
+    url(r'^article-canonical-namespaced/',
+        include('tests.urls_namespaced', namespace='some_namespace')),
     url(r'^article-canonical-override/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.OverriddenCanonicalSlugDetailView.as_view()),
     url(r'^article-canonical-model/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
