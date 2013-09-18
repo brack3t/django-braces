@@ -72,7 +72,7 @@ A simple mixin which allows you to specify a list or tuple of foreign key fields
 .. _PrefetchRelatedMixin:
 
 PrefetchRelatedMixin
-------------------
+--------------------
 
 A simple mixin which allows you to specify a list or tuple of reverse foreign key or ManyToMany fields to perform a `prefetch_related`_ on. See Django's docs for more information on `prefetch_related`_.
 
