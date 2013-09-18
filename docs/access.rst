@@ -26,6 +26,10 @@ While this doesn't look like much, it frees us up from having to manually overlo
         As of version 1.0, the LoginRequiredMixin has been rewritten to behave like the rest of the ``access`` mixins. It now accepts ``login_url``, ``redirect_field_name``
         and ``raise_exception``.
 
+    .. note::
+
+        This should be the left-most mixin of a view, except when combined with :ref:`CsrfExemptMixin` - which in that case should be the left-most mixin.
+
 ::
 
     from django.views.generic import TemplateView

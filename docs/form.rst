@@ -12,6 +12,10 @@ CsrfExemptMixin
 
 If you have Django's `CSRF protection` middleware enabled you can exempt views using the `csrf_exempt` decorator. This mixin exempts POST requests from the CSRF protection middleware without requiring that you decorate the ``dispatch`` method.
 
+    .. note::
+
+        This should always be the left-most mixin of a view.
+
 ::
 
     from django.views.generic import UpdateView
