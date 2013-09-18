@@ -274,6 +274,7 @@ class GroupRequiredMixin(AccessMixin):
         return True
 
     def dispatch(self, request, *args, **kwargs):
+        self.request = request
         in_group = self.check_membership(self.get_group_required())
 
         if not in_group:
