@@ -19,6 +19,7 @@ Direct Contributors
 * Ethan Soergel
 * Piotr Kilczuk
 * Rodney Folz
+* Markus Zapke-Gründemann
 
 Other Contributors
 ==================

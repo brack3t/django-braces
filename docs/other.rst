@@ -72,7 +72,7 @@ A simple mixin which allows you to specify a list or tuple of foreign key fields
 .. _PrefetchRelatedMixin:
 
 PrefetchRelatedMixin
-------------------
+--------------------
 
 A simple mixin which allows you to specify a list or tuple of reverse foreign key or ManyToMany fields to perform a `prefetch_related`_ on. See Django's docs for more information on `prefetch_related`_.
 
@@ -186,7 +186,7 @@ Note: To allow public access to your view, you'll need to use the ``csrf_exempt`
 
     from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
-    class SomeView(CsrfExemptMixin, JsonRequestResponseMixin):
+    class SomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
         require_json = True
 
         def post(self, request, *args, **kwargs):

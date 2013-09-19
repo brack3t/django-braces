@@ -12,7 +12,6 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
-from django.views.generic.detail import SingleObjectMixin
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
@@ -649,7 +648,7 @@ class OrderableListMixin(object):
         return self.get_ordered_queryset(unordered_queryset)
 
 
-class CanonicalSlugDetailMixin(SingleObjectMixin):
+class CanonicalSlugDetailMixin(object):
     """
     A mixin that enforces a canonical slug in the url.
 

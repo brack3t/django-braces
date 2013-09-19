@@ -4,7 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
 from braces.views import AjaxResponseMixin
 from .compat import force_text
-from .factories import make_article, make_user
+from .factories import ArticleFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import SimpleJsonView, JsonRequestResponseView
 from .compat import json
@@ -85,7 +85,7 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         """
         Tests render_json_response() method.
         """
-        user = make_user()
+        user = UserFactory()
         self.client.login(username=user.username, password=u'asdf1234')
         data = json.loads(self.get_content(u'/simple_json/'))
         self.assertEqual({u'username': user.username}, data)
@@ -95,7 +95,7 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         Tests render_json_object_response() method which serializes objects
         using django's serializer framework.
         """
-        a1, a2 = [make_article() for __ in range(2)]
+        a1, a2 = [ArticleFactory() for __ in range(2)]
         data = json.loads(self.get_content(u'/article_list_json/'))
         self.assertIsInstance(data, list)
         self.assertEqual(2, len(data))
@@ -121,7 +121,7 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         Success if JSON responses are the same, and the well-indented response
         is longer than the normal one.
         """
-        user = make_user()
+        user = UserFactory()
         self.client.login(username=user.username, password=u'asfa')
         normal_content = self.get_content(u'/simple_json/')
         self.view_class.json_dumps_kwargs = {u'indent': 2}
