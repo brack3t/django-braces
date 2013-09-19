@@ -13,6 +13,8 @@ The ``raise_exception`` attribute will cause the view to raise a ``PermissionDen
 
 .. contents::
 
+.. _LoginRequiredMixin:
+
 LoginRequiredMixin
 ------------------
 
@@ -23,6 +25,10 @@ While this doesn't look like much, it frees us up from having to manually overlo
     .. note::
         As of version 1.0, the LoginRequiredMixin has been rewritten to behave like the rest of the ``access`` mixins. It now accepts ``login_url``, ``redirect_field_name``
         and ``raise_exception``.
+
+    .. note::
+
+        This should be the left-most mixin of a view, except when combined with :ref:`CsrfExemptMixin` - which in that case should be the left-most mixin.
 
 ::
 
@@ -41,6 +47,8 @@ While this doesn't look like much, it frees us up from having to manually overlo
 
         def get(self, request):
             return self.render_to_response({})
+
+.. _PermissionRequiredMixin:
 
 PermissionRequiredMixin
 -----------------------
@@ -66,6 +74,8 @@ In our normal use case for this mixin, ``LoginRequiredMixin`` comes first, then 
         template_name = "path/to/template.html"
 
 
+.. _MultiplePermissionsRequiredMixin:
+
 MultiplePermissionsRequiredMixin
 --------------------------------
 
@@ -89,6 +99,8 @@ The multiple permissions required view mixin is a more powerful version of the `
             "any": ("blog.delete_post", "user.change_user")
         }
 
+
+.. _GroupRequiredMixin:
 
 GroupRequiredMixin
 ------------------
@@ -137,6 +149,8 @@ Custom Group Usage
                 return False
 
 
+.. _SuperuserRequiredMixin:
+
 SuperuserRequiredMixin
 ----------------------
 
@@ -150,6 +164,8 @@ Another permission-based mixin. This is specifically for requiring a user to be 
     class SomeSuperuserView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
         template_name = "path/to/template.html"
 
+
+.. _StaffuserRequiredMixin:
 
 StaffuserRequiredMixin
 ----------------------

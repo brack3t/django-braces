@@ -1,5 +1,4 @@
 import six
-import warnings
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,46 +7,22 @@ from django.contrib.auth.views import redirect_to_login
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.core.urlresolvers import resolve, reverse
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.utils.encoding import force_text
-from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_exempt
+
+try:
+    from django.utils.encoding import smart_unicode
+except ImportError:
+    from django.utils.encoding import force_text as smart_unicode
 
 ## Django 1.5+ compat
 try:
     import json
 except ImportError:  # pragma: no cover
     from django.utils import simplejson as json
-
-
-class CreateAndRedirectToEditView(CreateView):
-    """
-    Subclass of CreateView which redirects to the edit view.
-    Requires property `success_url_name` to be set to a
-    reversible url that uses the objects pk.
-    """
-    success_url_name = None
-
-    def dispatch(self, request, *args, **kwargs):
-        warnings.warn(
-            "CreateAndRedirectToEditView is deprecated and will be "
-            "removed in a future release.", PendingDeprecationWarning)
-        return super(CreateAndRedirectToEditView, self).dispatch(
-            request, *args, **kwargs)
-
-    def get_success_url(self):
-        # First we check for a name to be provided on the view object.
-        # If one is, we reverse it and finish running the method,
-        # otherwise we raise a configuration error.
-        if self.success_url_name:
-            self.success_url = reverse(
-                self.success_url_name, kwargs={'pk': self.object.pk})
-            return super(CreateAndRedirectToEditView, self).get_success_url()
-
-        raise ImproperlyConfigured(
-            "No URL to reverse. Provide a success_url_name.")
 
 
 class AccessMixin(object):
@@ -69,7 +44,7 @@ class AccessMixin(object):
                 "Define %(cls)s.login_url or override "
                 "%(cls)s.get_login_url()." % {"cls": self.__class__.__name__})
 
-        return force_text(self.login_url)
+        return smart_unicode(self.login_url)
 
     def get_redirect_field_name(self):
         """
@@ -284,8 +259,8 @@ class GroupRequiredMixin(AccessMixin):
 
     def get_group_required(self):
         if self.group_required is None or (
-                not isinstance(self.group_required,
-                               (list, tuple) + six.string_types)):
+            not isinstance(self.group_required,
+                           (list, tuple) + six.string_types)):
 
             raise ImproperlyConfigured(
                 "'GroupRequiredMixin' requires "
@@ -293,15 +268,16 @@ class GroupRequiredMixin(AccessMixin):
                 "following types: string, unicode, list, or tuple.")
         return self.group_required
 
-    def check_membership(self, group):
-        """ Check required group(s) """
-        if not group in self.request.user.groups.values_list('name',
-                                                             flat=True):
+    def check_membership(self, request, group):
+        if not group in request.user.groups.values_list('name', flat=True):
             return False
         return True
 
     def dispatch(self, request, *args, **kwargs):
-        in_group = self.check_membership(self.get_group_required())
+        in_group = False
+        if request.user.groups.all():
+            in_group = self.check_membership(
+                request, self.get_group_required())
 
         if not in_group:
             if self.raise_exception:
@@ -471,23 +447,23 @@ class JSONResponseMixin(object):
     A mixin that allows you to easily serialize simple data such as a dict or
     Django models.
     """
-    content_type = "application/json"
+    content_type = u"application/json"
     json_dumps_kwargs = None
 
     def get_content_type(self):
         if self.content_type is None:
             raise ImproperlyConfigured(
-                "%(cls)s is missing a content type. "
-                "Define %(cls)s.content_type, or override "
-                "%(cls)s.get_content_type()." % {
-                "cls": self.__class__.__name__}
+                u"%(cls)s is missing a content type. "
+                u"Define %(cls)s.content_type, or override "
+                u"%(cls)s.get_content_type()." % {
+                u"cls": self.__class__.__name__}
             )
         return self.content_type
 
     def get_json_dumps_kwargs(self):
         if self.json_dumps_kwargs is None:
             self.json_dumps_kwargs = {}
-        self.json_dumps_kwargs.setdefault('ensure_ascii', False)
+        self.json_dumps_kwargs.setdefault(u'ensure_ascii', False)
         return self.json_dumps_kwargs
 
     def render_json_response(self, context_dict, status=200):
@@ -506,7 +482,7 @@ class JSONResponseMixin(object):
         Serializes objects using Django's builtin JSON serializer. Additional
         kwargs can be used the same way for django.core.serializers.serialize.
         """
-        json_data = serializers.serialize("json", objects, **kwargs)
+        json_data = serializers.serialize(u"json", objects, **kwargs)
         return HttpResponse(json_data, content_type=self.get_content_type())
 
 
@@ -541,6 +517,53 @@ class AjaxResponseMixin(object):
 
     def delete_ajax(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
+
+
+class JsonRequestResponseMixin(JSONResponseMixin):
+    """
+    Extends JSONResponseMixin.  Attempts to parse request as JSON.  If request
+    is properly formatted, the json is saved to self.request_json as a Python
+    object.  request_json will be None for imparsible requests.
+    Set the attribute require_json to True to return a 400 "Bad Request" error
+    for requests that don't contain JSON.
+
+    Note: To allow public access to your view, you'll need to use the
+    csrf_exempt decorator or CsrfExemptMixin.
+
+    Example Usage:
+
+        class SomeView(CsrfExemptMixin, JsonRequestResponseMixin):
+            def post(self, request, *args, **kwargs):
+                do_stuff_with_contents_of_request_json()
+                return self.render_json_response(
+                    {'message': 'Thanks!'})
+    """
+    require_json = False
+    error_response_dict = {u"errors": [u"Improperly formatted request"]}
+
+    def render_bad_request_response(self, error_dict=None):
+        if error_dict is None:
+            error_dict = self.error_response_dict
+        json_context = smart_unicode(json.dumps(
+            error_dict,
+            cls=DjangoJSONEncoder,
+            **self.get_json_dumps_kwargs()
+        ))
+        return HttpResponseBadRequest(
+            json_context, content_type=self.get_content_type())
+
+    def get_request_json(self):
+        try:
+            return json.loads(self.request.body)
+        except ValueError:
+            return None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.request_json = self.get_request_json()
+        if self.require_json and self.request_json is None:
+            return self.render_bad_request_response()
+        return super(JsonRequestResponseMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class OrderableListMixin(object):
@@ -605,6 +628,45 @@ class OrderableListMixin(object):
         """
         unordered_queryset = super(OrderableListMixin, self).get_queryset()
         return self.get_ordered_queryset(unordered_queryset)
+
+
+class CanonicalSlugDetailMixin(object):
+    """
+    A mixin that enforces a canonical slug in the url.
+
+    If a urlpattern takes a object's pk and slug as arguments and the slug url
+    argument does not equal the object's canonical slug, this mixin will
+    redirect to the url containing the canonical slug.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        # Get the current object, url slug, and urlpattern name.
+        obj = self.get_object()
+        slug = self.kwargs.get(self.slug_url_kwarg, None)
+        current_urlpattern = resolve(request.path_info).url_name
+
+        # Figure out what the slug is supposed to be.
+        canonical_slug = self.get_canonical_slug()
+        if hasattr(obj, 'get_canonical_slug'):
+            canonical_slug = obj.get_canonical_slug()
+
+        # If there's a discrepancy between the slug in the url and the
+        # canonical slug, redirect to the canonical slug.
+        if canonical_slug != slug:
+            return redirect(current_urlpattern, pk=obj.pk, slug=canonical_slug,
+                            permanent=True)
+
+        return super(CanonicalSlugDetailMixin, self).dispatch(
+            request, *args, **kwargs)
+
+    def get_canonical_slug(self):
+        """
+        Override this method to customize what slug should be considered
+        canonical.
+
+        Alternatively, define the get_canonical_slug method on this view's
+        object class.
+        """
+        return self.get_object().slug
 
 
 class FormValidMessageMixin(object):
