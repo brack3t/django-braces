@@ -22,6 +22,14 @@ urlpatterns = patterns(
     url(r'^article_list/$', views.ArticleListView.as_view(),
         name='article_list'),
 
+    # CanonicalSlugDetailMixin tests
+    url(r'^article-canonical/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
+        views.CanonicalSlugDetailView.as_view()),
+    url(r'^article-canonical-override/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
+        views.OverriddenCanonicalSlugDetailView.as_view()),
+    url(r'^article-canonical-model/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
+        views.ModelCanonicalSlugDetailView.as_view()),
+
     # UserFormKwargsMixin tests
     url(r'^form_with_user_kwarg/$', views.FormWithUserKwargView.as_view()),
 
@@ -53,9 +61,15 @@ urlpatterns = patterns(
     url(r'^simple_json_400/$', views.SimpleJsonBadRequestView.as_view()),
     url(r'^article_list_json/$', views.ArticleListJsonView.as_view()),
 
+    # JsonRequestResponseMixin tests
+    url(r'^json_request/$', views.JsonRequestResponseView.as_view()),
+    url(r'^json_bad_request/$', views.JsonBadRequestView.as_view()),
+    url(r'^json_custom_bad_request/$', views.JsonCustomBadRequestView.as_view()),
+
     # FormMessagesMixin tests
     url(r'form_messages/$', views.FormMessagesView.as_view()),
 )
+
 
 urlpatterns += patterns(
     'django.contrib.auth.views',
