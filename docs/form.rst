@@ -226,7 +226,7 @@ FormMessagesMixin
         This mixin requires the Django `messages`_ app to be enabled.
 
 Static & Dynamic Example
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 ::
 
