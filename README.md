@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/brack3t/django-braces.png?label=ready)](https://waffle.io/brack3t/django-braces)  
 # django-braces
 Mixins for Django's class-based views.
 
