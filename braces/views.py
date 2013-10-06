@@ -649,7 +649,6 @@ class CanonicalSlugDetailMixin(object):
         # canonical slug, redirect to the canonical slug.
         if canonical_slug != slug:
             e = None
-            import pdb; pdb.set_trace()
             if resolver_match.app_name:
                 try:
                     return redirect("{}:{}".format(resolver_match.app_name,
