@@ -7,7 +7,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.urlresolvers import resolve, reverse
+from django.core.urlresolvers import resolve, reverse, NoReverseMatch
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
@@ -638,7 +638,7 @@ class CanonicalSlugDetailMixin(object):
         # Get the current object, url slug, and urlpattern name.
         obj = self.get_object()
         slug = self.kwargs.get(self.slug_url_kwarg, None)
-        current_urlpattern = resolve(request.path_info).url_name
+        resolver_match = resolve(request.path_info)
 
         # Figure out what the slug is supposed to be.
         canonical_slug = self.get_canonical_slug()
@@ -648,8 +648,29 @@ class CanonicalSlugDetailMixin(object):
         # If there's a discrepancy between the slug in the url and the
         # canonical slug, redirect to the canonical slug.
         if canonical_slug != slug:
-            return redirect(current_urlpattern, pk=obj.pk, slug=canonical_slug,
-                            permanent=True)
+            e = None
+            if resolver_match.app_name:
+                try:
+                    return redirect("{}:{}".format(resolver_match.app_name,
+                                                   resolver_match.url_name),
+                                    pk=obj.pk,
+                                    slug=canonical_slug,
+                                    permanent=True)
+                except NoReverseMatch as e:
+                    pass
+            if resolver_match.namespace:
+                try:
+                    return redirect("{}:{}".format(resolver_match.namespace,
+                                                   resolver_match.url_name),
+                                    pk=obj.pk,
+                                    slug=canonical_slug,
+                                    permanent=True)
+                except NoReverseMatch as e:
+                    pass
+            if e:
+                raise e
+            return redirect(resolver_match.url_name, pk=obj.pk,
+                            slug=canonical_slug, permanent=True)
 
         return super(CanonicalSlugDetailMixin, self).dispatch(
             request, *args, **kwargs)
