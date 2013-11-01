@@ -33,6 +33,21 @@ class LoginRequiredView(views.LoginRequiredMixin, OkView):
     A view for testing LoginRequiredMixin.
     """
 
+class AnonymousUserOnlyView(views.AnonymousUserOnlyMixin, OkView):
+    """
+    A view for testing AnonymousUserOnlyMixin. Should accept unauthenticated
+    users and redirect authenticated users to the authenticated_redirect_url
+    set on the view.
+    """
+    def get_authenticated_redirect_url(self):
+        return "/authanticated_view/"
+        
+class AuthenticatedView(views.LoginRequiredMixin, OkView):
+    """
+    A view for testing AnonymousUserOnlyMixin. Should accept
+    authenticated users.
+    """
+    
 
 class AjaxResponseView(views.AjaxResponseMixin, OkView):
     """

@@ -5,9 +5,10 @@ from django.core.urlresolvers import reverse_lazy
 from .compat import force_text
 from .factories import GroupFactory, UserFactory
 from .helpers import TestViewHelper
-from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
-                    SuperuserRequiredView, StaffuserRequiredView,
-                    LoginRequiredView, GroupRequiredView)
+from .views import (PermissionRequiredView, AnonymousUserOnlyView,
+                    MultiplePermissionsRequiredView, SuperuserRequiredView,
+                    StaffuserRequiredView, LoginRequiredView,
+                    GroupRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -125,6 +126,31 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         resp = self.client.get(self.view_url)
         assert resp.status_code == 200
         assert force_text(resp.content) == 'OK'
+
+        
+class TestAnonymousUserOnlyMixin(TestViewHelper, test.TestCase):
+    """
+    Tests for AnonymousUserOnlyMixin.
+    """
+    view_class = AnonymousUserOnlyView
+    view_url = '/unauthanticated_view/'
+    
+    def test_anonymous(self):
+        resp = self.client.get(self.view_url)
+        # As an non-authenticated user, it should be possible to access
+        # the URL.
+        assert resp.status_code == 200
+        assert force_text(resp.content) == 'OK'
+    
+    def test_authenticated(self):
+        user = UserFactory()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        # Check that the authenticated user has been successfully directed
+        # to the approparite view.
+        assert resp.status_code == 302
+        resp = self.client.get(self.view_url, follow = True)
+        self.assertRedirects(resp, "/authanticated_view/")
 
 
 class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
