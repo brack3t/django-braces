@@ -78,7 +78,7 @@ class LoginRequiredMixin(AccessMixin):
             request, *args, **kwargs)
 
 
-class AuthorizedRedirectMixin(object):
+class AnonymousUserOnlyMixin(object):
     """
     View mixin which redirects to a specified URL if authenticated.
     Can be useful if you wanted to prevent authenticated users from
@@ -89,7 +89,7 @@ class AuthorizedRedirectMixin(object):
         
     Example Usage
     
-        class SomeView(PermissionRequiredMixin, ListView):
+        class SomeView(AnonymousUserOnlyMixin, ListView):
             ...
             # required
             authenticated_redirect_url = "/dashboard/"
@@ -100,7 +100,7 @@ class AuthorizedRedirectMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated():
             return HttpResponseRedirect(self.get_authenticated_redirect_url())
-        return super(AuthorizedRedirectMixin, self).dispatch(request, *args, **kwargs)
+        return super(AnonymousUserOnlyMixin, self).dispatch(request, *args, **kwargs)
         
     def get_authenticated_redirect_url(self):
         # Return the reversed success url.
