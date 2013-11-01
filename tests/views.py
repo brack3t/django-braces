@@ -45,7 +45,7 @@ class AnonymousUserOnlyView(views.AnonymousUserOnlyMixin, OkView):
 class AuthenticatedView(views.LoginRequiredMixin, OkView):
     """
     A view for testing AnonymousUserOnlyMixin. Should accept
-    authorized users.
+    authenticated users.
     """
     
 

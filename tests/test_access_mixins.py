@@ -130,7 +130,7 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         
 class TestAnonymousUserOnlyMixin(TestViewHelper, test.TestCase):
     """
-    Tests for AuthorizedRedirectMixin.
+    Tests for AnonymousUserOnlyMixin.
     """
     view_class = AnonymousUserOnlyView
     view_url = '/unauthanticated_view/'

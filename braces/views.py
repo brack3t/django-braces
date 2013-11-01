@@ -103,7 +103,7 @@ class AnonymousUserOnlyMixin(object):
         return super(AnonymousUserOnlyMixin, self).dispatch(request, *args, **kwargs)
         
     def get_authenticated_redirect_url(self):
-        # Return the reversed success url.
+        # Return the reversed authenticated redirect url.
         if self.authenticated_redirect_url is None:
             raise ImproperlyConfigured(
                 "%(cls)s is missing a authenticated_redirect_url "
