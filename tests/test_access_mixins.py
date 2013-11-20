@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import test
+from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
 from .compat import force_text
@@ -83,6 +84,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         expected_url = '/accounts/login/?foo=%s' % self.view_url
         self.assertEqual(expected_url, resp['Location'])
 
+    @override_settings(LOGIN_URL=None)
     def test_get_login_url_raises_exception(self):
         """
         Test that get_login_url from AccessMixin raises
@@ -101,6 +103,17 @@ class _TestAccessBasicsMixin(TestViewHelper):
             self.dispatch_view(
                 self.build_request(path=self.view_url),
                 redirect_field_name=None)
+
+    @override_settings(LOGIN_URL="/auth/login/")
+    def test_overridden_login_url(self):
+        """
+        Test that login_url is not set in stone on module load but can be
+        overridden dynamically.
+        """
+        user = self.build_unauthorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertRedirects(resp, '/auth/login/?next=%s' % self.view_url)
 
 
 class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
