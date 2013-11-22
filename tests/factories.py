@@ -1,16 +1,8 @@
-from django.contrib.auth.models import User, Permission
+import factory
+
+from django.contrib.auth.models import Group, Permission, User
+
 from .models import Article
-
-
-_i = 0
-
-
-def get_next_id():
-    """Returns unique integer."""
-    global _i
-    ret = _i
-    _i += 1
-    return ret
 
 
 def _get_perm(perm_name):
@@ -24,28 +16,40 @@ def _get_perm(perm_name):
         content_type__app_label=app_label, codename=codename)
 
 
-def make_user(permissions=None, password='asdf1234', **kwargs):
-    """
-    Creates new user instance.
+class ArticleFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = Article
 
-    `permissions` is a list of permission names like ['auth.add_user'].
-    `password` is raw (not hashed) password. It defaults to 'asdf1234'.
-    """
-    i = get_next_id()
-    defaults = {'username': 'user%s' % i, 'first_name': 'John %s' % i,
-                'last_name': 'Doe %s' % i, 'email': 'user%s@example.com' % i}
-    defaults.update(**kwargs)
-    obj = User(**defaults)
-    obj.set_password(password)
-    obj.save()
-    if permissions:
-        obj.user_permissions.add(*[_get_perm(pn) for pn in permissions])
-    return obj
+    title = factory.Sequence(lambda n: 'Article number {0}'.format(n))
+    body = factory.Sequence(lambda n: 'Body of article {0}'.format(n))
 
 
-def make_article(**kwargs):
-    i = get_next_id()
-    defaults = {'title': "Article number %s" % i,
-                'body': "Body of article %s" % i}
-    defaults.update(kwargs)
-    return Article.objects.create(**defaults)
+class GroupFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = Group
+
+    name = factory.Sequence(lambda n: 'group{0}'.format(n))
+
+
+class UserFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = User
+
+    username = factory.Sequence(lambda n: 'user{0}'.format(n))
+    first_name = factory.Sequence(lambda n: 'John {0}'.format(n))
+    last_name = factory.Sequence(lambda n: 'Doe {0}'.format(n))
+    email = factory.Sequence(lambda n: 'user{0}@example.com'.format(n))
+    password = 'asdf1234'
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        password = kwargs.pop('password', None)
+        user = super(UserFactory, cls)._prepare(create, **kwargs)
+        if password:
+            user.set_password(password)
+            if create:
+                user.save()
+        return user
+
+    @factory.post_generation
+    def permissions(self, create, extracted, **kwargs):
+        if create and extracted:
+            # We have a saved object and a list of permission names
+            self.user_permissions.add(*[_get_perm(pn) for pn in extracted])

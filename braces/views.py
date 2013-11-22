@@ -1,15 +1,17 @@
-import warnings
+import six
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse
-from django.views.generic import CreateView
+from django.core.urlresolvers import resolve, reverse
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_text
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_page, never_cache
 
@@ -18,33 +20,6 @@ try:
     import json
 except ImportError:  # pragma: no cover
     from django.utils import simplejson as json
-
-
-class CreateAndRedirectToEditView(CreateView):
-    """
-    Subclass of CreateView which redirects to the edit view.
-    Requires property `success_url_name` to be set to a
-    reversible url that uses the objects pk.
-    """
-    success_url_name = None
-
-    def dispatch(self, request, *args, **kwargs):
-        warnings.warn("CreateAndRedirectToEditView is deprecated and will be "
-            "removed in a future release.", PendingDeprecationWarning)
-        return super(CreateAndRedirectToEditView, self).dispatch(request,
-            *args, **kwargs)
-
-    def get_success_url(self):
-        # First we check for a name to be provided on the view object.
-        # If one is, we reverse it and finish running the method,
-        # otherwise we raise a configuration error.
-        if self.success_url_name:
-            self.success_url = reverse(self.success_url_name,
-                kwargs={'pk': self.object.pk})
-            return super(CreateAndRedirectToEditView, self).get_success_url()
-
-        raise ImproperlyConfigured(
-            "No URL to reverse. Provide a success_url_name.")
 
 
 class AccessMixin(object):
@@ -61,18 +36,20 @@ class AccessMixin(object):
         Override this method to customize the login_url.
         """
         if self.login_url is None:
-            raise ImproperlyConfigured("%(cls)s is missing the login_url. "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing the login_url. "
                 "Define %(cls)s.login_url or override "
                 "%(cls)s.get_login_url()." % {"cls": self.__class__.__name__})
 
-        return self.login_url
+        return force_text(self.login_url)
 
     def get_redirect_field_name(self):
         """
         Override this method to customize the redirect_field_name.
         """
         if self.redirect_field_name is None:
-            raise ImproperlyConfigured("%(cls)s is missing the "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing the "
                 "redirect_field_name. Define %(cls)s.redirect_field_name or "
                 "override %(cls)s.get_redirect_field_name()." % {
                 "cls": self.__class__.__name__})
@@ -86,7 +63,7 @@ class LoginRequiredMixin(AccessMixin):
 
     NOTE:
         This should be the left-most mixin of a view, except when
-        combined with CsrfExemptMixin - which in that case should 
+        combined with CsrfExemptMixin - which in that case should
         be the left-most mixin.
     """
     def dispatch(self, request, *args, **kwargs):
@@ -95,10 +72,11 @@ class LoginRequiredMixin(AccessMixin):
                 raise PermissionDenied  # return a forbidden response
             else:
                 return redirect_to_login(request.get_full_path(),
-                    self.get_login_url(), self.get_redirect_field_name())
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
 
-        return super(LoginRequiredMixin, self).dispatch(request, *args,
-            **kwargs)
+        return super(LoginRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class CsrfExemptMixin(object):
@@ -144,7 +122,8 @@ class PermissionRequiredMixin(AccessMixin):
         # Make sure that the permission_required attribute is set on the
         # view, or raise a configuration error.
         if self.permission_required is None:
-            raise ImproperlyConfigured("'PermissionRequiredMixin' requires "
+            raise ImproperlyConfigured(
+                "'PermissionRequiredMixin' requires "
                 "'permission_required' attribute to be set.")
 
         # Check to see if the request's user has the required permission.
@@ -158,8 +137,8 @@ class PermissionRequiredMixin(AccessMixin):
                                          self.get_login_url(),
                                          self.get_redirect_field_name())
 
-        return super(PermissionRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        return super(PermissionRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class MultiplePermissionsRequiredMixin(AccessMixin):
@@ -236,15 +215,16 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
                                          self.get_login_url(),
                                          self.get_redirect_field_name())
 
-        return super(MultiplePermissionsRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        return super(MultiplePermissionsRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
     def _check_permissions_attr(self):
         """
         Check permissions attribute is set and that it is a dict.
         """
         if self.permissions is None or not isinstance(self.permissions, dict):
-            raise ImproperlyConfigured("'PermissionsRequiredMixin' requires "
+            raise ImproperlyConfigured(
+                "'PermissionsRequiredMixin' requires "
                 "'permissions' attribute to be set to a dict.")
 
     def _check_permissions_keys_set(self, perms_all=None, perms_any=None):
@@ -254,7 +234,8 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         came in. Both are invalid and should raise an exception.
         """
         if perms_all is None and perms_any is None:
-            raise ImproperlyConfigured("'PermissionsRequiredMixin' requires"
+            raise ImproperlyConfigured(
+                "'PermissionsRequiredMixin' requires"
                 "'permissions' attribute to be set to a dict and the 'any' "
                 "or 'all' key to be set.")
 
@@ -264,9 +245,47 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         sure that it is of the type list or tuple.
         """
         if perms and not isinstance(perms, (list, tuple)):
-            raise ImproperlyConfigured("'MultiplePermissionsRequiredMixin' "
+            raise ImproperlyConfigured(
+                "'MultiplePermissionsRequiredMixin' "
                 "requires permissions dict '%s' value to be a list "
                 "or tuple." % key)
+
+
+class GroupRequiredMixin(AccessMixin):
+    group_required = None
+
+    def get_group_required(self):
+        if self.group_required is None or (
+                not isinstance(self.group_required,
+                               (list, tuple) + six.string_types)
+        ):
+
+            raise ImproperlyConfigured(
+                "'GroupRequiredMixin' requires "
+                "'group_required' attribute to be set and be one of the "
+                "following types: string, unicode, list, or tuple.")
+        return self.group_required
+
+    def check_membership(self, group):
+        """ Check required group(s) """
+        if not group in self.request.user.groups.values_list('name',
+                                                             flat=True):
+            return False
+        return True
+
+    def dispatch(self, request, *args, **kwargs):
+        in_group = self.check_membership(self.get_group_required())
+
+        if not in_group:
+            if self.raise_exception:
+                raise PermissionDenied
+            else:
+                return redirect_to_login(
+                    request.get_full_path(),
+                    self.get_login_url(),
+                    self.get_redirect_field_name())
+        return super(GroupRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class UserFormKwargsMixin(object):
@@ -296,7 +315,8 @@ class SuccessURLRedirectListMixin(object):
     def get_success_url(self):
         # Return the reversed success url.
         if self.success_list_url is None:
-            raise ImproperlyConfigured("%(cls)s is missing a succes_list_url "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing a succes_list_url "
                 "name to reverse and redirect to. Define "
                 "%(cls)s.success_list_url or override "
                 "%(cls)s.get_success_url()"
@@ -317,8 +337,8 @@ class SuperuserRequiredMixin(AccessMixin):
                                          self.get_login_url(),
                                          self.get_redirect_field_name())
 
-        return super(SuperuserRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        return super(SuperuserRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class SetHeadlineMixin(object):
@@ -338,10 +358,11 @@ class SetHeadlineMixin(object):
         if self.headline is None:  # If no headline was provided as a view
                                    # attribute and this method wasn't
                                    # overridden raise a configuration error.
-            raise ImproperlyConfigured("%(cls)s is missing a headline. "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing a headline. "
                 "Define %(cls)s.headline, or override "
-                "%(cls)s.get_headline()." % {"cls": self.__class__.__name__
-            })
+                "%(cls)s.get_headline()." % {"cls": self.__class__.__name__}
+            )
         return self.headline
 
 
@@ -355,14 +376,16 @@ class SelectRelatedMixin(object):
     def get_queryset(self):
         if self.select_related is None:  # If no fields were provided,
                                          # raise a configuration error
-            raise ImproperlyConfigured("%(cls)s is missing the "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing the "
                 "select_related property. This must be a tuple or list." % {
                     "cls": self.__class__.__name__})
 
         if not isinstance(self.select_related, (tuple, list)):
             # If the select_related argument is *not* a tuple or list,
             # raise a configuration error.
-            raise ImproperlyConfigured("%(cls)s's select_related property "
+            raise ImproperlyConfigured(
+                "%(cls)s's select_related property "
                 "must be a tuple or list." % {"cls": self.__class__.__name__})
 
         # Get the current queryset of the view
@@ -381,14 +404,16 @@ class PrefetchRelatedMixin(object):
     def get_queryset(self):
         if self.prefetch_related is None:  # If no fields were provided,
                                            # raise a configuration error
-            raise ImproperlyConfigured("%(cls)s is missing the "
+            raise ImproperlyConfigured(
+                "%(cls)s is missing the "
                 "prefetch_related property. This must be a tuple or list." % {
                     "cls": self.__class__.__name__})
 
         if not isinstance(self.prefetch_related, (tuple, list)):
             # If the select_related argument is *not* a tuple or list,
             # raise a configuration error.
-            raise ImproperlyConfigured("%(cls)s's prefetch_related property "
+            raise ImproperlyConfigured(
+                "%(cls)s's prefetch_related property "
                 "must be a tuple or list." % {"cls": self.__class__.__name__})
 
         # Get the current queryset of the view
@@ -410,8 +435,8 @@ class StaffuserRequiredMixin(AccessMixin):
                                          self.get_login_url(),
                                          self.get_redirect_field_name())
 
-        return super(StaffuserRequiredMixin, self).dispatch(request,
-            *args, **kwargs)
+        return super(StaffuserRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class JSONResponseMixin(object):
@@ -419,39 +444,42 @@ class JSONResponseMixin(object):
     A mixin that allows you to easily serialize simple data such as a dict or
     Django models.
     """
-    content_type = "application/json"
+    content_type = u"application/json"
     json_dumps_kwargs = None
 
     def get_content_type(self):
         if self.content_type is None:
-            raise ImproperlyConfigured("%(cls)s is missing a content type. "
-                "Define %(cls)s.content_type, or override "
-                "%(cls)s.get_content_type()." % {
-                "cls": self.__class__.__name__
-            })
+            raise ImproperlyConfigured(
+                u"%(cls)s is missing a content type. "
+                u"Define %(cls)s.content_type, or override "
+                u"%(cls)s.get_content_type()." % {
+                u"cls": self.__class__.__name__}
+            )
         return self.content_type
 
     def get_json_dumps_kwargs(self):
         if self.json_dumps_kwargs is None:
             self.json_dumps_kwargs = {}
-        self.json_dumps_kwargs.setdefault('ensure_ascii', False)
+        self.json_dumps_kwargs.setdefault(u'ensure_ascii', False)
         return self.json_dumps_kwargs
 
-    def render_json_response(self, context_dict):
+    def render_json_response(self, context_dict, status=200):
         """
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
         json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
-                **self.get_json_dumps_kwargs())
-        return HttpResponse(json_context, content_type=self.get_content_type())
+                                  **self.get_json_dumps_kwargs())
+        return HttpResponse(json_context,
+                            content_type=self.get_content_type(),
+                            status=status)
 
     def render_json_object_response(self, objects, **kwargs):
         """
         Serializes objects using Django's builtin JSON serializer. Additional
         kwargs can be used the same way for django.core.serializers.serialize.
         """
-        json_data = serializers.serialize("json", objects, **kwargs)
+        json_data = serializers.serialize(u"json", objects, **kwargs)
         return HttpResponse(json_data, content_type=self.get_content_type())
 
 
@@ -466,14 +494,14 @@ class AjaxResponseMixin(object):
 
         if request.is_ajax() and request_method in self.http_method_names:
             handler = getattr(self, '%s_ajax' % request_method,
-                self.http_method_not_allowed)
+                              self.http_method_not_allowed)
             self.request = request
             self.args = args
             self.kwargs = kwargs
             return handler(request, *args, **kwargs)
 
-        return super(AjaxResponseMixin, self).dispatch(request, *args,
-            **kwargs)
+        return super(AjaxResponseMixin, self).dispatch(
+            request, *args, **kwargs)
 
     def get_ajax(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
@@ -488,28 +516,235 @@ class AjaxResponseMixin(object):
         return self.get(request, *args, **kwargs)
 
 
-class NeverCacheMixin(object):
+class JsonRequestResponseMixin(JSONResponseMixin):
     """
-    Mixin that makes sure View is never cached.
+    Extends JSONResponseMixin.  Attempts to parse request as JSON.  If request
+    is properly formatted, the json is saved to self.request_json as a Python
+    object.  request_json will be None for imparsible requests.
+    Set the attribute require_json to True to return a 400 "Bad Request" error
+    for requests that don't contain JSON.
+
+    Note: To allow public access to your view, you'll need to use the
+    csrf_exempt decorator or CsrfExemptMixin.
+
+    Example Usage:
+
+        class SomeView(CsrfExemptMixin, JsonRequestResponseMixin):
+            def post(self, request, *args, **kwargs):
+                do_stuff_with_contents_of_request_json()
+                return self.render_json_response(
+                    {'message': 'Thanks!'})
     """
-    @method_decorator(never_cache)
-    def dispatch(self, *args, **kwargs):
-        return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
+    require_json = False
+    error_response_dict = {u"errors": [u"Improperly formatted request"]}
+
+    def render_bad_request_response(self, error_dict=None):
+        if error_dict is None:
+            error_dict = self.error_response_dict
+        json_context = json.dumps(
+            error_dict,
+            cls=DjangoJSONEncoder,
+            **self.get_json_dumps_kwargs()
+        )
+        return HttpResponseBadRequest(
+            json_context, content_type=self.get_content_type())
+
+    def get_request_json(self):
+        try:
+            return json.loads(self.request.body)
+        except ValueError:
+            return None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.request_json = self.get_request_json()
+        if self.require_json and self.request_json is None:
+            return self.render_bad_request_response()
+        return super(JsonRequestResponseMixin, self).dispatch(request,
+                                                              *args, **kwargs)
 
 
-
-class CacheMixin(object):
+class OrderableListMixin(object):
     """
-    Mixin that allows caching for the view it is applied to.
-    View is being cached for `ttl`s, default is 60 seconds.
+    Mixin allows your users to order records using GET parameters
     """
 
-    ttl = 60
- 
-    def get_ttl(self):
-        if self.ttl is None:
-            raise ImproperlyConfigured("%(cls)s does not have a value for `ttl`. ")
-        return self.ttl
-  
-    def dispatch(self, *args, **kwargs):
-        return cache_page(self.get_ttl())(super(CacheMixin, self).dispatch)(*args, **kwargs)
+    orderable_columns = None
+    orderable_columns_default = None
+    order_by = None
+    ordering = None
+
+    def get_context_data(self, **kwargs):
+        """
+        Augments context with:
+
+            * ``order_by`` - name of the field
+            * ``ordering`` - order of ordering, either ``asc`` or ``desc``
+        """
+        context = super(OrderableListMixin, self).get_context_data(**kwargs)
+        context["order_by"] = self.order_by
+        context["ordering"] = self.ordering
+        return context
+
+    def get_orderable_columns(self):
+        if not self.orderable_columns:
+            raise ImproperlyConfigured(
+                "Please define allowed ordering columns")
+        return self.orderable_columns
+
+    def get_orderable_columns_default(self):
+        if not self.orderable_columns_default:
+            raise ImproperlyConfigured("Please define default ordering column")
+        return self.orderable_columns_default
+
+    def get_ordered_queryset(self, queryset=None):
+        """
+        Augments ``QuerySet`` with order_by statement if possible
+
+        :param QuerySet queryset: ``QuerySet`` to ``order_by``
+        :return: QuerySet
+        """
+        get_order_by = self.request.GET.get("order_by")
+
+        if get_order_by in self.get_orderable_columns():
+            order_by = get_order_by
+        else:
+            order_by = self.get_orderable_columns_default()
+
+        self.order_by = order_by
+        self.ordering = "asc"
+
+        if order_by and self.request.GET.get("ordering", "asc") == "desc":
+            order_by = "-" + order_by
+            self.ordering = "desc"
+
+        return queryset.order_by(order_by)
+
+    def get_queryset(self):
+        """
+        Returns ordered ``QuerySet``
+        """
+        unordered_queryset = super(OrderableListMixin, self).get_queryset()
+        return self.get_ordered_queryset(unordered_queryset)
+
+
+class CanonicalSlugDetailMixin(object):
+    """
+    A mixin that enforces a canonical slug in the url.
+
+    If a urlpattern takes a object's pk and slug as arguments and the slug url
+    argument does not equal the object's canonical slug, this mixin will
+    redirect to the url containing the canonical slug.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        # Get the current object, url slug, and urlpattern name.
+        obj = self.get_object()
+        slug = self.kwargs.get(self.slug_url_kwarg, None)
+        current_urlpattern = resolve(request.path_info).url_name
+
+        # Figure out what the slug is supposed to be.
+        canonical_slug = self.get_canonical_slug()
+        if hasattr(obj, 'get_canonical_slug'):
+            canonical_slug = obj.get_canonical_slug()
+
+        # If there's a discrepancy between the slug in the url and the
+        # canonical slug, redirect to the canonical slug.
+        if canonical_slug != slug:
+            return redirect(current_urlpattern, pk=obj.pk, slug=canonical_slug,
+                            permanent=True)
+
+        return super(CanonicalSlugDetailMixin, self).dispatch(
+            request, *args, **kwargs)
+
+    def get_canonical_slug(self):
+        """
+        Override this method to customize what slug should be considered
+        canonical.
+
+        Alternatively, define the get_canonical_slug method on this view's
+        object class.
+        """
+        return self.get_object().slug
+
+
+class FormValidMessageMixin(object):
+    """
+    Mixin allows you to set static message which is displayed by
+    Django's messages framework through a static property on the class
+    or programmatically by overloading the get_form_valid_message method.
+    """
+    form_valid_message = None  # Default to None
+
+    def get_form_valid_message(self):
+        """
+        Validate that form_valid_message is set and is either a
+        unicode or str object.
+        """
+        if self.form_valid_message is None:
+            raise ImproperlyConfigured(
+                '{0}.form_valid_message is not set. Define '
+                '{0}.form_valid_message, or override '
+                '{0}.get_form_valid_message().'.format(self.__class__.__name__)
+            )
+
+        if not isinstance(self.form_valid_message, six.string_types):
+            raise ImproperlyConfigured(
+                '{0}.form_valid_message must be a str or unicode '
+                'object.'.format(self.__class__.__name__)
+            )
+
+        return self.form_valid_message
+
+    def form_valid(self, form):
+        """
+        Call the super first, so that when overriding
+        get_form_valid_message, we have access to the newly saved object.
+        """
+        response = super(FormValidMessageMixin, self).form_valid(form)
+        messages.success(self.request, self.get_form_valid_message(),
+                         fail_silently=True)
+        return response
+
+
+class FormInvalidMessageMixin(object):
+    """
+    Mixin allows you to set static message which is displayed by
+    Django's messages framework through a static property on the class
+    or programmatically by overloading the get_form_invalid_message method.
+    """
+    form_invalid_message = None
+
+    def get_form_invalid_message(self):
+        """
+        Validate that form_invalid_message is set and is either a
+        unicode or str object.
+        """
+        if self.form_invalid_message is None:
+            raise ImproperlyConfigured(
+                '{0}.form_invalid_message is not set. Define '
+                '{0}.form_invalid_message, or override '
+                '{0}.get_form_invalid_message().'.format(
+                    self.__class__.__name__)
+            )
+
+        if not isinstance(self.form_invalid_message,
+                          (six.string_types, six.text_type)):
+            raise ImproperlyConfigured(
+                '{0}.form_invalid_message must be a str or unicode '
+                'object.'.format(self.__class__.__name__)
+            )
+
+        return self.form_invalid_message
+
+    def form_invalid(self, form):
+        response = super(FormInvalidMessageMixin, self).form_invalid(form)
+        messages.error(self.request, self.get_form_invalid_message(),
+                       fail_silently=True)
+        return response
+
+
+class FormMessagesMixin(FormValidMessageMixin, FormInvalidMessageMixin):
+    """
+    Mixin is a shortcut to use both FormValidMessageMixin and
+    FormInvalidMessageMixin.
+    """
+    pass
