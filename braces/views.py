@@ -13,6 +13,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_page, never_cache
 
 ## Django 1.5+ compat
 try:
