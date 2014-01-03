@@ -273,8 +273,9 @@ class GroupRequiredMixin(AccessMixin):
 
     def check_membership(self, group):
         """ Check required group(s) """
+        import pdb; pdb.set_trace()
         if not group in self.request.user.groups.values_list(
-           'name', flat=True):
+           "name", flat=True):
             return False
         return True
 
