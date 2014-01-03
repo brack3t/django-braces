@@ -26,7 +26,7 @@ class AccessMixin(object):
     'Abstract' mixin that gives access mixins the same customizable
     functionality.
     """
-    login_url = settings.LOGIN_URL  # LOGIN_URL from project settings
+    login_url = None
     raise_exception = False  # Default whether to raise an exception to none
     redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
 
@@ -34,13 +34,13 @@ class AccessMixin(object):
         """
         Override this method to customize the login_url.
         """
-        if self.login_url is None:
+        login_url = self.login_url or settings.LOGIN_URL
+        if not login_url:
             raise ImproperlyConfigured(
-                "%(cls)s is missing the login_url. "
-                "Define %(cls)s.login_url or override "
+                "Define %(cls)s.login_url or settings.LOGIN_URL or override "
                 "%(cls)s.get_login_url()." % {"cls": self.__class__.__name__})
 
-        return force_text(self.login_url)
+        return force_text(login_url)
 
     def get_redirect_field_name(self):
         """
