@@ -273,12 +273,13 @@ class GroupRequiredMixin(AccessMixin):
 
     def check_membership(self, group):
         """ Check required group(s) """
-        if not group in self.request.user.groups.values_list('name',
-                                                             flat=True):
+        if not group in self.request.user.groups.values_list(
+           'name', flat=True):
             return False
         return True
 
     def dispatch(self, request, *args, **kwargs):
+        self.request = request
         in_group = self.check_membership(self.get_group_required())
 
         if not in_group:
@@ -600,7 +601,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
         self.request = request
         self.args = args
         self.kwargs = kwargs
-        
+
         self.request_json = self.get_request_json()
         if self.require_json and self.request_json is None:
             return self.render_bad_request_response()
