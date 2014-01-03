@@ -290,12 +290,12 @@ class GroupRequiredMixin(AccessMixin):
 
 class UserPassesTestMixin(AccessMixin):
     """
-    CBV Mixin allows you to define function that every user should pass
+    CBV Mixin allows you to define test that every user should pass
     to get access into view.
 
     Class Settings
-        `test_func` - This is required to be a mathod that takes user instance
-            and return True or False after checking conditions.
+        `test_func` - This is required to be a method that takes user
+            instance and return True or False after checking conditions.
         `login_url` - the login url of site
         `redirect_field_name` - defaults to "next"
         `raise_exception` - defaults to False - raise 403 if set to True
@@ -308,7 +308,7 @@ class UserPassesTestMixin(AccessMixin):
                         "cls": self.__class__.__name__})
 
     def get_test_func(self):
-        return getattr(self, 'test_func')
+        return getattr(self, "test_func")
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()(request.user)
