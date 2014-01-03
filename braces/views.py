@@ -15,6 +15,12 @@ from django.utils.encoding import force_text
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
+try:  # do not edit! added by PythonBreakpoints
+    from ipdb import set_trace as _breakpoint
+except ImportError:
+    from pdb import set_trace as _breakpoint
+
+
 try:
     import json
 except ImportError:  # pragma: no cover
@@ -585,6 +591,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
             json_context, content_type=self.get_content_type())
 
     def get_request_json(self):
+        import pdb; pdb.set_trace()
         try:
             return json.loads(self.request.body)
         except ValueError:
@@ -675,7 +682,7 @@ class CanonicalSlugDetailMixin(object):
         self.request = request
         self.args = args
         self.kwargs = kwargs
-        
+
         # Get the current object, url slug, and
         # urlpattern name (namespace aware).
         obj = self.get_object()
