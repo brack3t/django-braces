@@ -677,7 +677,7 @@ class CanonicalSlugDetailMixin(object):
         match = resolve(request.path_info)
         url_parts = match.namespaces
         url_parts.append(match.url_name)
-        current_urlpattern = ':'.join(url_parts)
+        current_urlpattern = ":".join(url_parts)
 
         # Figure out what the slug is supposed to be.
         if hasattr(obj, "get_canonical_slug"):
