@@ -21,6 +21,7 @@ Direct Contributors
 * Rodney Folz
 * Markus Zapke-Gründemann
 * Kamil Gałuszka
+* Danilo Bargen
 
 Other Contributors
 ==================
