@@ -254,3 +254,13 @@ class FormMessagesView(views.FormMessagesMixin, CreateView):
 
 class GroupRequiredView(views.GroupRequiredMixin, OkView):
     group_required = 'test_group'
+
+
+class UserPassesTestView(views.UserPassesTestMixin, OkView):
+    def test_func(self, user):
+        return user.is_staff and not user.is_superuser \
+            and user.email.endswith('@mydomain.com')
+
+
+class UserPassesTestNotImplementedView(views.UserPassesTestMixin, OkView):
+    pass

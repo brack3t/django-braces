@@ -8,3 +8,4 @@
 /htmlcov
 /.tox
 dist/
+.idea

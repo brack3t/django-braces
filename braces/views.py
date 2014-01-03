@@ -287,6 +287,42 @@ class GroupRequiredMixin(AccessMixin):
             request, *args, **kwargs)
 
 
+class UserPassesTestMixin(AccessMixin):
+    """
+    CBV Mixin allows you to define test that every user should pass
+    to get access into view.
+
+    Class Settings
+        `test_func` - This is required to be a method that takes user
+            instance and return True or False after checking conditions.
+        `login_url` - the login url of site
+        `redirect_field_name` - defaults to "next"
+        `raise_exception` - defaults to False - raise 403 if set to True
+    """
+
+    def test_func(self, user):
+        raise NotImplementedError(
+                "%(cls)s is missing implementation of the "
+                "test_func method. You should write one." % {
+                        "cls": self.__class__.__name__})
+
+    def get_test_func(self):
+        return getattr(self, "test_func")
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()(request.user)
+
+        if not user_test_result:  # If user don't pass the test
+            if self.raise_exception:  # *and* if an exception was desired
+                raise PermissionDenied
+            else:
+                return redirect_to_login(request.get_full_path(),
+                                         self.get_login_url(),
+                                         self.get_redirect_field_name())
+        return super(UserPassesTestMixin, self).dispatch(
+            request, *args, **kwargs)
+
+
 class UserFormKwargsMixin(object):
     """
     CBV mixin which puts the user from the request into the form kwargs.
