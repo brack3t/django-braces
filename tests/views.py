@@ -238,7 +238,7 @@ class OverriddenCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
 
 
 class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
-                                            DetailView):
+                                   DetailView):
     model = CanonicalArticle
     template_name = 'blank.html'
 
