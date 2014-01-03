@@ -3,7 +3,7 @@ from django import test
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
 from .compat import force_text
-from .factories import make_group, make_user
+from .factories import GroupFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
@@ -120,7 +120,7 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
                 self.build_request(path=self.view_url), raise_exception=True)
 
     def test_authenticated(self):
-        user = make_user()
+        user = UserFactory()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         assert resp.status_code == 200
@@ -135,10 +135,10 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_url = '/permission_required/'
 
     def build_authorized_user(self):
-        return make_user(permissions=['auth.add_user'])
+        return UserFactory(permissions=['auth.add_user'])
 
     def build_unauthorized_user(self):
-        return make_user()
+        return UserFactory()
 
     def test_invalid_permission(self):
         """
@@ -155,11 +155,11 @@ class TestMultiplePermissionsRequiredMixin(
     view_url = '/multiple_permissions_required/'
 
     def build_authorized_user(self):
-        return make_user(permissions=[
+        return UserFactory(permissions=[
             'tests.add_article', 'tests.change_article', 'auth.change_user'])
 
     def build_unauthorized_user(self):
-        return make_user(permissions=['tests.add_article'])
+        return UserFactory(permissions=['tests.add_article'])
 
     def test_redirects_to_login(self):
         """
@@ -177,7 +177,7 @@ class TestMultiplePermissionsRequiredMixin(
         )
 
         for permissions in test_cases:
-            user = make_user(permissions=permissions)
+            user = UserFactory(permissions=permissions)
             self.client.login(username=user.username, password='asdf1234')
             resp = self.client.get(url)
             self.assertRedirects(resp, '/accounts/login/?next=%s' % url)
@@ -216,7 +216,7 @@ class TestMultiplePermissionsRequiredMixin(
         )
 
         for permissions in test_cases:
-            user = make_user(permissions=permissions)
+            user = UserFactory(permissions=permissions)
             req = self.build_request(user=user)
             with self.assertRaises(PermissionDenied):
                 self.dispatch_view(req, raise_exception=True)
@@ -226,13 +226,13 @@ class TestMultiplePermissionsRequiredMixin(
         Tests if everything works if only 'all' permissions has been set.
         """
         permissions = {'all': ['auth.add_user', 'tests.add_article']}
-        user = make_user(permissions=permissions['all'])
+        user = UserFactory(permissions=permissions['all'])
         req = self.build_request(user=user)
 
         resp = self.dispatch_view(req, permissions=permissions)
         self.assertEqual('OK', force_text(resp.content))
 
-        user = make_user(permissions=['auth.add_user'])
+        user = UserFactory(permissions=['auth.add_user'])
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(
                 self.build_request(user=user), raise_exception=True,
@@ -243,13 +243,13 @@ class TestMultiplePermissionsRequiredMixin(
         Tests if everything works if only 'any' permissions has been set.
         """
         permissions = {'any': ['auth.add_user', 'tests.add_article']}
-        user = make_user(permissions=['tests.add_article'])
+        user = UserFactory(permissions=['tests.add_article'])
         req = self.build_request(user=user)
 
         resp = self.dispatch_view(req, permissions=permissions)
         self.assertEqual('OK', force_text(resp.content))
 
-        user = make_user(permissions=[])
+        user = UserFactory(permissions=[])
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(
                 self.build_request(user=user), raise_exception=True,
@@ -261,10 +261,10 @@ class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_url = '/superuser_required/'
 
     def build_authorized_user(self):
-        return make_user(is_superuser=True, is_staff=True)
+        return UserFactory(is_superuser=True, is_staff=True)
 
     def build_unauthorized_user(self):
-        return make_user()
+        return UserFactory()
 
 
 class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
@@ -272,10 +272,10 @@ class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_url = '/staffuser_required/'
 
     def build_authorized_user(self):
-        return make_user(is_staff=True)
+        return UserFactory(is_staff=True)
 
     def build_unauthorized_user(self):
-        return make_user()
+        return UserFactory()
 
 
 class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
@@ -283,13 +283,13 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_url = '/group_required/'
 
     def build_authorized_user(self):
-        user = make_user()
-        group = make_group(name='test_group')
+        user = UserFactory()
+        group = GroupFactory(name='test_group')
         user.groups.add(group)
         return user
 
     def build_unauthorized_user(self):
-        return make_user()
+        return UserFactory()
 
     def test_with_group_list(self):
         view = self.view_class()
@@ -323,4 +323,3 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
         self.assertEqual('OK', force_text(resp.content))
-

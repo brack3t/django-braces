@@ -1,11 +1,13 @@
+import codecs
+
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.views.generic import (View, UpdateView, FormView, TemplateView,
-                                  ListView, CreateView)
+                                  ListView, DetailView, CreateView)
 
 from braces import views
 
-from .models import Article
+from .models import Article, CanonicalArticle
 from .forms import ArticleForm, FormWithUserKwarg
 
 
@@ -79,12 +81,42 @@ class ArticleListJsonView(views.JSONResponseMixin, View):
             queryset, fields=('title',))
 
 
-class CreateArticleView(views.CreateAndRedirectToEditView):
+class JsonRequestResponseView(views.JsonRequestResponseMixin, View):
+    """
+    A view for testing JsonRequestResponseMixin's json conversion
+    """
+    def post(self, request):
+        return self.render_json_response(self.request_json)
+
+
+class JsonBadRequestView(views.JsonRequestResponseMixin, View):
+    """
+    A view for testing JsonRequestResponseMixin's require_json
+    and render_bad_request_response methods
+    """
+    require_json = True
+
+    def post(self, request, *args, **kwargs):
+        return self.render_json_response(self.request_json)
+
+
+class JsonCustomBadRequestView(views.JsonRequestResponseMixin, View):
+    """
+    A view for testing JsonRequestResponseMixin's render_bad_request_response method
+    with a custom error message
+    """
+    def post(self, request, *args, **kwargs):
+        if not self.request_json:
+            return self.render_bad_request_response(
+                {'error': 'you messed up'})
+        return self.render_json_response(self.request_json)
+
+
+class CreateArticleView(CreateView):
     """
     View for testing CreateAndRedirectEditToView.
     """
     model = Article
-    success_url_name = 'edit_article'
     template_name = 'form.html'
 
 
@@ -189,6 +221,26 @@ class OrderableListView(views.OrderableListMixin, ListView):
     model = Article
     orderable_columns = ('id', 'title', )
     orderable_columns_default = 'id'
+
+
+class CanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailView):
+    model = Article
+    template_name = 'blank.html'
+
+
+class OverriddenCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
+                                        DetailView):
+    model = Article
+    template_name = 'blank.html'
+
+    def get_canonical_slug(self):
+        return codecs.encode(self.get_object().slug, 'rot_13')
+
+
+class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
+                                            DetailView):
+    model = CanonicalArticle
+    template_name = 'blank.html'
 
 
 class FormMessagesView(views.FormMessagesMixin, CreateView):
