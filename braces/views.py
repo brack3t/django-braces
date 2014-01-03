@@ -671,7 +671,13 @@ class CanonicalSlugDetailMixin(object):
     redirect to the url containing the canonical slug.
     """
     def dispatch(self, request, *args, **kwargs):
-        # Get the current object, url slug, and urlpattern name (namespace aware).
+        # Set up since we need to super() later instead of earlier.
+        self.request = request
+        self.args = args
+        self.kwargs = kwargs
+        
+        # Get the current object, url slug, and
+        # urlpattern name (namespace aware).
         obj = self.get_object()
         slug = self.kwargs.get(self.slug_url_kwarg, None)
         match = resolve(request.path_info)
