@@ -591,18 +591,21 @@ class JsonRequestResponseMixin(JSONResponseMixin):
             json_context, content_type=self.get_content_type())
 
     def get_request_json(self):
-        import pdb; pdb.set_trace()
         try:
             return json.loads(self.request.body)
         except ValueError:
             return None
 
     def dispatch(self, request, *args, **kwargs):
+        self.request = request
+        self.args = args
+        self.kwargs = kwargs
+        
         self.request_json = self.get_request_json()
         if self.require_json and self.request_json is None:
             return self.render_bad_request_response()
-        return super(JsonRequestResponseMixin, self).dispatch(request,
-                                                              *args, **kwargs)
+        return super(JsonRequestResponseMixin, self).dispatch(
+           request, *args, **kwargs)
 
 
 class OrderableListMixin(object):
