@@ -15,12 +15,6 @@ from django.utils.encoding import force_text
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
-try:  # do not edit! added by PythonBreakpoints
-    from ipdb import set_trace as _breakpoint
-except ImportError:
-    from pdb import set_trace as _breakpoint
-
-
 try:
     import json
 except ImportError:  # pragma: no cover
