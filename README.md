@@ -26,11 +26,16 @@ To run the test suite, execute the following in your shell (Django install is re
 
 ## Change Log
 
-### Dev
+### 1.3.0
 
 * Removed `CreateAndRedirectToEditView` mixin. It was marked for deprecation and removal since 1.0.
 * Added `JsonRequestAndResponseMixin` mixin which attempts to parse requests as JSON.
 * Added `CanonicalSlugDetailMixin` mixin which allows for the specification of a canonical slug on a `DetailView` to help with SEO by redirecting on non-canonical requests.
+* Added `UserPassesTestMixin` mixin to replicate the behavior of Django's `@user_passes_test` decorator.
+* Some fixes for `CanonicalSlugDetailMixin`.
+* `AccessMixin` now has a runtime-overridable `login_url` attribute.
+* Fixed problem with `GroupRequiredMixin` that made it not actually work.
+* All tests pass for Django versions 1.4 through 1.6 and Python versions 2.6, 2.7, and 3.3 (Django 1.4 and 1.5 not tested with Python 3.3).
 * Tests and documentation changes for all of the above.
 
 ### 1.2.1
