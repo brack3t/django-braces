@@ -26,6 +26,11 @@ To run the test suite, execute the following in your shell (Django install is re
 
 ## Change Log
 
+### 1.3.1
+
+* Removed breakpoint that was added accidentally.
+* Added the build directory to `.gitignore`
+
 ### 1.3.0
 
 * Removed `CreateAndRedirectToEditView` mixin. It was marked for deprecation and removal since 1.0.
