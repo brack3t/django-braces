@@ -273,15 +273,13 @@ class GroupRequiredMixin(AccessMixin):
 
     def check_membership(self, group):
         """ Check required group(s) """
-        import pdb; pdb.set_trace()
-        if not group in self.request.user.groups.values_list(
-           "name", flat=True):
-            return False
-        return True
+        return group in self.request.user.groups.values_list("name", flat=True)
 
     def dispatch(self, request, *args, **kwargs):
         self.request = request
-        in_group = self.check_membership(self.get_group_required())
+        in_group = False
+        if self.request.user.is_authenticated():
+            in_group = self.check_membership(self.get_group_required())
 
         if not in_group:
             if self.raise_exception:
@@ -512,7 +510,8 @@ class JSONResponseMixin(object):
         or other complex or custom objects.
         """
         json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
-                                  **self.get_json_dumps_kwargs())
+                                  **self.get_json_dumps_kwargs()).encode(
+                                  u'utf-8')
         return HttpResponse(json_context,
                             content_type=self.get_content_type(),
                             status=status)
@@ -536,7 +535,7 @@ class AjaxResponseMixin(object):
         request_method = request.method.lower()
 
         if request.is_ajax() and request_method in self.http_method_names:
-            handler = getattr(self, '%s_ajax' % request_method,
+            handler = getattr(self, u"{0}_ajax".format(request_method),
                               self.http_method_not_allowed)
             self.request = request
             self.args = args
@@ -588,13 +587,13 @@ class JsonRequestResponseMixin(JSONResponseMixin):
             error_dict,
             cls=DjangoJSONEncoder,
             **self.get_json_dumps_kwargs()
-        )
+        ).encode(u'utf-8')
         return HttpResponseBadRequest(
             json_context, content_type=self.get_content_type())
 
     def get_request_json(self):
         try:
-            return json.loads(self.request.body)
+            return json.loads(self.request.body.decode(u'utf-8'))
         except ValueError:
             return None
 

@@ -48,7 +48,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
-        self.assertRedirects(resp, '/accounts/login/?next={0}'.format(
+        self.assertRedirects(resp, u'/accounts/login/?next={0}'.format(
             self.view_url))
 
     def test_raise_permission_denied(self):
@@ -70,12 +70,12 @@ class _TestAccessBasicsMixin(TestViewHelper):
         req = self.build_request(user=user, path=self.view_url)
         resp = self.dispatch_view(req, login_url='/login/')
         self.assertEqual(
-            '/login/?next={0}'.format(self.view_url),
+            u'/login/?next={0}'.format(self.view_url),
             resp['Location'])
 
         # Test with reverse_lazy
         resp = self.dispatch_view(req, login_url=reverse_lazy('headline'))
-        self.assertEqual('/headline/?next={0}'.format(
+        self.assertEqual(u'/headline/?next={0}'.format(
             self.view_url), resp['Location'])
 
     def test_custom_redirect_field_name(self):
@@ -85,7 +85,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         req = self.build_request(user=user, path=self.view_url)
         resp = self.dispatch_view(req, redirect_field_name='foo')
-        expected_url = '/accounts/login/?foo={0}'.format(self.view_url)
+        expected_url = u'/accounts/login/?foo={0}'.format(self.view_url)
         self.assertEqual(expected_url, resp['Location'])
 
     @override_settings(LOGIN_URL=None)
@@ -117,7 +117,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
-        self.assertRedirects(resp, '/auth/login/?next={0}'.format(
+        self.assertRedirects(resp, u'/auth/login/?next={0}'.format(
             self.view_url))
 
 
@@ -198,7 +198,8 @@ class TestMultiplePermissionsRequiredMixin(
             user = UserFactory(permissions=permissions)
             self.client.login(username=user.username, password='asdf1234')
             resp = self.client.get(url)
-            self.assertRedirects(resp, '/accounts/login/?next={0}'.fomat(url))
+            self.assertRedirects(resp, u'/accounts/login/?next={0}'.format(
+                url))
 
     def test_invalid_permissions(self):
         """
