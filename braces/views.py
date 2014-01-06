@@ -699,8 +699,10 @@ class CanonicalSlugDetailMixin(object):
         # If there's a discrepancy between the slug in the url and the
         # canonical slug, redirect to the canonical slug.
         if canonical_slug != slug:
-            return redirect(current_urlpattern, pk=obj.pk, slug=canonical_slug,
-                            permanent=True)
+            params = {self.pk_url_kwarg: obj.pk,
+                      self.slug_url_kwarg: canonical_slug,
+                      'permanent': True}
+            return redirect(current_urlpattern, **params)
 
         return super(CanonicalSlugDetailMixin, self).dispatch(
             request, *args, **kwargs)

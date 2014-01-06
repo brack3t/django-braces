@@ -29,6 +29,8 @@ urlpatterns = patterns(
         include('tests.urls_namespaced', namespace='some_namespace')),
     url(r'^article-canonical-override/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.OverriddenCanonicalSlugDetailView.as_view()),
+    url(r'^article-canonical-custom-kwargs/(?P<my_pk>\d+)-(?P<my_slug>[-\w]+)/$',
+        views.CanonicalSlugDetailCustomUrlKwargsView.as_view()),
     url(r'^article-canonical-model/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.ModelCanonicalSlugDetailView.as_view()),
 
