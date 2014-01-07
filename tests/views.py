@@ -2,6 +2,7 @@ import codecs
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.views.generic import (View, UpdateView, FormView, TemplateView,
                                   ListView, DetailView, CreateView)
 
@@ -199,6 +200,21 @@ class MultiplePermissionsRequiredView(views.MultiplePermissionsRequiredMixin,
     }
 
 
+class PermissionRequiredOrStaffView(views.PermissionRequiredMixin, OkView):
+
+    raise_exception = False
+
+    def get_permission_required(self, request=None):
+        return 'auth.add_user'
+
+    def check_permissions(self, request):
+        perms = self.get_permission_required()
+        # Custom check thats different from the default
+        return request.user.has_perm(perms) or request.user.is_staff
+
+    def get_no_permissions_response(self, request):
+        return redirect('/ok/')
+
 class SuperuserRequiredView(views.SuperuserRequiredMixin, OkView):
     pass
 
@@ -254,3 +270,4 @@ class FormMessagesView(views.FormMessagesMixin, CreateView):
 
 class GroupRequiredView(views.GroupRequiredMixin, OkView):
     group_required = 'test_group'
+

@@ -7,12 +7,13 @@ from .factories import make_group, make_user
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
-                    LoginRequiredView, GroupRequiredView)
+                    LoginRequiredView, GroupRequiredView,
+                    PermissionRequiredOrStaffView)
 
 
-class _TestAccessBasicsMixin(TestViewHelper):
+class _TestAccessBaseMixin(TestViewHelper):
     """
-    A set of basic tests for access mixins.
+    A set of basic authorization tests for access mixins.
     """
     view_url = None
 
@@ -38,16 +39,6 @@ class _TestAccessBasicsMixin(TestViewHelper):
         self.assertEqual(200, resp.status_code)
         self.assertEqual('OK', force_text(resp.content))
 
-    def test_redirects_to_login(self):
-        """
-        Browser should be redirected to login page if user is not authorized
-        to view this page.
-        """
-        user = self.build_unauthorized_user()
-        self.client.login(username=user.username, password='asdf1234')
-        resp = self.client.get(self.view_url)
-        self.assertRedirects(resp, '/accounts/login/?next=%s' % self.view_url)
-
     def test_raise_permission_denied(self):
         """
         PermissionDenied should be raised if user is not authorized and
@@ -58,6 +49,22 @@ class _TestAccessBasicsMixin(TestViewHelper):
 
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(req, raise_exception=True)
+
+
+class _TestAccessRedirectsMixin(TestViewHelper):
+    """
+    A set of basic redirection tests for access mixins
+    """
+
+    def test_redirects_to_login(self):
+        """
+        Browser should be redirected to login page if user is not authorized
+        to view this page.
+        """
+        user = self.build_unauthorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertRedirects(resp, '/accounts/login/?next=%s' % self.view_url)
 
     def test_custom_login_url(self):
         """
@@ -101,6 +108,13 @@ class _TestAccessBasicsMixin(TestViewHelper):
             self.dispatch_view(
                 self.build_request(path=self.view_url),
                 redirect_field_name=None)
+
+class _TestAccessBasicsMixin(_TestAccessBaseMixin, _TestAccessRedirectsMixin):
+    """
+    This combines the previous to mixins, and should be used for all access
+    mixins unless you are overriding the default behavior in the test views.
+    """
+    pass
 
 
 class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
@@ -147,6 +161,46 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         """
         with self.assertRaises(ImproperlyConfigured):
             self.dispatch_view(self.build_request(), permission_required=None)
+
+
+class TestPermissionRequiredMixinOverride(_TestAccessBaseMixin, test.TestCase):
+    """
+    Tests for testing overridden methods on the PermissionRequiredMixin.
+
+    We subclass TestAccessBaseMixin because the overridden methods don't
+    necessarily redirect to the login page.
+    """
+
+    view_class = PermissionRequiredOrStaffView
+    view_url = '/custom_permissions_required/'
+
+    def build_authorized_user(self):
+        return make_user(permissions=['auth.add_user'])
+
+    def build_unauthorized_user(self):
+        return make_user()
+
+    def test_custom_check_is_staff(self):
+        """
+        In PermissionRequiredOrStaffView, the check_permissions method has been
+        overriden to also allow superusers, so a superuser should have
+        permissions.
+        """
+        user = make_user(is_staff=True)
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_custom_no_permissions_response(self):
+        """
+        The get_no_permissions_response has been overridden to
+        redirect to '/ok/'
+        """
+        user = self.build_unauthorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertRedirects(resp, '/ok/')
 
 
 class TestMultiplePermissionsRequiredMixin(

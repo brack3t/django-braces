@@ -4,6 +4,9 @@ from .compat import patterns, url
 
 urlpatterns = patterns(
     '',
+    # Simple view that returns `OK`
+    url(r'^ok/$', views.OkView.as_view()),
+
     # LoginRequiredMixin tests
     url(r'^login_required/$', views.LoginRequiredView.as_view()),
 
@@ -39,6 +42,8 @@ urlpatterns = patterns(
 
     # PermissionRequiredMixin tests
     url(r'^permission_required/$', views.PermissionRequiredView.as_view()),
+    url(r'^custom_permissions_required/$',
+        views.PermissionRequiredOrStaffView.as_view()),
 
     # MultiplePermissionsRequiredMixin tests
     url(r'^multiple_permissions_required/$',
