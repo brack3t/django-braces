@@ -5,7 +5,6 @@ Mixins for Django's class-based views.
 [![Latest PyPI version](https://pypip.in/v/django-braces/badge.png)](https://crate.io/packages/django-braces/)
 [![Number of PyPI downloads](https://pypip.in/d/django-braces/badge.png)](https://crate.io/packages/django-braces/)
 [![Stories in Ready](https://badge.waffle.io/brack3t/django-braces.png)](http://waffle.io/brack3t/django-braces)
-[![Analytics](https://ga-beacon.appspot.com/UA-4642386-5/django-braces/)](https://github.com/igrigorik/ga-beacon)
 
 ## Documentation
 [Read The Docs](http://django-braces.readthedocs.org/en/latest/index.html)
