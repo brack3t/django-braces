@@ -44,6 +44,38 @@ Dynamic Example
 In both usages, in the template, just print out ``{{ headline }}`` to show the generated headline.
 
 
+.. _ExtraContextMixin:
+
+ExtraContextMixin
+-----------------
+
+The ``ExtraContextMixin`` allows us to *statically* or *programmatically* add statically to the context which is useful in cases like navigation highlighting.
+
+
+::
+
+    # views.py
+
+    from braces.views import ExtraContextMixin
+
+
+    class ContextTemplateView(SetHeadlineMixin, TemplateView):
+        pass
+
+
+::
+
+    # urls.py
+
+    urlpatterns = patterns(
+        '',
+        url(r'^$',
+            ContextTemplateView.as_view(
+                template_name='index.html',
+                extra_context={'nav_home': True}
+            ),
+            name='index')
+    )
 
 
 .. _SelectRelatedMixin:

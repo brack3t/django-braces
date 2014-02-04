@@ -22,6 +22,7 @@ Direct Contributors
 * Markus Zapke-Gründemann
 * Kamil Gałuszka
 * Danilo Bargen
+* Kit Sunde
 
 Other Contributors
 ==================

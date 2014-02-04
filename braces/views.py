@@ -401,6 +401,28 @@ class SetHeadlineMixin(object):
         return self.headline
 
 
+class ExtraContextMixin(object):
+    """
+    Mixin allows you to set extra context through a static property on the
+    class or programmatically by overloading the get_extra_context method.
+    """
+    extra_context = None
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(ExtraContextMixin, self).get_context_data(**kwargs)
+        kwargs.update(self.get_extra_context())
+        return kwargs
+
+    def get_extra_context(self):
+        if self.extra_context is None:
+            raise ImproperlyConfigured(
+                "%(cls)s is missing extra_context. "
+                "Define %(cls)s.extra_context, or override "
+                "%(cls)s.get_extra_context()." % {"cls": self.__class__.__name__}
+            )
+        return self.extra_context
+
+
 class SelectRelatedMixin(object):
     """
     Mixin allows you to provide a tuple or list of related models to
