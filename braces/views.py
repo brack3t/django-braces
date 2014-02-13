@@ -445,7 +445,7 @@ class PrefetchRelatedMixin(object):
                     "cls": self.__class__.__name__})
 
         if not isinstance(self.prefetch_related, (tuple, list)):
-            # If the select_related argument is *not* a tuple or list,
+            # If the prefetch_related argument is *not* a tuple or list,
             # raise a configuration error.
             raise ImproperlyConfigured(
                 "%(cls)s's prefetch_related property "
