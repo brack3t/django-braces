@@ -3,13 +3,14 @@ from django import test
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
-from braces.views import UserPassesTestMixin
+
 from .compat import force_text
 from .factories import GroupFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
-                    LoginRequiredView, GroupRequiredView, UserPassesTestView, UserPassesTestNotImplementedView)
+                    LoginRequiredView, GroupRequiredView, UserPassesTestView,
+                    UserPassesTestNotImplementedView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -384,4 +385,3 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
             view.dispatch(
                 self.build_request(path=self.view_not_implemented_url),
                 raise_exception=True)
-
