@@ -270,12 +270,7 @@ class GroupRequiredMixin(AccessMixin):
     def check_membership(self, groups):
         """ Check required group(s) """
         user_groups = self.request.user.groups.values_list("name", flat=True)
-        in_group = False
-        for group in groups:
-            if group in user_groups:
-                in_group = True
-                break
-        return in_group
+        return set(groups).intersection(set(user_groups))
 
     def dispatch(self, request, *args, **kwargs):
         self.request = request
