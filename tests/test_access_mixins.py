@@ -308,6 +308,12 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         user.groups.add(group)
         return user
 
+    def build_superuser(self):
+        user = UserFactory()
+        user.is_superuser = True
+        user.save()
+        return user
+
     def build_unauthorized_user(self):
         return UserFactory()
 
@@ -316,6 +322,13 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         view.group_required = ['test_group', 'editors']
 
         user = self.build_authorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_superuser_allowed(self):
+        user = self.build_superuser()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)

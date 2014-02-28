@@ -26,6 +26,10 @@ To run the test suite, execute the following in your shell (Django install is re
 
 ## Change Log
 
+### 1.4
+
+* Fixed bug in `GroupRequiredMixin` where superusers were blocked by lack of group memberships.
+
 ### 1.3.1
 
 * Removed breakpoint that was added accidentally.
