@@ -798,3 +798,21 @@ class FormMessagesMixin(FormValidMessageMixin, FormInvalidMessageMixin):
     FormInvalidMessageMixin.
     """
     pass
+
+
+class AllVerbsMixin(object):
+    """Call a single method for all HTTP verbs.
+
+    The name of the method should be specified using the class attribute
+    ``all_handler``. The default value of this attribute is 'all'.
+    """
+    all_handler = 'all'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.all_handler:
+            raise ImproperlyConfigured(
+                "{cls} requires the all_handler attribute to be set.".format(
+                    cls=self.__class__.__name__))
+
+        handler = getattr(self, self.all_handler, self.http_method_not_allowed)
+        return handler(request, *args, **kwargs)
