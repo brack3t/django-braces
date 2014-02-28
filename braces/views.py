@@ -51,7 +51,7 @@ class AccessMixin(object):
                 "%(cls)s is missing the "
                 "redirect_field_name. Define %(cls)s.redirect_field_name or "
                 "override %(cls)s.get_redirect_field_name()." % {
-                "cls": self.__class__.__name__})
+                    "cls": self.__class__.__name__})
 
         return self.redirect_field_name
 
@@ -304,9 +304,9 @@ class UserPassesTestMixin(AccessMixin):
 
     def test_func(self, user):
         raise NotImplementedError(
-                "%(cls)s is missing implementation of the "
-                "test_func method. You should write one." % {
-                        "cls": self.__class__.__name__})
+            "%(cls)s is missing implementation of the "
+            "test_func method. You should write one." % {
+                "cls": self.__class__.__name__})
 
     def get_test_func(self):
         return getattr(self, "test_func")
@@ -490,7 +490,7 @@ class JSONResponseMixin(object):
                 u"%(cls)s is missing a content type. "
                 u"Define %(cls)s.content_type, or override "
                 u"%(cls)s.get_content_type()." % {
-                u"cls": self.__class__.__name__}
+                    u"cls": self.__class__.__name__}
             )
         return self.content_type
 
@@ -505,9 +505,10 @@ class JSONResponseMixin(object):
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
-        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
-                                  **self.get_json_dumps_kwargs()).encode(
-                                  u'utf-8')
+        json_context = json.dumps(
+            context_dict,
+            cls=DjangoJSONEncoder,
+            **self.get_json_dumps_kwargs()).encode(u'utf-8')
         return HttpResponse(json_context,
                             content_type=self.get_content_type(),
                             status=status)
@@ -602,7 +603,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
         if self.require_json and self.request_json is None:
             return self.render_bad_request_response()
         return super(JsonRequestResponseMixin, self).dispatch(
-           request, *args, **kwargs)
+            request, *args, **kwargs)
 
 
 class OrderableListMixin(object):
