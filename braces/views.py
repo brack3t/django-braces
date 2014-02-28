@@ -267,6 +267,8 @@ class GroupRequiredMixin(AccessMixin):
 
     def check_membership(self, group):
         """ Check required group(s) """
+        if self.request.user.is_superuser:
+            return True
         return group in self.request.user.groups.values_list("name", flat=True)
 
     def dispatch(self, request, *args, **kwargs):
