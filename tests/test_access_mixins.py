@@ -3,13 +3,14 @@ from django import test
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
-from braces.views import UserPassesTestMixin
+
 from .compat import force_text
 from .factories import GroupFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
-                    LoginRequiredView, GroupRequiredView, UserPassesTestView, UserPassesTestNotImplementedView)
+                    LoginRequiredView, GroupRequiredView, UserPassesTestView,
+                    UserPassesTestNotImplementedView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -307,6 +308,12 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         user.groups.add(group)
         return user
 
+    def build_superuser(self):
+        user = UserFactory()
+        user.is_superuser = True
+        user.save()
+        return user
+
     def build_unauthorized_user(self):
         return UserFactory()
 
@@ -315,6 +322,13 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         view.group_required = ['test_group', 'editors']
 
         user = self.build_authorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_superuser_allowed(self):
+        user = self.build_superuser()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
@@ -384,4 +398,3 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
             view.dispatch(
                 self.build_request(path=self.view_not_implemented_url),
                 raise_exception=True)
-
