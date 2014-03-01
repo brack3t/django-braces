@@ -3,7 +3,7 @@ import mock
 from django import test
 from django.core.exceptions import ImproperlyConfigured
 from braces.views import (SetHeadlineMixin, FormValidMessageMixin,
-                          FormInvalidMessageMixin)
+                          FormInvalidMessageMixin, ExtraContextMixin)
 from .models import Article, CanonicalArticle
 from .helpers import TestViewHelper
 from .views import (CreateArticleView, ArticleListView, AuthorDetailView,
@@ -78,6 +78,29 @@ class TestSetHeadlineMixin(test.TestCase):
 
         mixin.headline = "Test headline"
         self.assertEqual("Test headline", mixin.get_headline())
+
+
+class TestExtraContextMixin(test.TestCase):
+    """
+    Tests for ExtraContextMixin.
+    """
+    def test_context_data(self):
+        """
+        Tests if mixin adds proper headline to template context.
+        """
+        resp = self.client.get('/context/')
+        self.assertEqual(True, resp.context['test'])
+
+    def test_get_extra_context(self):
+        """
+        Tests if get_extra_context() method works correctly.
+        """
+        mixin = ExtraContextMixin()
+        with self.assertRaises(ImproperlyConfigured):
+            mixin.get_extra_context()
+
+        mixin.extra_context = {'text': 'context'}
+        self.assertEqual({'text': 'context'}, mixin.get_extra_context())
 
 
 class TestCsrfExemptMixin(test.TestCase):

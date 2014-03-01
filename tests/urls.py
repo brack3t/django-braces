@@ -39,6 +39,9 @@ urlpatterns = patterns(
     url(r'^headline/$', views.HeadlineView.as_view(), name='headline'),
     url(r'^headline/(?P<s>[\w-]+)/$', views.DynamicHeadlineView.as_view()),
 
+    # ExtraContextMixin tests
+    url(r'^context/$', views.ContextView.as_view(), name='context'),
+
     # PermissionRequiredMixin tests
     url(r'^permission_required/$', views.PermissionRequiredView.as_view()),
 

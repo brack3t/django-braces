@@ -174,6 +174,14 @@ class HeadlineView(views.SetHeadlineMixin, TemplateView):
     headline = "Test headline"
 
 
+class ContextView(views.ExtraContextMixin, TemplateView):
+    """
+    View for testing ExtraContextMixin.
+    """
+    template_name = 'blank.html'
+    extra_context = {'test': True}
+
+
 class DynamicHeadlineView(views.SetHeadlineMixin, TemplateView):
     """
     View for testing SetHeadlineMixin's get_headline() method.
