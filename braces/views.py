@@ -418,11 +418,7 @@ class ExtraContextMixin(object):
 
         try:
             kwargs.update(self.get_extra_context())
-        except TypeError:
-            raise ImproperlyConfigured(
-                '{0}.extra_context must be a dictionary or container '
-                'of two-tuples.'.format(self.__class__.__name__))
-        except ValueError:
+        except (TypeError, ValueError):
             raise ImproperlyConfigured(
                 '{0}.extra_context must be a dictionary or container '
                 'of two-tuples.'.format(self.__class__.__name__))
