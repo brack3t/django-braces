@@ -76,6 +76,10 @@ urlpatterns = patterns(
 
     # FormMessagesMixin tests
     url(r'form_messages/$', views.FormMessagesView.as_view()),
+
+    # AllVerbsMixin tests
+    url(r'all_verbs/$', views.AllVerbsView.as_view()),
+    url(r'all_verbs_no_handler/$', views.AllVerbsView.as_view(all_handler=None)),
 )
 
 
