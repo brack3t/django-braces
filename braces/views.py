@@ -263,13 +263,16 @@ class GroupRequiredMixin(AccessMixin):
                 "'GroupRequiredMixin' requires "
                 "'group_required' attribute to be set and be one of the "
                 "following types: string, unicode, list, or tuple.")
+        if not isinstance(self.group_required, (list, tuple)):
+            self.group_required = (self.group_required,)
         return self.group_required
 
-    def check_membership(self, group):
+    def check_membership(self, groups):
         """ Check required group(s) """
         if self.request.user.is_superuser:
             return True
-        return group in self.request.user.groups.values_list("name", flat=True)
+        user_groups = self.request.user.groups.values_list("name", flat=True)
+        return set(groups).intersection(set(user_groups))
 
     def dispatch(self, request, *args, **kwargs):
         self.request = request

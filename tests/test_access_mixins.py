@@ -317,15 +317,27 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     def build_unauthorized_user(self):
         return UserFactory()
 
-    def test_with_group_list(self):
-        view = self.view_class()
-        view.group_required = ['test_group', 'editors']
-
+    def test_with_string(self):
+        self.assertEqual('test_group', self.view_class.group_required)
         user = self.build_authorized_user()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
         self.assertEqual('OK', force_text(resp.content))
+
+    def test_with_group_list(self):
+        group_list = ['test_group', 'editors']
+        # the test client will instantiate a new view on request, so we have to
+        # modify the class variable (and restore it when the test finished)
+        self.view_class.group_required = group_list
+        self.assertEqual(group_list, self.view_class.group_required)
+        user = self.build_authorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+        self.view_class.group_required = 'test_group'
+        self.assertEqual('test_group', self.view_class.group_required)
 
     def test_superuser_allowed(self):
         user = self.build_superuser()
@@ -345,17 +357,21 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
             view.get_group_required()
 
     def test_with_unicode(self):
-        view = self.view_class()
-        view.group_required = u'niño'
+        self.view_class.group_required = u'niño'
+        self.assertEqual(u'niño', self.view_class.group_required)
 
         user = self.build_authorized_user()
-        user.groups.all()[0].name = u'niño'
-        user.groups.all()[0].save()
+        group = user.groups.all()[0]
+        group.name = u'niño'
+        group.save()
+        self.assertEqual(u'niño', user.groups.all()[0].name)
 
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
         self.assertEqual('OK', force_text(resp.content))
+        self.view_class.group_required = 'test_group'
+        self.assertEqual('test_group', self.view_class.group_required)
 
 
 class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
