@@ -49,7 +49,7 @@ In both usages, in the template, just print out ``{{ headline }}`` to show the g
 ExtraContextMixin
 -----------------
 
-The ``ExtraContextMixin`` allows us to *statically* or *programmatically* add statically to the context which is useful in cases like navigation highlighting.
+The ``ExtraContextMixin`` allows you to easily set static context data.
 
 
 ::
@@ -59,7 +59,7 @@ The ``ExtraContextMixin`` allows us to *statically* or *programmatically* add st
     from braces.views import ExtraContextMixin
 
 
-    class ContextTemplateView(SetHeadlineMixin, TemplateView):
+    class ContextTemplateView(ExtraContextMixin, TemplateView):
         pass
 
 
