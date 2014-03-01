@@ -272,3 +272,8 @@ class UserPassesTestView(views.UserPassesTestMixin, OkView):
 
 class UserPassesTestNotImplementedView(views.UserPassesTestMixin, OkView):
     pass
+
+
+class AllVerbsView(views.AllVerbsMixin, View):
+    def all(self, request, *args, **kwargs):
+        return HttpResponse('All verbs return this!')

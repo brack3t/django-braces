@@ -427,3 +427,37 @@ class TestFormMessageMixins(test.TestCase):
         mixin = FormInvalidMessageMixin()
         mixin.form_invalid_message = u'Bad øø'
         self.assertEqual(u'Bad øø', mixin.get_form_invalid_message())
+
+
+class TestAllVerbsMixin(test.TestCase):
+    def setUp(self):
+        self.url = "/all_verbs/"
+        self.no_handler_url = "/all_verbs_no_handler/"
+
+    def test_options(self):
+        response = self.client.options(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_head(self):
+        response = self.client.head(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_put(self):
+        response = self.client.put(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_no_all_handler(self):
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get('/all_verbs_no_handler/')
