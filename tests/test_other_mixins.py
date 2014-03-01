@@ -3,11 +3,11 @@ import mock
 from django import test
 from django.core.exceptions import ImproperlyConfigured
 from braces.views import (SetHeadlineMixin, FormValidMessageMixin,
-                          FormInvalidMessageMixin, ExtraContextMixin)
+                          FormInvalidMessageMixin)
 from .models import Article, CanonicalArticle
 from .helpers import TestViewHelper
-from .views import (CreateArticleView, ArticleListView, AuthorDetailView,
-                    OrderableListView, FormMessagesView)
+from .views import (ArticleListView, AuthorDetailView, OrderableListView,
+                    FormMessagesView, ContextView)
 from .factories import UserFactory
 from .compat import force_text
 
@@ -81,26 +81,37 @@ class TestSetHeadlineMixin(test.TestCase):
 
 
 class TestExtraContextMixin(test.TestCase):
-    """
-    Tests for ExtraContextMixin.
-    """
-    def test_context_data(self):
-        """
-        Tests if mixin adds proper headline to template context.
-        """
-        resp = self.client.get('/context/')
+    """ Tests for ExtraContextMixin. """
+    view_class = ContextView
+    view_url = '/context/'
+
+    def test_dict(self):
+        self.view_class.extra_context = {'test': True}
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
         self.assertEqual(True, resp.context['test'])
 
-    def test_get_extra_context(self):
-        """
-        Tests if get_extra_context() method works correctly.
-        """
-        mixin = ExtraContextMixin()
-        with self.assertRaises(ImproperlyConfigured):
-            mixin.get_extra_context()
+    def test_two_tuple(self):
+        self.view_class.extra_context = [('a', 1), ('b', 2)]
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual(1, resp.context['a'])
+        self.assertEqual(2, resp.context['b'])
 
-        mixin.extra_context = {'text': 'context'}
-        self.assertEqual({'text': 'context'}, mixin.get_extra_context())
+    def test_not_set(self):
+        self.view_class.extra_context = None
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get(self.view_url)
+
+    def test_string_value_error(self):
+        self.view_class.extra_context = 'Fail'
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get(self.view_url)
+
+    def test_list(self):
+        self.view_class.extra_context = ['fail', 'fail']
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get(self.view_url)
 
 
 class TestCsrfExemptMixin(test.TestCase):
@@ -269,8 +280,8 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
 
 class TestCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
-        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
-        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+        Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        Article.objects.create(title='Zet', body='Alpha', slug='zet')
 
     def test_canonical_slug(self):
         """
@@ -293,16 +304,18 @@ class TestCanonicalSlugDetailView(test.TestCase):
 
 class TestNamespaceAwareCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
-        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
-        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+        Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        Article.objects.create(title='Zet', body='Alpha', slug='zet')
 
     def test_canonical_slug(self):
         """
         Test that no redirect occurs when slug is canonical.
         """
-        resp = self.client.get('/article-canonical-namespaced/article/1-alpha/')
+        resp = self.client.get(
+            '/article-canonical-namespaced/article/1-alpha/')
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.get('/article-canonical-namespaced/article/2-zet/')
+        resp = self.client.get(
+            '/article-canonical-namespaced/article/2-zet/')
         self.assertEqual(resp.status_code, 200)
 
     def test_non_canonical_slug(self):
@@ -310,16 +323,18 @@ class TestNamespaceAwareCanonicalSlugDetailView(test.TestCase):
         Test that a redirect occurs when the slug is non-canonical and that the
         redirect is namespace aware.
         """
-        resp = self.client.get('/article-canonical-namespaced/article/1-bad-slug/')
+        resp = self.client.get(
+            '/article-canonical-namespaced/article/1-bad-slug/')
         self.assertEqual(resp.status_code, 301)
-        resp = self.client.get('/article-canonical-namespaced/article/2-bad-slug/')
+        resp = self.client.get(
+            '/article-canonical-namespaced/article/2-bad-slug/')
         self.assertEqual(resp.status_code, 301)
 
 
 class TestOverriddenCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
-        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
-        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+        Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        Article.objects.create(title='Zet', body='Alpha', slug='zet')
 
     def test_canonical_slug(self):
         """
@@ -343,10 +358,10 @@ class TestOverriddenCanonicalSlugDetailView(test.TestCase):
 
 class TestModelCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
-        a1 = CanonicalArticle.objects.create(title='Alpha', body='Zet',
-                                             slug='alpha')
-        a2 = CanonicalArticle.objects.create(title='Zet', body='Alpha',
-                                             slug='zet')
+        CanonicalArticle.objects.create(
+            title='Alpha', body='Zet', slug='alpha')
+        CanonicalArticle.objects.create(
+            title='Zet', body='Alpha', slug='zet')
 
     def test_canonical_slug(self):
         """

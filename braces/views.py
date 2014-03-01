@@ -415,15 +415,26 @@ class ExtraContextMixin(object):
 
     def get_context_data(self, **kwargs):
         kwargs = super(ExtraContextMixin, self).get_context_data(**kwargs)
-        kwargs.update(self.get_extra_context())
-        return kwargs
+
+        try:
+            kwargs.update(self.get_extra_context())
+        except TypeError:
+            raise ImproperlyConfigured(
+                '{0}.extra_context must be a dictionary or container '
+                'of two-tuples.'.format(self.__class__.__name__))
+        except ValueError:
+            raise ImproperlyConfigured(
+                '{0}.extra_context must be a dictionary or container '
+                'of two-tuples.'.format(self.__class__.__name__))
+        else:
+            return kwargs
 
     def get_extra_context(self):
         if self.extra_context is None:
             raise ImproperlyConfigured(
-                "%(cls)s is missing extra_context. "
-                "Define %(cls)s.extra_context, or override "
-                "%(cls)s.get_extra_context()." % {"cls": self.__class__.__name__}
+                '{0} is missing the extra_context property. Define '
+                '{0}.extra_context, or override '
+                '{0}.get_extra_context()'.format(self.__class__.__name__)
             )
         return self.extra_context
 
