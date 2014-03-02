@@ -23,6 +23,7 @@ Direct Contributors
 * Kamil Gałuszka
 * Danilo Bargen
 * Jon Bolt
+* Kit Sunde
 
 Other Contributors
 ==================

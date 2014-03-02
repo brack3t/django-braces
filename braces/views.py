@@ -444,6 +444,35 @@ class SetHeadlineMixin(object):
         return self.headline
 
 
+class StaticContextMixin(object):
+    """
+    Mixin allows you to set static context through a static property on
+    the class.
+    """
+    static_context = None
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(StaticContextMixin, self).get_context_data(**kwargs)
+
+        try:
+            kwargs.update(self.get_static_context())
+        except (TypeError, ValueError):
+            raise ImproperlyConfigured(
+                '{0}.static_context must be a dictionary or container '
+                'of two-tuples.'.format(self.__class__.__name__))
+        else:
+            return kwargs
+
+    def get_static_context(self):
+        if self.static_context is None:
+            raise ImproperlyConfigured(
+                '{0} is missing the static_context property. Define '
+                '{0}.static_context, or override '
+                '{0}.get_static_context()'.format(self.__class__.__name__)
+            )
+        return self.static_context
+
+
 class SelectRelatedMixin(object):
     """
     Mixin allows you to provide a tuple or list of related models to
