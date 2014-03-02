@@ -80,36 +80,36 @@ class TestSetHeadlineMixin(test.TestCase):
         self.assertEqual("Test headline", mixin.get_headline())
 
 
-class TestExtraContextMixin(test.TestCase):
-    """ Tests for ExtraContextMixin. """
+class TestStaticContextMixin(test.TestCase):
+    """ Tests for StaticContextMixin. """
     view_class = ContextView
     view_url = '/context/'
 
     def test_dict(self):
-        self.view_class.extra_context = {'test': True}
+        self.view_class.static_context = {'test': True}
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
         self.assertEqual(True, resp.context['test'])
 
     def test_two_tuple(self):
-        self.view_class.extra_context = [('a', 1), ('b', 2)]
+        self.view_class.static_context = [('a', 1), ('b', 2)]
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
         self.assertEqual(1, resp.context['a'])
         self.assertEqual(2, resp.context['b'])
 
     def test_not_set(self):
-        self.view_class.extra_context = None
+        self.view_class.static_context = None
         with self.assertRaises(ImproperlyConfigured):
             self.client.get(self.view_url)
 
     def test_string_value_error(self):
-        self.view_class.extra_context = 'Fail'
+        self.view_class.static_context = 'Fail'
         with self.assertRaises(ImproperlyConfigured):
             self.client.get(self.view_url)
 
     def test_list_error(self):
-        self.view_class.extra_context = ['fail', 'fail']
+        self.view_class.static_context = ['fail', 'fail']
         with self.assertRaises(ImproperlyConfigured):
             self.client.get(self.view_url)
 

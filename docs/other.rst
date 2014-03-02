@@ -44,13 +44,13 @@ Dynamic Example
 In both usages, in the template, just print out ``{{ headline }}`` to show the generated headline.
 
 
-.. _ExtraContextMixin:
+.. _StaticContextMixin:
 
-ExtraContextMixin
+StaticContextMixin
 -----------------
 
-The ``ExtraContextMixin`` allows you to easily set static context data by using the ``extra_context`` property. While it's possible to override
-the ``ExtraContextMixin.get_extra_context method``, it's not very practical. If you have a need to override a method for dynamic context data it's
+The ``StaticContextMixin`` allows you to easily set static context data by using the ``static_context`` property. While it's possible to override
+the ``StaticContextMixin.get_static_context method``, it's not very practical. If you have a need to override a method for dynamic context data it's
 best to override the standard ``get_context_data`` method of Django's generic class-based views.
 
 
@@ -61,11 +61,11 @@ View Example
 
     # views.py
 
-    from braces.views import ExtraContextMixin
+    from braces.views import StaticContextMixin
 
 
-    class ContextTemplateView(ExtraContextMixin, TemplateView):
-        extra_context = {'nav_home': True}
+    class ContextTemplateView(StaticContextMixin, TemplateView):
+        static_context = {'nav_home': True}
 
 
 URL Example
@@ -80,7 +80,7 @@ URL Example
         url(r'^$',
             ContextTemplateView.as_view(
                 template_name='index.html',
-                extra_context={'nav_home': True}
+                static_context={'nav_home': True}
             ),
             name='index')
     )

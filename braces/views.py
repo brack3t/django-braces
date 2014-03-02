@@ -406,33 +406,33 @@ class SetHeadlineMixin(object):
         return self.headline
 
 
-class ExtraContextMixin(object):
+class StaticContextMixin(object):
     """
-    Mixin allows you to set extra context through a static property on the
-    class or programmatically by overloading the get_extra_context method.
+    Mixin allows you to set static context through a static property on
+    the class.
     """
-    extra_context = None
+    static_context = None
 
     def get_context_data(self, **kwargs):
-        kwargs = super(ExtraContextMixin, self).get_context_data(**kwargs)
+        kwargs = super(StaticContextMixin, self).get_context_data(**kwargs)
 
         try:
-            kwargs.update(self.get_extra_context())
+            kwargs.update(self.get_static_context())
         except (TypeError, ValueError):
             raise ImproperlyConfigured(
-                '{0}.extra_context must be a dictionary or container '
+                '{0}.static_context must be a dictionary or container '
                 'of two-tuples.'.format(self.__class__.__name__))
         else:
             return kwargs
 
-    def get_extra_context(self):
-        if self.extra_context is None:
+    def get_static_context(self):
+        if self.static_context is None:
             raise ImproperlyConfigured(
-                '{0} is missing the extra_context property. Define '
-                '{0}.extra_context, or override '
-                '{0}.get_extra_context()'.format(self.__class__.__name__)
+                '{0} is missing the static_context property. Define '
+                '{0}.static_context, or override '
+                '{0}.get_static_context()'.format(self.__class__.__name__)
             )
-        return self.extra_context
+        return self.static_context
 
 
 class SelectRelatedMixin(object):
