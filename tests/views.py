@@ -33,6 +33,7 @@ class LoginRequiredView(views.LoginRequiredMixin, OkView):
     A view for testing LoginRequiredMixin.
     """
 
+
 class AnonymousRequiredView(views.AnonymousRequiredMixin, OkView):
     """
     A view for testing AnonymousRequiredMixin. Should accept unauthenticated
@@ -41,13 +42,14 @@ class AnonymousRequiredView(views.AnonymousRequiredMixin, OkView):
     """
     def get_authenticated_redirect_url(self):
         return "/authenticated_view/"
-        
+
+
 class AuthenticatedView(views.LoginRequiredMixin, OkView):
     """
     A view for testing AnonymousRequiredMixin. Should accept
     authenticated users.
     """
-    
+
 
 class AjaxResponseView(views.AjaxResponseMixin, OkView):
     """
@@ -117,8 +119,8 @@ class JsonBadRequestView(views.JsonRequestResponseMixin, View):
 
 class JsonCustomBadRequestView(views.JsonRequestResponseMixin, View):
     """
-    A view for testing JsonRequestResponseMixin's render_bad_request_response method
-    with a custom error message
+    A view for testing JsonRequestResponseMixin's
+    render_bad_request_response method with a custom error message
     """
     def post(self, request, *args, **kwargs):
         if not self.request_json:
