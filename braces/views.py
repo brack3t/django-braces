@@ -105,14 +105,14 @@ class AnonymousRequiredMixin(object):
             request, *args, **kwargs)
 
     def get_authenticated_redirect_url(self):
-        # Return the reversed authenticated redirect url.
+        """ Return the reversed authenticated redirect url. """
         if self.authenticated_redirect_url is None:
             raise ImproperlyConfigured(
-                "%(cls)s is missing a authenticated_redirect_url "
-                "name to reverse and redirect to. Define "
-                "%(cls)s.authenticated_redirect_url or override "
-                "%(cls)s.get_authenticated_redirect_url()"
-                "." % {"cls": self.__class__.__name__})
+                '{0} is missing a authenticated_redirect_url '
+                'name to reverse and redirect to. Define '
+                '{0}.authenticated_redirect_url or override '
+                '{0}.get_authenticated_redirect_url().'.format(
+                    self.__class__.__name__))
         return reverse(self.authenticated_redirect_url)
 
 
