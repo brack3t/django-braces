@@ -3,3 +3,4 @@ mock
 pytest-django
 pytest-cov
 six
+coverage
