@@ -1,2 +1,11 @@
+# django-braces coverage config file
 [run]
 branch = true
+
+[report]
+omit =
+    *site-packages*
+    *tests*
+    *.tox*
+    *conftest*
+show_missing = True
