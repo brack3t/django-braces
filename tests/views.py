@@ -102,8 +102,8 @@ class JsonBadRequestView(views.JsonRequestResponseMixin, View):
 
 class JsonCustomBadRequestView(views.JsonRequestResponseMixin, View):
     """
-    A view for testing JsonRequestResponseMixin's render_bad_request_response method
-    with a custom error message
+    A view for testing JsonRequestResponseMixin's
+    render_bad_request_response method with a custom error message
     """
     def post(self, request, *args, **kwargs):
         if not self.request_json:
@@ -172,6 +172,12 @@ class HeadlineView(views.SetHeadlineMixin, TemplateView):
     """
     template_name = 'blank.html'
     headline = "Test headline"
+
+
+class ContextView(views.StaticContextMixin, TemplateView):
+    """ View for testing StaticContextMixin. """
+    template_name = 'blank.html'
+    static_context = {'test': True}
 
 
 class DynamicHeadlineView(views.SetHeadlineMixin, TemplateView):

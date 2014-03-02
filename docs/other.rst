@@ -44,6 +44,46 @@ Dynamic Example
 In both usages, in the template, just print out ``{{ headline }}`` to show the generated headline.
 
 
+.. _StaticContextMixin:
+
+StaticContextMixin
+-----------------
+
+The ``StaticContextMixin`` allows you to easily set static context data by using the ``static_context`` property. While it's possible to override
+the ``StaticContextMixin.get_static_context method``, it's not very practical. If you have a need to override a method for dynamic context data it's
+best to override the standard ``get_context_data`` method of Django's generic class-based views.
+
+
+View Example
+^^^^^^^^^^^^
+
+::
+
+    # views.py
+
+    from braces.views import StaticContextMixin
+
+
+    class ContextTemplateView(StaticContextMixin, TemplateView):
+        static_context = {'nav_home': True}
+
+
+URL Example
+^^^^^^^^^^^
+
+::
+
+    # urls.py
+
+    urlpatterns = patterns(
+        '',
+        url(r'^$',
+            ContextTemplateView.as_view(
+                template_name='index.html',
+                static_context={'nav_home': True}
+            ),
+            name='index')
+    )
 
 
 .. _SelectRelatedMixin:
