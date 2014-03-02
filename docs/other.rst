@@ -50,7 +50,7 @@ ExtraContextMixin
 -----------------
 
 The ``ExtraContextMixin`` allows you to easily set static context data by using the ``extra_context`` property. While it's possible to override
-the ``ExtraContextMixin.get_extra_context method, it's not very practical. If you have a need to override a method for dynamic context data it's
+the ``ExtraContextMixin.get_extra_context method``, it's not very practical. If you have a need to override a method for dynamic context data it's
 best to override the standard ``get_context_data`` method of Django's generic class-based views.
 
 
