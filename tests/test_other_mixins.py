@@ -108,7 +108,7 @@ class TestExtraContextMixin(test.TestCase):
         with self.assertRaises(ImproperlyConfigured):
             self.client.get(self.view_url)
 
-    def test_list(self):
+    def test_list_error(self):
         self.view_class.extra_context = ['fail', 'fail']
         with self.assertRaises(ImproperlyConfigured):
             self.client.get(self.view_url)
