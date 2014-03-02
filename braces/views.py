@@ -51,7 +51,7 @@ class AccessMixin(object):
                 "%(cls)s is missing the "
                 "redirect_field_name. Define %(cls)s.redirect_field_name or "
                 "override %(cls)s.get_redirect_field_name()." % {
-                "cls": self.__class__.__name__})
+                    "cls": self.__class__.__name__})
 
         return self.redirect_field_name
 
@@ -263,11 +263,16 @@ class GroupRequiredMixin(AccessMixin):
                 "'GroupRequiredMixin' requires "
                 "'group_required' attribute to be set and be one of the "
                 "following types: string, unicode, list, or tuple.")
+        if not isinstance(self.group_required, (list, tuple)):
+            self.group_required = (self.group_required,)
         return self.group_required
 
-    def check_membership(self, group):
+    def check_membership(self, groups):
         """ Check required group(s) """
-        return group in self.request.user.groups.values_list("name", flat=True)
+        if self.request.user.is_superuser:
+            return True
+        user_groups = self.request.user.groups.values_list("name", flat=True)
+        return set(groups).intersection(set(user_groups))
 
     def dispatch(self, request, *args, **kwargs):
         self.request = request
@@ -302,9 +307,9 @@ class UserPassesTestMixin(AccessMixin):
 
     def test_func(self, user):
         raise NotImplementedError(
-                "%(cls)s is missing implementation of the "
-                "test_func method. You should write one." % {
-                        "cls": self.__class__.__name__})
+            "%(cls)s is missing implementation of the "
+            "test_func method. You should write one." % {
+                "cls": self.__class__.__name__})
 
     def get_test_func(self):
         return getattr(self, "test_func")
@@ -445,7 +450,7 @@ class PrefetchRelatedMixin(object):
                     "cls": self.__class__.__name__})
 
         if not isinstance(self.prefetch_related, (tuple, list)):
-            # If the select_related argument is *not* a tuple or list,
+            # If the prefetch_related argument is *not* a tuple or list,
             # raise a configuration error.
             raise ImproperlyConfigured(
                 "%(cls)s's prefetch_related property "
@@ -488,7 +493,7 @@ class JSONResponseMixin(object):
                 u"%(cls)s is missing a content type. "
                 u"Define %(cls)s.content_type, or override "
                 u"%(cls)s.get_content_type()." % {
-                u"cls": self.__class__.__name__}
+                    u"cls": self.__class__.__name__}
             )
         return self.content_type
 
@@ -503,9 +508,10 @@ class JSONResponseMixin(object):
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
-        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
-                                  **self.get_json_dumps_kwargs()).encode(
-                                  u'utf-8')
+        json_context = json.dumps(
+            context_dict,
+            cls=DjangoJSONEncoder,
+            **self.get_json_dumps_kwargs()).encode(u'utf-8')
         return HttpResponse(json_context,
                             content_type=self.get_content_type(),
                             status=status)
@@ -600,7 +606,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
         if self.require_json and self.request_json is None:
             return self.render_bad_request_response()
         return super(JsonRequestResponseMixin, self).dispatch(
-           request, *args, **kwargs)
+            request, *args, **kwargs)
 
 
 class OrderableListMixin(object):
@@ -798,3 +804,21 @@ class FormMessagesMixin(FormValidMessageMixin, FormInvalidMessageMixin):
     FormInvalidMessageMixin.
     """
     pass
+
+
+class AllVerbsMixin(object):
+    """Call a single method for all HTTP verbs.
+
+    The name of the method should be specified using the class attribute
+    ``all_handler``. The default value of this attribute is 'all'.
+    """
+    all_handler = 'all'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.all_handler:
+            raise ImproperlyConfigured(
+                "{cls} requires the all_handler attribute to be set.".format(
+                    cls=self.__class__.__name__))
+
+        handler = getattr(self, self.all_handler, self.http_method_not_allowed)
+        return handler(request, *args, **kwargs)
