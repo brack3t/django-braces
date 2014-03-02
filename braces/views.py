@@ -108,12 +108,12 @@ class AnonymousRequiredMixin(object):
         """ Return the reversed authenticated redirect url. """
         if not self.authenticated_redirect_url:
             raise ImproperlyConfigured(
-                '{0} is missing a authenticated_redirect_url '
-                'name to reverse and redirect to. Define '
+                '{0} is missing an authenticated_redirect_url '
+                'url to redirect to. Define '
                 '{0}.authenticated_redirect_url or override '
                 '{0}.get_authenticated_redirect_url().'.format(
                     self.__class__.__name__))
-        return reverse(self.authenticated_redirect_url)
+        return self.authenticated_redirect_url
 
 
 class CsrfExemptMixin(object):

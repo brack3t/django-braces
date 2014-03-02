@@ -36,12 +36,11 @@ class LoginRequiredView(views.LoginRequiredMixin, OkView):
 
 class AnonymousRequiredView(views.AnonymousRequiredMixin, OkView):
     """
-    A view for testing AnonymousRequiredMixin. Should accept unauthenticated
-    users and redirect authenticated users to the authenticated_redirect_url
-    set on the view.
+    A view for testing AnonymousRequiredMixin. Should accept
+    unauthenticated users and redirect authenticated users to the
+    authenticated_redirect_url set on the view.
     """
-    def get_authenticated_redirect_url(self):
-        return "/authenticated_view/"
+    authenticated_redirect_url = '/authenticated_view/'
 
 
 class AuthenticatedView(views.LoginRequiredMixin, OkView):
