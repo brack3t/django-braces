@@ -53,7 +53,7 @@ class TestAjaxResponseMixin(TestViewHelper, test.TestCase):
             m.return_value = HttpResponse()
             req = self.build_request()
             setattr(mixin, fallback, m)
-            fn = getattr(mixin, "%s_ajax" % ajax_method)
+            fn = getattr(mixin, u"{0}_ajax".format(ajax_method))
             ret = fn(req, 1, 2, meth=ajax_method)
             # check if appropriate method has been called
             m.assert_called_once_with(req, 1, 2, meth=ajax_method)
@@ -70,7 +70,7 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
     def assert_json_response(self, resp, status_code=200):
         self.assertEqual(status_code, resp.status_code)
         self.assertEqual(u'application/json',
-                         resp[u'content-type'].split(';')[0])
+                         resp[u'content-type'].split(u';')[0])
 
     def get_content(self, url):
         """
@@ -126,8 +126,8 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         normal_content = self.get_content(u'/simple_json/')
         self.view_class.json_dumps_kwargs = {u'indent': 2}
         pretty_content = self.get_content(u'/simple_json/')
-        normal_json = json.loads(normal_content)
-        pretty_json = json.loads(pretty_content)
+        normal_json = json.loads(u'{0}'.format(normal_content))
+        pretty_json = json.loads(u'{0}'.format(pretty_content))
         self.assertEqual(normal_json, pretty_json)
         self.assertTrue(len(pretty_content) > len(normal_content))
 
@@ -140,12 +140,13 @@ class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
         """
         Properly formatted JSON requests should result in a JSON object
         """
+        data = json.dumps(self.request_dict).encode(u'utf-8')
         response = self.client.post(
-            '/json_request/',
-            content_type='application/json',
-            data=json.dumps(self.request_dict)
+            u'/json_request/',
+            content_type=u'application/json',
+            data=data
         )
-        response_json = json.loads(response.content)
+        response_json = json.loads(response.content.decode(u'utf-8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json, self.request_dict)
 
@@ -155,10 +156,10 @@ class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
         Improperly formatted JSON requests should make request_json == None
         """
         response = self.client.post(
-            '/json_request/',
+            u'/json_request/',
             data=self.request_dict
         )
-        response_json = json.loads(response.content)
+        response_json = json.loads(response.content.decode(u'utf-8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json, None)
 
@@ -168,10 +169,10 @@ class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
         or None, the client should get a 400 error
         """
         response = self.client.post(
-            '/json_bad_request/',
+            u'/json_bad_request/',
             data=self.request_dict
         )
-        response_json = json.loads(response.content)
+        response_json = json.loads(response.content.decode(u'utf-8'))
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response_json, self.view_class.error_response_dict)
 
@@ -181,9 +182,9 @@ class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
         or None, the client should get a 400 error
         """
         response = self.client.post(
-            '/json_custom_bad_request/',
+            u'/json_custom_bad_request/',
             data=self.request_dict
         )
-        response_json = json.loads(response.content)
+        response_json = json.loads(response.content.decode(u'utf-8'))
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response_json, {u'error': u'you messed up'})

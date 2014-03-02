@@ -1,5 +1,5 @@
 from . import views
-from .compat import patterns, url
+from .compat import patterns, include, url
 
 
 urlpatterns = patterns(
@@ -31,6 +31,8 @@ urlpatterns = patterns(
     # CanonicalSlugDetailMixin tests
     url(r'^article-canonical/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.CanonicalSlugDetailView.as_view()),
+    url(r'^article-canonical-namespaced/',
+        include('tests.urls_namespaced', namespace='some_namespace')),
     url(r'^article-canonical-override/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.OverriddenCanonicalSlugDetailView.as_view()),
     url(r'^article-canonical-model/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
@@ -59,6 +61,12 @@ urlpatterns = patterns(
     # GroupRequiredMixin tests
     url(r'^group_required/$', views.GroupRequiredView.as_view()),
 
+    # UserPassesTestMixin tests
+    url(r'^user_passes_test/$', views.UserPassesTestView.as_view()),
+
+    # UserPassesTestMixin tests
+    url(r'^user_passes_test_not_implemented/$', views.UserPassesTestNotImplementedView.as_view()),
+
     # CsrfExemptMixin tests
     url(r'^csrf_exempt/$', views.CsrfExemptView.as_view()),
 
@@ -74,6 +82,10 @@ urlpatterns = patterns(
 
     # FormMessagesMixin tests
     url(r'form_messages/$', views.FormMessagesView.as_view()),
+
+    # AllVerbsMixin tests
+    url(r'all_verbs/$', views.AllVerbsView.as_view()),
+    url(r'all_verbs_no_handler/$', views.AllVerbsView.as_view(all_handler=None)),
 )
 
 
@@ -81,4 +93,5 @@ urlpatterns += patterns(
     'django.contrib.auth.views',
     # login page, required by some tests
     url(r'^accounts/login/$', 'login', {'template_name': 'blank.html'}),
+    url(r'^auth/login/$', 'login', {'template_name': 'blank.html'}),
 )

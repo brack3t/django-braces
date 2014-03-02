@@ -20,6 +20,8 @@ Direct Contributors
 * Piotr Kilczuk
 * Rodney Folz
 * Markus Zapke-Gründemann
+* Kamil Gałuszka
+* Danilo Bargen
 
 Other Contributors
 ==================

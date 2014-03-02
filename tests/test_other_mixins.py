@@ -268,6 +268,31 @@ class TestCanonicalSlugDetailView(test.TestCase):
         self.assertEqual(resp.status_code, 301)
 
 
+class TestNamespaceAwareCanonicalSlugDetailView(test.TestCase):
+    def setUp(self):
+        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+
+    def test_canonical_slug(self):
+        """
+        Test that no redirect occurs when slug is canonical.
+        """
+        resp = self.client.get('/article-canonical-namespaced/article/1-alpha/')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/article-canonical-namespaced/article/2-zet/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_canonical_slug(self):
+        """
+        Test that a redirect occurs when the slug is non-canonical and that the
+        redirect is namespace aware.
+        """
+        resp = self.client.get('/article-canonical-namespaced/article/1-bad-slug/')
+        self.assertEqual(resp.status_code, 301)
+        resp = self.client.get('/article-canonical-namespaced/article/2-bad-slug/')
+        self.assertEqual(resp.status_code, 301)
+
+
 class TestOverriddenCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
         a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
@@ -379,3 +404,37 @@ class TestFormMessageMixins(test.TestCase):
         mixin = FormInvalidMessageMixin()
         mixin.form_invalid_message = u'Bad øø'
         self.assertEqual(u'Bad øø', mixin.get_form_invalid_message())
+
+
+class TestAllVerbsMixin(test.TestCase):
+    def setUp(self):
+        self.url = "/all_verbs/"
+        self.no_handler_url = "/all_verbs_no_handler/"
+
+    def test_options(self):
+        response = self.client.options(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_head(self):
+        response = self.client.head(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_put(self):
+        response = self.client.put(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_no_all_handler(self):
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get('/all_verbs_no_handler/')

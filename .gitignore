@@ -8,4 +8,5 @@
 /htmlcov
 /.tox
 dist/
-/venv
+.idea
+build/
