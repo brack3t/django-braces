@@ -73,6 +73,8 @@ In our normal use case for this mixin, ``LoginRequiredMixin`` comes first, then 
         permission_required = "auth.change_user"
         template_name = "path/to/template.html"
 
+The ``PermissionRequiredMixin`` also offers a ``check_permssions`` method that should be overridden if you need custom permissions checking.
+
 
 .. _MultiplePermissionsRequiredMixin:
 
@@ -98,6 +100,8 @@ The multiple permissions required view mixin is a more powerful version of the `
             "all": ("blog.add_post", "blog.change_post"),
             "any": ("blog.delete_post", "user.change_user")
         }
+
+The ``MultiplePermissionsRequiredMixin`` also offers a ``check_permssions`` method that should be overridden if you need custom permissions checking.
 
 
 .. _GroupRequiredMixin:
