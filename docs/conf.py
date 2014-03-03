@@ -25,7 +25,10 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = []
+extensions = ['releases']
+
+releases_issue_uri = "https://github.com/brack3t/django-braces/issues/%s"
+releases_release_uri = "https://github.com/brack3t/django-braces/tree/%s"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -183,8 +186,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'django-braces.tex', u'django-braces Documentation',
-   u'Kenneth Love and Chris Jones', 'manual'),
+  ('index', 'django-braces.tex', 'django-braces Documentation',
+   'Kenneth Love and Chris Jones', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -213,8 +216,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'django-braces', u'django-braces Documentation',
-     [u'Kenneth Love and Chris Jones'], 1)
+    ('index', 'django-braces', 'django-braces Documentation',
+     ['Kenneth Love and Chris Jones'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -227,8 +230,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'django-braces', u'django-braces Documentation',
-   u'Kenneth Love and Chris Jones', 'django-braces', 'One line description of project.',
+  ('index', 'django-braces', 'django-braces Documentation',
+   'Kenneth Love and Chris Jones', 'django-braces', 'One line description of project.',
    'Miscellaneous'),
 ]
 
