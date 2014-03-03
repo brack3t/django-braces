@@ -152,7 +152,7 @@ Custom Group Usage
 .. _UserPassesTestMixin:
 
 UserPassesTestMixin
-------------------
+-------------------
 
 .. versionadded:: dev
 
