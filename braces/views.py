@@ -693,12 +693,15 @@ class OrderableListMixin(object):
     def get_orderable_columns(self):
         if not self.orderable_columns:
             raise ImproperlyConfigured(
-                "Please define allowed ordering columns")
+                '{0} needs the ordering columns defined.'.format(
+                    self.__class__.__name__))
         return self.orderable_columns
 
     def get_orderable_columns_default(self):
         if not self.orderable_columns_default:
-            raise ImproperlyConfigured("Please define default ordering column")
+            raise ImproperlyConfigured(
+                '{0} needs the default ordering column defined.'.format(
+                    self.__class__.__name__))
         return self.orderable_columns_default
 
     def get_ordered_queryset(self, queryset=None):
@@ -838,15 +841,13 @@ class FormInvalidMessageMixin(object):
                 '{0}.form_invalid_message is not set. Define '
                 '{0}.form_invalid_message, or override '
                 '{0}.get_form_invalid_message().'.format(
-                    self.__class__.__name__)
-            )
+                    self.__class__.__name__))
 
         if not isinstance(self.form_invalid_message,
                           (six.string_types, six.text_type)):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
-                'object.'.format(self.__class__.__name__)
-            )
+                'object.'.format(self.__class__.__name__))
 
         return self.form_invalid_message
 
