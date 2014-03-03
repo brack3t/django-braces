@@ -3,7 +3,6 @@ import mock
 
 from django import test
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import ugettext_lazy as _
 
 from braces.views import (SetHeadlineMixin, FormValidMessageMixin,
                           FormInvalidMessageMixin)
@@ -84,9 +83,8 @@ class TestSetHeadlineMixin(test.TestCase):
         self.assertEqual("Test headline", mixin.get_headline())
 
     def test_get_headline_lazy(self):
-        mixin = SetHeadlineMixin()
-        mixin.headline = _("Test headline 2")
-        self.assertEqual("Test headline 2", mixin.get_headline())
+        resp = self.client.get('/headline/lazy/')
+        self.assertEqual('Test Headline', resp.context['headline'])
 
 
 class TestStaticContextMixin(test.TestCase):

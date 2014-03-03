@@ -2,6 +2,7 @@ import codecs
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import (View, UpdateView, FormView, TemplateView,
                                   ListView, DetailView, CreateView)
 
@@ -188,6 +189,14 @@ class HeadlineView(views.SetHeadlineMixin, TemplateView):
     """
     template_name = 'blank.html'
     headline = "Test headline"
+
+
+class LazyHeadlineView(views.SetHeadlineMixin, TemplateView):
+    """
+    View for testing SetHeadlineMixin.
+    """
+    template_name = 'blank.html'
+    headline = _("Test Headline")
 
 
 class ContextView(views.StaticContextMixin, TemplateView):
