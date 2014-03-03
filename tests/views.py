@@ -2,6 +2,7 @@ import codecs
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import (View, UpdateView, FormView, TemplateView,
                                   ListView, DetailView, CreateView)
 
@@ -267,8 +268,8 @@ class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
 
 class FormMessagesView(views.FormMessagesMixin, CreateView):
     form_class = ArticleForm
-    form_invalid_message = 'Invalid'
-    form_valid_message = 'Valid'
+    form_invalid_message = _('Invalid')
+    form_valid_message = _('Valid')
     model = Article
     success_url = '/form_messages/'
     template_name = 'form.html'
