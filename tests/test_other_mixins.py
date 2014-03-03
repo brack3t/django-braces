@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import mock
+
 from django import test
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import ugettext_lazy as _
+
 from braces.views import (SetHeadlineMixin, FormValidMessageMixin,
                           FormInvalidMessageMixin)
+
 from .models import Article, CanonicalArticle
 from .helpers import TestViewHelper
 from .views import (ArticleListView, AuthorDetailView, OrderableListView,
@@ -78,6 +82,11 @@ class TestSetHeadlineMixin(test.TestCase):
 
         mixin.headline = "Test headline"
         self.assertEqual("Test headline", mixin.get_headline())
+
+    def test_get_headline_lazy(self):
+        mixin = SetHeadlineMixin()
+        mixin.headline = _("Test headline 2")
+        self.assertEqual("Test headline 2", mixin.get_headline())
 
 
 class TestStaticContextMixin(test.TestCase):

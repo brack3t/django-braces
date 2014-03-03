@@ -437,7 +437,7 @@ class SetHeadlineMixin(object):
                 '{0} is missing a headline. '
                 'Define {0}.headline, or override '
                 '{0}.get_headline().'.format(self.__class__.__name__))
-        return self.headline
+        return force_text(self.headline)
 
 
 class StaticContextMixin(object):
