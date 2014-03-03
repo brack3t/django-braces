@@ -6,6 +6,12 @@ urlpatterns = patterns(
     '',
     # LoginRequiredMixin tests
     url(r'^login_required/$', views.LoginRequiredView.as_view()),
+    
+    # AnonymousRequiredView tests
+    url(r'^unauthenticated_view/$', views.AnonymousRequiredView.as_view(),
+        name='unauthenticated_view'),
+    url(r'^authenticated_view/$', views.AuthenticatedView.as_view(),
+        name='authenticated_view'),
 
     # AjaxResponseMixin tests
     url(r'^ajax_response/$', views.AjaxResponseView.as_view()),
@@ -40,6 +46,9 @@ urlpatterns = patterns(
     # SetHeadlineMixin tests
     url(r'^headline/$', views.HeadlineView.as_view(), name='headline'),
     url(r'^headline/(?P<s>[\w-]+)/$', views.DynamicHeadlineView.as_view()),
+
+    # ExtraContextMixin tests
+    url(r'^context/$', views.ContextView.as_view(), name='context'),
 
     # PermissionRequiredMixin tests
     url(r'^permission_required/$', views.PermissionRequiredView.as_view()),
@@ -78,6 +87,10 @@ urlpatterns = patterns(
 
     # FormMessagesMixin tests
     url(r'form_messages/$', views.FormMessagesView.as_view()),
+
+    # AllVerbsMixin tests
+    url(r'all_verbs/$', views.AllVerbsView.as_view()),
+    url(r'all_verbs_no_handler/$', views.AllVerbsView.as_view(all_handler=None)),
 )
 
 

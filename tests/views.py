@@ -34,6 +34,22 @@ class LoginRequiredView(views.LoginRequiredMixin, OkView):
     """
 
 
+class AnonymousRequiredView(views.AnonymousRequiredMixin, OkView):
+    """
+    A view for testing AnonymousRequiredMixin. Should accept
+    unauthenticated users and redirect authenticated users to the
+    authenticated_redirect_url set on the view.
+    """
+    authenticated_redirect_url = '/authenticated_view/'
+
+
+class AuthenticatedView(views.LoginRequiredMixin, OkView):
+    """
+    A view for testing AnonymousRequiredMixin. Should accept
+    authenticated users.
+    """
+
+
 class AjaxResponseView(views.AjaxResponseMixin, OkView):
     """
     A view for testing AjaxResponseMixin.
@@ -102,8 +118,8 @@ class JsonBadRequestView(views.JsonRequestResponseMixin, View):
 
 class JsonCustomBadRequestView(views.JsonRequestResponseMixin, View):
     """
-    A view for testing JsonRequestResponseMixin's render_bad_request_response method
-    with a custom error message
+    A view for testing JsonRequestResponseMixin's
+    render_bad_request_response method with a custom error message
     """
     def post(self, request, *args, **kwargs):
         if not self.request_json:
@@ -172,6 +188,12 @@ class HeadlineView(views.SetHeadlineMixin, TemplateView):
     """
     template_name = 'blank.html'
     headline = "Test headline"
+
+
+class ContextView(views.StaticContextMixin, TemplateView):
+    """ View for testing StaticContextMixin. """
+    template_name = 'blank.html'
+    static_context = {'test': True}
 
 
 class DynamicHeadlineView(views.SetHeadlineMixin, TemplateView):
@@ -272,3 +294,8 @@ class UserPassesTestView(views.UserPassesTestMixin, OkView):
 
 class UserPassesTestNotImplementedView(views.UserPassesTestMixin, OkView):
     pass
+
+
+class AllVerbsView(views.AllVerbsMixin, View):
+    def all(self, request, *args, **kwargs):
+        return HttpResponse('All verbs return this!')

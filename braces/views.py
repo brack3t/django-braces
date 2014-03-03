@@ -8,7 +8,8 @@ from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import resolve, reverse
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import (HttpResponse, HttpResponseBadRequest,
+                         HttpResponseRedirect)
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
@@ -37,8 +38,8 @@ class AccessMixin(object):
         login_url = self.login_url or settings.LOGIN_URL
         if not login_url:
             raise ImproperlyConfigured(
-                "Define %(cls)s.login_url or settings.LOGIN_URL or override "
-                "%(cls)s.get_login_url()." % {"cls": self.__class__.__name__})
+                'Define {0}.login_url or settings.LOGIN_URL or override '
+                '{0}.get_login_url().'.format(self.__class__.__name__))
 
         return force_text(login_url)
 
@@ -48,11 +49,10 @@ class AccessMixin(object):
         """
         if self.redirect_field_name is None:
             raise ImproperlyConfigured(
-                "%(cls)s is missing the "
-                "redirect_field_name. Define %(cls)s.redirect_field_name or "
-                "override %(cls)s.get_redirect_field_name()." % {
-                "cls": self.__class__.__name__})
-
+                '{0} is missing the '
+                'redirect_field_name. Define {0}.redirect_field_name or '
+                'override {0}.get_redirect_field_name().'.format(
+                    self.__class__.__name__))
         return self.redirect_field_name
 
 
@@ -76,6 +76,43 @@ class LoginRequiredMixin(AccessMixin):
 
         return super(LoginRequiredMixin, self).dispatch(
             request, *args, **kwargs)
+
+
+class AnonymousRequiredMixin(object):
+    """
+    View mixin which redirects to a specified URL if authenticated.
+    Can be useful if you wanted to prevent authenticated users from
+    accessing signup pages etc.
+
+    NOTE:
+        This should be the left-most mixin of a view.
+
+    Example Usage
+
+        class SomeView(AnonymousRequiredMixin, ListView):
+            ...
+            # required
+            authenticated_redirect_url = "/accounts/profile/"
+            ...
+    """
+    authenticated_redirect_url = settings.LOGIN_REDIRECT_URL
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(self.get_authenticated_redirect_url())
+        return super(AnonymousRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
+
+    def get_authenticated_redirect_url(self):
+        """ Return the reversed authenticated redirect url. """
+        if not self.authenticated_redirect_url:
+            raise ImproperlyConfigured(
+                '{0} is missing an authenticated_redirect_url '
+                'url to redirect to. Define '
+                '{0}.authenticated_redirect_url or override '
+                '{0}.get_authenticated_redirect_url().'.format(
+                    self.__class__.__name__))
+        return self.authenticated_redirect_url
 
 
 class CsrfExemptMixin(object):
@@ -122,8 +159,8 @@ class PermissionRequiredMixin(AccessMixin):
         # view, or raise a configuration error.
         if self.permission_required is None:
             raise ImproperlyConfigured(
-                "'PermissionRequiredMixin' requires "
-                "'permission_required' attribute to be set.")
+                '{0} requires the "permission_required" attribute to be '
+                'set.'.format(self.__class__.__name__))
 
         # Check to see if the request's user has the required permission.
         has_permission = request.user.has_perm(self.permission_required)
@@ -223,8 +260,8 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         """
         if self.permissions is None or not isinstance(self.permissions, dict):
             raise ImproperlyConfigured(
-                "'PermissionsRequiredMixin' requires "
-                "'permissions' attribute to be set to a dict.")
+                '{0} requires the "permissions" attribute to be set as a '
+                'dict.'.format(self.__class__.__name__))
 
     def _check_permissions_keys_set(self, perms_all=None, perms_any=None):
         """
@@ -234,9 +271,9 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         """
         if perms_all is None and perms_any is None:
             raise ImproperlyConfigured(
-                "'PermissionsRequiredMixin' requires"
-                "'permissions' attribute to be set to a dict and the 'any' "
-                "or 'all' key to be set.")
+                '{0} requires the "permissions" attribute to be set to a '
+                'dict and the "any" or "all" key to be set.'.format(
+                    self.__class__.__name__))
 
     def _check_perms_keys(self, key=None, perms=None):
         """
@@ -245,9 +282,8 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         """
         if perms and not isinstance(perms, (list, tuple)):
             raise ImproperlyConfigured(
-                "'MultiplePermissionsRequiredMixin' "
-                "requires permissions dict '%s' value to be a list "
-                "or tuple." % key)
+                '{0} requires the permisions dict {1} value to be a '
+                'list or tuple.'.format(self.__class__.__name__, key))
 
 
 class GroupRequiredMixin(AccessMixin):
@@ -260,14 +296,19 @@ class GroupRequiredMixin(AccessMixin):
         ):
 
             raise ImproperlyConfigured(
-                "'GroupRequiredMixin' requires "
-                "'group_required' attribute to be set and be one of the "
-                "following types: string, unicode, list, or tuple.")
+                '{0} requires the "group_required" attribute to be set and be '
+                'one of the following types: string, unicode, list or '
+                'tuple'.format(self.__class__.__name__))
+        if not isinstance(self.group_required, (list, tuple)):
+            self.group_required = (self.group_required,)
         return self.group_required
 
-    def check_membership(self, group):
+    def check_membership(self, groups):
         """ Check required group(s) """
-        return group in self.request.user.groups.values_list("name", flat=True)
+        if self.request.user.is_superuser:
+            return True
+        user_groups = self.request.user.groups.values_list("name", flat=True)
+        return set(groups).intersection(set(user_groups))
 
     def dispatch(self, request, *args, **kwargs):
         self.request = request
@@ -302,9 +343,9 @@ class UserPassesTestMixin(AccessMixin):
 
     def test_func(self, user):
         raise NotImplementedError(
-                "%(cls)s is missing implementation of the "
-                "test_func method. You should write one." % {
-                        "cls": self.__class__.__name__})
+            '{0} is missing implementation of the '
+            'test_func method. You should write one.'.format(
+                self.__class__.__name__))
 
     def get_test_func(self):
         return getattr(self, "test_func")
@@ -351,11 +392,10 @@ class SuccessURLRedirectListMixin(object):
         # Return the reversed success url.
         if self.success_list_url is None:
             raise ImproperlyConfigured(
-                "%(cls)s is missing a succes_list_url "
-                "name to reverse and redirect to. Define "
-                "%(cls)s.success_list_url or override "
-                "%(cls)s.get_success_url()"
-                "." % {"cls": self.__class__.__name__})
+                '{0} is missing a succes_list_url '
+                'name to reverse and redirect to. Define '
+                '{0}.success_list_url or override '
+                '{0}.get_success_url().'.format(self.__class__.__name__))
         return reverse(self.success_list_url)
 
 
@@ -394,11 +434,39 @@ class SetHeadlineMixin(object):
                                    # attribute and this method wasn't
                                    # overridden raise a configuration error.
             raise ImproperlyConfigured(
-                "%(cls)s is missing a headline. "
-                "Define %(cls)s.headline, or override "
-                "%(cls)s.get_headline()." % {"cls": self.__class__.__name__}
-            )
+                '{0} is missing a headline. '
+                'Define {0}.headline, or override '
+                '{0}.get_headline().'.format(self.__class__.__name__))
         return self.headline
+
+
+class StaticContextMixin(object):
+    """
+    Mixin allows you to set static context through a static property on
+    the class.
+    """
+    static_context = None
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(StaticContextMixin, self).get_context_data(**kwargs)
+
+        try:
+            kwargs.update(self.get_static_context())
+        except (TypeError, ValueError):
+            raise ImproperlyConfigured(
+                '{0}.static_context must be a dictionary or container '
+                'of two-tuples.'.format(self.__class__.__name__))
+        else:
+            return kwargs
+
+    def get_static_context(self):
+        if self.static_context is None:
+            raise ImproperlyConfigured(
+                '{0} is missing the static_context property. Define '
+                '{0}.static_context, or override '
+                '{0}.get_static_context()'.format(self.__class__.__name__)
+            )
+        return self.static_context
 
 
 class SelectRelatedMixin(object):
@@ -412,16 +480,15 @@ class SelectRelatedMixin(object):
         if self.select_related is None:  # If no fields were provided,
                                          # raise a configuration error
             raise ImproperlyConfigured(
-                "%(cls)s is missing the "
-                "select_related property. This must be a tuple or list." % {
-                    "cls": self.__class__.__name__})
+                '{0} is missing the select_related property. This must be '
+                'a tuple or list.'.format(self.__class__.__name__))
 
         if not isinstance(self.select_related, (tuple, list)):
             # If the select_related argument is *not* a tuple or list,
             # raise a configuration error.
             raise ImproperlyConfigured(
-                "%(cls)s's select_related property "
-                "must be a tuple or list." % {"cls": self.__class__.__name__})
+                "{0}'s select_related property must be a tuple or "
+                "list.".format(self.__class__.__name__))
 
         # Get the current queryset of the view
         queryset = super(SelectRelatedMixin, self).get_queryset()
@@ -440,16 +507,15 @@ class PrefetchRelatedMixin(object):
         if self.prefetch_related is None:  # If no fields were provided,
                                            # raise a configuration error
             raise ImproperlyConfigured(
-                "%(cls)s is missing the "
-                "prefetch_related property. This must be a tuple or list." % {
-                    "cls": self.__class__.__name__})
+                '{0} is missing the prefetch_related property. This must be '
+                'a tuple or list.'.format(self.__class__.__name__))
 
         if not isinstance(self.prefetch_related, (tuple, list)):
-            # If the select_related argument is *not* a tuple or list,
+            # If the prefetch_related argument is *not* a tuple or list,
             # raise a configuration error.
             raise ImproperlyConfigured(
-                "%(cls)s's prefetch_related property "
-                "must be a tuple or list." % {"cls": self.__class__.__name__})
+                "{0}'s prefetch_related property must be a tuple or "
+                "list.".format(self.__class__.__name__))
 
         # Get the current queryset of the view
         queryset = super(PrefetchRelatedMixin, self).get_queryset()
@@ -485,11 +551,9 @@ class JSONResponseMixin(object):
     def get_content_type(self):
         if self.content_type is None:
             raise ImproperlyConfigured(
-                u"%(cls)s is missing a content type. "
-                u"Define %(cls)s.content_type, or override "
-                u"%(cls)s.get_content_type()." % {
-                u"cls": self.__class__.__name__}
-            )
+                '{0} is missing a content type. Define {0}.content_type, or '
+                'override {0}.get_content_type().'.format(
+                    self.__class__.__name__))
         return self.content_type
 
     def get_json_dumps_kwargs(self):
@@ -503,9 +567,10 @@ class JSONResponseMixin(object):
         Limited serialization for shipping plain data. Do not use for models
         or other complex or custom objects.
         """
-        json_context = json.dumps(context_dict, cls=DjangoJSONEncoder,
-                                  **self.get_json_dumps_kwargs()).encode(
-                                  u'utf-8')
+        json_context = json.dumps(
+            context_dict,
+            cls=DjangoJSONEncoder,
+            **self.get_json_dumps_kwargs()).encode(u'utf-8')
         return HttpResponse(json_context,
                             content_type=self.get_content_type(),
                             status=status)
@@ -600,7 +665,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
         if self.require_json and self.request_json is None:
             return self.render_bad_request_response()
         return super(JsonRequestResponseMixin, self).dispatch(
-           request, *args, **kwargs)
+            request, *args, **kwargs)
 
 
 class OrderableListMixin(object):
@@ -628,12 +693,15 @@ class OrderableListMixin(object):
     def get_orderable_columns(self):
         if not self.orderable_columns:
             raise ImproperlyConfigured(
-                "Please define allowed ordering columns")
+                '{0} needs the ordering columns defined.'.format(
+                    self.__class__.__name__))
         return self.orderable_columns
 
     def get_orderable_columns_default(self):
         if not self.orderable_columns_default:
-            raise ImproperlyConfigured("Please define default ordering column")
+            raise ImproperlyConfigured(
+                '{0} needs the default ordering column defined.'.format(
+                    self.__class__.__name__))
         return self.orderable_columns_default
 
     def get_ordered_queryset(self, queryset=None):
@@ -775,15 +843,13 @@ class FormInvalidMessageMixin(object):
                 '{0}.form_invalid_message is not set. Define '
                 '{0}.form_invalid_message, or override '
                 '{0}.get_form_invalid_message().'.format(
-                    self.__class__.__name__)
-            )
+                    self.__class__.__name__))
 
         if not isinstance(self.form_invalid_message,
                           (six.string_types, six.text_type)):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
-                'object.'.format(self.__class__.__name__)
-            )
+                'object.'.format(self.__class__.__name__))
 
         return self.form_invalid_message
 
@@ -800,3 +866,21 @@ class FormMessagesMixin(FormValidMessageMixin, FormInvalidMessageMixin):
     FormInvalidMessageMixin.
     """
     pass
+
+
+class AllVerbsMixin(object):
+    """Call a single method for all HTTP verbs.
+
+    The name of the method should be specified using the class attribute
+    ``all_handler``. The default value of this attribute is 'all'.
+    """
+    all_handler = 'all'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.all_handler:
+            raise ImproperlyConfigured(
+                '{0} requires the all_handler attribute to be set.'.format(
+                    self.__class__.__name__))
+
+        handler = getattr(self, self.all_handler, self.http_method_not_allowed)
+        return handler(request, *args, **kwargs)
