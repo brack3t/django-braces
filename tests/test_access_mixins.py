@@ -10,7 +10,7 @@ from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
                     LoginRequiredView, GroupRequiredView, UserPassesTestView,
-                    UserPassesTestNotImplementedView)
+                    UserPassesTestNotImplementedView, AnonymousRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -144,6 +144,57 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         resp = self.client.get(self.view_url)
         assert resp.status_code == 200
         assert force_text(resp.content) == 'OK'
+
+
+class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
+    """
+    Tests for AnonymousRequiredMixin.
+    """
+    view_class = AnonymousRequiredView
+    view_url = '/unauthenticated_view/'
+
+    def test_anonymous(self):
+        """
+        As a non-authenticated user, it should be possible to access
+        the URL.
+        """
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+        # Test with reverse_lazy
+        resp = self.dispatch_view(
+            self.build_request(),
+            login_url=reverse_lazy(self.view_url))
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_authenticated(self):
+        """
+        Check that the authenticated user has been successfully directed
+        to the approparite view.
+        """
+        user = UserFactory()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(302, resp.status_code)
+
+        resp = self.client.get(self.view_url, follow=True)
+        self.assertRedirects(resp, '/authenticated_view/')
+
+    def test_no_url(self):
+        self.view_class.authenticated_redirect_url = None
+        user = UserFactory()
+        self.client.login(username=user.username, password='asdf1234')
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get(self.view_url)
+
+    def test_bad_url(self):
+        self.view_class.authenticated_redirect_url = '/epicfailurl/'
+        user = UserFactory()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url, follow=True)
+        self.assertEqual(404, resp.status_code)
 
 
 class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):

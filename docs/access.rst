@@ -184,6 +184,54 @@ Another permission-based mixin. This is specifically for requiring a user to be 
         template_name = "path/to/template.html"
 
 
+.. _AnonymousRequiredMixin:
+
+AnonymousRequiredMixin
+----------------------
+
+Mixin that will redirect authenticated users to a different view. The default redirect is to
+Django's `settings.LOGIN_REDIRECT_URL`.
+
+
+Static Examples
+^^^^^^^^^^^^^^^
+
+::
+
+    from braces.views import AnonymousRequiredMixin
+
+
+    class SomeView(AnonymousRequiredMixin, TemplateView):
+        authenticated_redirect_url = "/send/away/"
+
+
+::
+
+    from django.core.urlresolvers import reverse_lazy
+
+    from braces.views import AnonymousRequiredMixin
+
+
+    class SomeLazyView(AnonymousRequiredMixin, TemplateView):
+        authenticated_redirect_url = reverse_lazy('view_url')
+
+
+Dynamic Example
+^^^^^^^^^^^^^^^
+
+::
+
+    from braces.views import AnonymousRequiredMixin
+
+
+    class SomeView(AnonymousRequiredMixin, TemplateView):
+        """ Redirect based on user level """
+        def get_authenticated_redirect_url(self):
+            if self.request.user.is_superuser:
+                return '/admin/'
+            return '/somewhere/else/'
+
+
 .. _StaffuserRequiredMixin:
 
 StaffuserRequiredMixin

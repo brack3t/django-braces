@@ -6,6 +6,12 @@ urlpatterns = patterns(
     '',
     # LoginRequiredMixin tests
     url(r'^login_required/$', views.LoginRequiredView.as_view()),
+    
+    # AnonymousRequiredView tests
+    url(r'^unauthenticated_view/$', views.AnonymousRequiredView.as_view(),
+        name='unauthenticated_view'),
+    url(r'^authenticated_view/$', views.AuthenticatedView.as_view(),
+        name='authenticated_view'),
 
     # AjaxResponseMixin tests
     url(r'^ajax_response/$', views.AjaxResponseView.as_view()),
