@@ -192,6 +192,10 @@ AnonymousRequiredMixin
 Mixin that will redirect authenticated users to a different view. The default redirect is to
 Django's `settings.LOGIN_REDIRECT_URL`.
 
+
+Static Examples
+^^^^^^^^^^^^^^^
+
 ::
 
     from braces.views import AnonymousRequiredMixin
@@ -212,6 +216,20 @@ Django's `settings.LOGIN_REDIRECT_URL`.
         authenticated_redirect_url = reverse_lazy('view_url')
 
 
+Dynamic Example
+^^^^^^^^^^^^^^^
+
+::
+
+    from braces.views import AnonymousRequiredMixin
+
+
+    class SomeView(AnonymousRequiredMixin, TemplateView):
+        """ Redirect based on user level """
+        def get_authenticated_redirect_url(self):
+            if self.request.user.is_superuser:
+                return '/admin/'
+            return '/somewhere/else/'
 
 
 .. _StaffuserRequiredMixin:
