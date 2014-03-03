@@ -4,6 +4,7 @@ Mixins for Django's class-based views.
 [![Latest drone.io status](https://drone.io/github.com/brack3t/django-braces/status.png)](https://drone.io/github.com/brack3t/django-braces)
 [![Latest PyPI version](https://pypip.in/v/django-braces/badge.png)](https://crate.io/packages/django-braces/)
 [![Number of PyPI downloads](https://pypip.in/d/django-braces/badge.png)](https://crate.io/packages/django-braces/)
+[![Stories in Ready](https://badge.waffle.io/brack3t/django-braces.png)](http://waffle.io/brack3t/django-braces)
 
 ## Documentation
 [Read The Docs](http://django-braces.readthedocs.org/en/latest/index.html)
@@ -25,11 +26,28 @@ To run the test suite, execute the following in your shell (Django install is re
 
 ## Change Log
 
-### Dev
+### 1.4
+
+* Fixed bug in `GroupRequiredMixin` where superusers were blocked by lack of group memberships.
+* Fixed bug in `GroupRequiredMixin` which now correctly checks for group membership against a list.
+* Added new `StaticContextMixin` mixin which lets you pass in `static_context` as a property of the view.
+* Added new `AnonymousRequiredMixin` which redirects authenticated users to another view.
+
+### 1.3.1
+
+* Removed breakpoint that was added accidentally.
+* Added the build directory to `.gitignore`
+
+### 1.3.0
 
 * Removed `CreateAndRedirectToEditView` mixin. It was marked for deprecation and removal since 1.0.
 * Added `JsonRequestAndResponseMixin` mixin which attempts to parse requests as JSON.
 * Added `CanonicalSlugDetailMixin` mixin which allows for the specification of a canonical slug on a `DetailView` to help with SEO by redirecting on non-canonical requests.
+* Added `UserPassesTestMixin` mixin to replicate the behavior of Django's `@user_passes_test` decorator.
+* Some fixes for `CanonicalSlugDetailMixin`.
+* `AccessMixin` now has a runtime-overridable `login_url` attribute.
+* Fixed problem with `GroupRequiredMixin` that made it not actually work.
+* All tests pass for Django versions 1.4 through 1.6 and Python versions 2.6, 2.7, and 3.3 (Django 1.4 and 1.5 not tested with Python 3.3).
 * Tests and documentation changes for all of the above.
 
 ### 1.2.1

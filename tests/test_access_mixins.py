@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 from django import test
+from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
+
 from .compat import force_text
 from .factories import GroupFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
-                    LoginRequiredView, GroupRequiredView)
+                    LoginRequiredView, GroupRequiredView, UserPassesTestView,
+                    UserPassesTestNotImplementedView, AnonymousRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -46,7 +49,8 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
-        self.assertRedirects(resp, '/accounts/login/?next=%s' % self.view_url)
+        self.assertRedirects(resp, u'/accounts/login/?next={0}'.format(
+            self.view_url))
 
     def test_raise_permission_denied(self):
         """
@@ -66,11 +70,13 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         req = self.build_request(user=user, path=self.view_url)
         resp = self.dispatch_view(req, login_url='/login/')
-        self.assertEqual('/login/?next=%s' % self.view_url, resp['Location'])
+        self.assertEqual(
+            u'/login/?next={0}'.format(self.view_url),
+            resp['Location'])
 
         # Test with reverse_lazy
         resp = self.dispatch_view(req, login_url=reverse_lazy('headline'))
-        self.assertEqual('/headline/?next={}'.format(
+        self.assertEqual(u'/headline/?next={0}'.format(
             self.view_url), resp['Location'])
 
     def test_custom_redirect_field_name(self):
@@ -80,9 +86,10 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         req = self.build_request(user=user, path=self.view_url)
         resp = self.dispatch_view(req, redirect_field_name='foo')
-        expected_url = '/accounts/login/?foo=%s' % self.view_url
+        expected_url = u'/accounts/login/?foo={0}'.format(self.view_url)
         self.assertEqual(expected_url, resp['Location'])
 
+    @override_settings(LOGIN_URL=None)
     def test_get_login_url_raises_exception(self):
         """
         Test that get_login_url from AccessMixin raises
@@ -101,6 +108,18 @@ class _TestAccessBasicsMixin(TestViewHelper):
             self.dispatch_view(
                 self.build_request(path=self.view_url),
                 redirect_field_name=None)
+
+    @override_settings(LOGIN_URL="/auth/login/")
+    def test_overridden_login_url(self):
+        """
+        Test that login_url is not set in stone on module load but can be
+        overridden dynamically.
+        """
+        user = self.build_unauthorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertRedirects(resp, u'/auth/login/?next={0}'.format(
+            self.view_url))
 
 
 class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
@@ -125,6 +144,57 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         resp = self.client.get(self.view_url)
         assert resp.status_code == 200
         assert force_text(resp.content) == 'OK'
+
+
+class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
+    """
+    Tests for AnonymousRequiredMixin.
+    """
+    view_class = AnonymousRequiredView
+    view_url = '/unauthenticated_view/'
+
+    def test_anonymous(self):
+        """
+        As a non-authenticated user, it should be possible to access
+        the URL.
+        """
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+        # Test with reverse_lazy
+        resp = self.dispatch_view(
+            self.build_request(),
+            login_url=reverse_lazy(self.view_url))
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_authenticated(self):
+        """
+        Check that the authenticated user has been successfully directed
+        to the approparite view.
+        """
+        user = UserFactory()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(302, resp.status_code)
+
+        resp = self.client.get(self.view_url, follow=True)
+        self.assertRedirects(resp, '/authenticated_view/')
+
+    def test_no_url(self):
+        self.view_class.authenticated_redirect_url = None
+        user = UserFactory()
+        self.client.login(username=user.username, password='asdf1234')
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get(self.view_url)
+
+    def test_bad_url(self):
+        self.view_class.authenticated_redirect_url = '/epicfailurl/'
+        user = UserFactory()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url, follow=True)
+        self.assertEqual(404, resp.status_code)
 
 
 class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
@@ -180,7 +250,8 @@ class TestMultiplePermissionsRequiredMixin(
             user = UserFactory(permissions=permissions)
             self.client.login(username=user.username, password='asdf1234')
             resp = self.client.get(url)
-            self.assertRedirects(resp, '/accounts/login/?next=%s' % url)
+            self.assertRedirects(resp, u'/accounts/login/?next={0}'.format(
+                url))
 
     def test_invalid_permissions(self):
         """
@@ -288,14 +359,39 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         user.groups.add(group)
         return user
 
+    def build_superuser(self):
+        user = UserFactory()
+        user.is_superuser = True
+        user.save()
+        return user
+
     def build_unauthorized_user(self):
         return UserFactory()
 
-    def test_with_group_list(self):
-        view = self.view_class()
-        view.group_required = ['test_group', 'editors']
-
+    def test_with_string(self):
+        self.assertEqual('test_group', self.view_class.group_required)
         user = self.build_authorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_with_group_list(self):
+        group_list = ['test_group', 'editors']
+        # the test client will instantiate a new view on request, so we have to
+        # modify the class variable (and restore it when the test finished)
+        self.view_class.group_required = group_list
+        self.assertEqual(group_list, self.view_class.group_required)
+        user = self.build_authorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+        self.view_class.group_required = 'test_group'
+        self.assertEqual('test_group', self.view_class.group_required)
+
+    def test_superuser_allowed(self):
+        user = self.build_superuser()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
@@ -312,14 +408,60 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
             view.get_group_required()
 
     def test_with_unicode(self):
-        view = self.view_class()
-        view.group_required = u'niño'
+        self.view_class.group_required = u'niño'
+        self.assertEqual(u'niño', self.view_class.group_required)
 
         user = self.build_authorized_user()
-        user.groups.all()[0].name = u'niño'
-        user.groups.all()[0].save()
+        group = user.groups.all()[0]
+        group.name = u'niño'
+        group.save()
+        self.assertEqual(u'niño', user.groups.all()[0].name)
 
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
         self.assertEqual('OK', force_text(resp.content))
+        self.view_class.group_required = 'test_group'
+        self.assertEqual('test_group', self.view_class.group_required)
+
+
+class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
+    view_class = UserPassesTestView
+    view_url = '/user_passes_test/'
+    view_not_implemented_class = UserPassesTestNotImplementedView
+    view_not_implemented_url = '/user_passes_test_not_implemented/'
+
+    # for testing with passing and not passsing func_test
+    def build_authorized_user(self, is_superuser=False):
+        return UserFactory(is_superuser=is_superuser, is_staff=True,
+                           email="user@mydomain.com")
+
+    def build_unauthorized_user(self):
+        return UserFactory()
+
+    def test_with_user_pass(self):
+        user = self.build_authorized_user()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('OK', force_text(resp.content))
+
+    def test_with_user_not_pass(self):
+        user = self.build_authorized_user(is_superuser=True)
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+
+        self.assertRedirects(resp, '/accounts/login/?next=/user_passes_test/')
+
+    def test_with_user_raise_exception(self):
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url), raise_exception=True)
+
+    def test_not_implemented(self):
+        view = self.view_not_implemented_class()
+        with self.assertRaises(NotImplementedError):
+            view.dispatch(
+                self.build_request(path=self.view_not_implemented_url),
+                raise_exception=True)

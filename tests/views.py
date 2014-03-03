@@ -34,6 +34,22 @@ class LoginRequiredView(views.LoginRequiredMixin, OkView):
     """
 
 
+class AnonymousRequiredView(views.AnonymousRequiredMixin, OkView):
+    """
+    A view for testing AnonymousRequiredMixin. Should accept
+    unauthenticated users and redirect authenticated users to the
+    authenticated_redirect_url set on the view.
+    """
+    authenticated_redirect_url = '/authenticated_view/'
+
+
+class AuthenticatedView(views.LoginRequiredMixin, OkView):
+    """
+    A view for testing AnonymousRequiredMixin. Should accept
+    authenticated users.
+    """
+
+
 class AjaxResponseView(views.AjaxResponseMixin, OkView):
     """
     A view for testing AjaxResponseMixin.
@@ -102,8 +118,8 @@ class JsonBadRequestView(views.JsonRequestResponseMixin, View):
 
 class JsonCustomBadRequestView(views.JsonRequestResponseMixin, View):
     """
-    A view for testing JsonRequestResponseMixin's render_bad_request_response method
-    with a custom error message
+    A view for testing JsonRequestResponseMixin's
+    render_bad_request_response method with a custom error message
     """
     def post(self, request, *args, **kwargs):
         if not self.request_json:
@@ -174,6 +190,12 @@ class HeadlineView(views.SetHeadlineMixin, TemplateView):
     headline = "Test headline"
 
 
+class ContextView(views.StaticContextMixin, TemplateView):
+    """ View for testing StaticContextMixin. """
+    template_name = 'blank.html'
+    static_context = {'test': True}
+
+
 class DynamicHeadlineView(views.SetHeadlineMixin, TemplateView):
     """
     View for testing SetHeadlineMixin's get_headline() method.
@@ -238,7 +260,7 @@ class OverriddenCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
 
 
 class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
-                                            DetailView):
+                                   DetailView):
     model = CanonicalArticle
     template_name = 'blank.html'
 
@@ -254,3 +276,18 @@ class FormMessagesView(views.FormMessagesMixin, CreateView):
 
 class GroupRequiredView(views.GroupRequiredMixin, OkView):
     group_required = 'test_group'
+
+
+class UserPassesTestView(views.UserPassesTestMixin, OkView):
+    def test_func(self, user):
+        return user.is_staff and not user.is_superuser \
+            and user.email.endswith('@mydomain.com')
+
+
+class UserPassesTestNotImplementedView(views.UserPassesTestMixin, OkView):
+    pass
+
+
+class AllVerbsView(views.AllVerbsMixin, View):
+    def all(self, request, *args, **kwargs):
+        return HttpResponse('All verbs return this!')

@@ -16,6 +16,6 @@ class CanonicalArticle(models.Model):
 
     def get_canonical_slug(self):
         if self.author:
-            return "{}-{}".format(self.author.username, self.slug)
-        return "unauthored-{}".format(self.slug)
+            return "{0.author.username}-{0.slug}".format(self)
+        return "unauthored-{0.slug}".format(self)
 

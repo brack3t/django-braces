@@ -6,8 +6,8 @@ from braces.views import (SetHeadlineMixin, FormValidMessageMixin,
                           FormInvalidMessageMixin)
 from .models import Article, CanonicalArticle
 from .helpers import TestViewHelper
-from .views import (CreateArticleView, ArticleListView, AuthorDetailView,
-                    OrderableListView, FormMessagesView)
+from .views import (ArticleListView, AuthorDetailView, OrderableListView,
+                    FormMessagesView, ContextView)
 from .factories import UserFactory
 from .compat import force_text
 
@@ -78,6 +78,40 @@ class TestSetHeadlineMixin(test.TestCase):
 
         mixin.headline = "Test headline"
         self.assertEqual("Test headline", mixin.get_headline())
+
+
+class TestStaticContextMixin(test.TestCase):
+    """ Tests for StaticContextMixin. """
+    view_class = ContextView
+    view_url = '/context/'
+
+    def test_dict(self):
+        self.view_class.static_context = {'test': True}
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual(True, resp.context['test'])
+
+    def test_two_tuple(self):
+        self.view_class.static_context = [('a', 1), ('b', 2)]
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual(1, resp.context['a'])
+        self.assertEqual(2, resp.context['b'])
+
+    def test_not_set(self):
+        self.view_class.static_context = None
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get(self.view_url)
+
+    def test_string_value_error(self):
+        self.view_class.static_context = 'Fail'
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get(self.view_url)
+
+    def test_list_error(self):
+        self.view_class.static_context = ['fail', 'fail']
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get(self.view_url)
 
 
 class TestCsrfExemptMixin(test.TestCase):
@@ -246,8 +280,8 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
 
 class TestCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
-        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
-        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+        Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        Article.objects.create(title='Zet', body='Alpha', slug='zet')
 
     def test_canonical_slug(self):
         """
@@ -268,10 +302,39 @@ class TestCanonicalSlugDetailView(test.TestCase):
         self.assertEqual(resp.status_code, 301)
 
 
+class TestNamespaceAwareCanonicalSlugDetailView(test.TestCase):
+    def setUp(self):
+        Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        Article.objects.create(title='Zet', body='Alpha', slug='zet')
+
+    def test_canonical_slug(self):
+        """
+        Test that no redirect occurs when slug is canonical.
+        """
+        resp = self.client.get(
+            '/article-canonical-namespaced/article/1-alpha/')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get(
+            '/article-canonical-namespaced/article/2-zet/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_canonical_slug(self):
+        """
+        Test that a redirect occurs when the slug is non-canonical and that the
+        redirect is namespace aware.
+        """
+        resp = self.client.get(
+            '/article-canonical-namespaced/article/1-bad-slug/')
+        self.assertEqual(resp.status_code, 301)
+        resp = self.client.get(
+            '/article-canonical-namespaced/article/2-bad-slug/')
+        self.assertEqual(resp.status_code, 301)
+
+
 class TestOverriddenCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
-        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
-        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+        Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        Article.objects.create(title='Zet', body='Alpha', slug='zet')
 
     def test_canonical_slug(self):
         """
@@ -295,10 +358,10 @@ class TestOverriddenCanonicalSlugDetailView(test.TestCase):
 
 class TestModelCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
-        a1 = CanonicalArticle.objects.create(title='Alpha', body='Zet',
-                                             slug='alpha')
-        a2 = CanonicalArticle.objects.create(title='Zet', body='Alpha',
-                                             slug='zet')
+        CanonicalArticle.objects.create(
+            title='Alpha', body='Zet', slug='alpha')
+        CanonicalArticle.objects.create(
+            title='Zet', body='Alpha', slug='zet')
 
     def test_canonical_slug(self):
         """
@@ -379,3 +442,37 @@ class TestFormMessageMixins(test.TestCase):
         mixin = FormInvalidMessageMixin()
         mixin.form_invalid_message = u'Bad øø'
         self.assertEqual(u'Bad øø', mixin.get_form_invalid_message())
+
+
+class TestAllVerbsMixin(test.TestCase):
+    def setUp(self):
+        self.url = "/all_verbs/"
+        self.no_handler_url = "/all_verbs_no_handler/"
+
+    def test_options(self):
+        response = self.client.options(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_head(self):
+        response = self.client.head(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_put(self):
+        response = self.client.put(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_no_all_handler(self):
+        with self.assertRaises(ImproperlyConfigured):
+            self.client.get('/all_verbs_no_handler/')
