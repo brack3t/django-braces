@@ -32,6 +32,7 @@ To run the test suite, execute the following in your shell (Django install is re
 * Fixed bug in `GroupRequiredMixin` which now correctly checks for group membership against a list.
 * Added new `StaticContextMixin` mixin which lets you pass in `static_context` as a property of the view.
 * Added new `AnonymousRequiredMixin` which redirects authenticated users to another view.
+* Fixed bug in `CanonicalSlugDetailMixin` to allow it to use custom URL kwargs.
 
 ### 1.3.1
 
