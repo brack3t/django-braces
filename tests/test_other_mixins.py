@@ -91,6 +91,10 @@ class TestSetHeadlineMixin(test.TestCase):
         mixin.headline = "Test headline"
         self.assertEqual("Test headline", mixin.get_headline())
 
+    def test_get_headline_lazy(self):
+        resp = self.client.get('/headline/lazy/')
+        self.assertEqual('Test Headline', resp.context['headline'])
+
 
 class TestStaticContextMixin(test.TestCase):
     """ Tests for StaticContextMixin. """

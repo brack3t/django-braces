@@ -179,8 +179,8 @@ class PermissionRequiredMixin(AccessMixin):
 
     def no_permissions_fail(self, request=None):
         """
-        Called when the user has no permissions. This should only return a
-        valid http response or False/None if using for just the side effects.
+        Called when the user has no permissions. This should only
+        return a valid HTTP response.
 
         By default we redirect to login.
         """
@@ -189,18 +189,16 @@ class PermissionRequiredMixin(AccessMixin):
                                  self.get_redirect_field_name())
 
     def dispatch(self, request, *args, **kwargs):
-        # Check to see if the request's user has the required permission.
+        """
+        Check to see if the user in the request has the required
+        permission.
+        """
         has_permission = self.check_permissions(request)
 
         if not has_permission:  # If the user lacks the permission
             if self.raise_exception:
                 raise PermissionDenied  # Return a 403
-            else:  # use our fallback failure method
-                resp = self.no_permissions_fail(request)
-                # Only return if we have a return value (a response).
-                # It may be overriden to just cause a side effect
-                if resp:
-                    return resp
+            return self.no_permissions_fail(request)
 
         return super(PermissionRequiredMixin, self).dispatch(
             request, *args, **kwargs)
@@ -460,7 +458,7 @@ class SetHeadlineMixin(object):
                 '{0} is missing a headline. '
                 'Define {0}.headline, or override '
                 '{0}.get_headline().'.format(self.__class__.__name__))
-        return self.headline
+        return force_text(self.headline)
 
 
 class StaticContextMixin(object):
