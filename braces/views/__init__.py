@@ -23,7 +23,8 @@ from ._forms import (
     MessageMixin,
     FormValidMessageMixin,
     FormInvalidMessageMixin,
-    FormMessagesMixin
+    FormMessagesMixin,
+    _MessageAPIWrapper
 )
 from ._other import (
     SetHeadlineMixin,
