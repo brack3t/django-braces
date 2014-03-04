@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import codecs
 
 from django.contrib.auth.models import User
