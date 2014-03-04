@@ -14,7 +14,7 @@ from django.http import (HttpResponse, HttpResponseBadRequest,
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
-from django.utils.functional import curry
+from django.utils.functional import curry, Promise
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
@@ -156,7 +156,12 @@ class PermissionRequiredMixin(AccessMixin):
     """
     permission_required = None  # Default required perms to none
 
-    def dispatch(self, request, *args, **kwargs):
+    def get_permission_required(self, request=None):
+        """
+        Get the required permissions and return them.
+
+        Override this to allow for custom permission_required values.
+        """
         # Make sure that the permission_required attribute is set on the
         # view, or raise a configuration error.
         if self.permission_required is None:
@@ -164,22 +169,45 @@ class PermissionRequiredMixin(AccessMixin):
                 '{0} requires the "permission_required" attribute to be '
                 'set.'.format(self.__class__.__name__))
 
+        return self.permission_required
+
+    def check_permissions(self, request):
+        """
+        Returns whether or not the user has permissions
+        """
+        perms = self.get_permission_required(request)
+        return request.user.has_perm(perms)
+
+    def no_permissions_fail(self, request=None):
+        """
+        Called when the user has no permissions. This should only return a
+        valid http response or False/None if using for just the side effects.
+
+        By default we redirect to login.
+        """
+        return redirect_to_login(request.get_full_path(),
+                                 self.get_login_url(),
+                                 self.get_redirect_field_name())
+
+    def dispatch(self, request, *args, **kwargs):
         # Check to see if the request's user has the required permission.
-        has_permission = request.user.has_perm(self.permission_required)
+        has_permission = self.check_permissions(request)
 
         if not has_permission:  # If the user lacks the permission
-            if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied  # return a forbidden response.
-            else:
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+            if self.raise_exception:
+                raise PermissionDenied # Return a 403
+            else:  # use our fallback failure method
+                resp = self.no_permissions_fail(request)
+                # Only return if we have a return value (a response).
+                # It may be overriden to just cause a side effect
+                if resp:
+                    return resp
 
         return super(PermissionRequiredMixin, self).dispatch(
             request, *args, **kwargs)
 
 
-class MultiplePermissionsRequiredMixin(AccessMixin):
+class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
     """
     View mixin which allows you to specify two types of permission
     requirements. The `permissions` attribute must be a dict which
@@ -219,11 +247,14 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
     """
     permissions = None  # Default required perms to none
 
-    def dispatch(self, request, *args, **kwargs):
+    def get_permission_required(self, request=None):
         self._check_permissions_attr()
+        return self.permissions
 
-        perms_all = self.permissions.get('all') or None
-        perms_any = self.permissions.get('any') or None
+    def check_permissions(self, request):
+        permissions = self.get_permission_required()
+        perms_all = permissions.get('all') or None
+        perms_any = permissions.get('any') or None
 
         self._check_permissions_keys_set(perms_all, perms_any)
         self._check_perms_keys("all", perms_all)
@@ -232,11 +263,7 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         # If perms_all, check that user has all permissions in the list/tuple
         if perms_all:
             if not request.user.has_perms(perms_all):
-                if self.raise_exception:
-                    raise PermissionDenied
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+                return False
 
         # If perms_any, check that user has at least one in the list/tuple
         if perms_any:
@@ -247,14 +274,9 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
                     break
 
             if not has_one_perm:
-                if self.raise_exception:
-                    raise PermissionDenied
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+                return False
 
-        return super(MultiplePermissionsRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+        return True
 
     def _check_permissions_attr(self):
         """
@@ -769,8 +791,10 @@ class CanonicalSlugDetailMixin(object):
         # If there's a discrepancy between the slug in the url and the
         # canonical slug, redirect to the canonical slug.
         if canonical_slug != slug:
-            return redirect(current_urlpattern, pk=obj.pk, slug=canonical_slug,
-                            permanent=True)
+            params = {self.pk_url_kwarg: obj.pk,
+                      self.slug_url_kwarg: canonical_slug,
+                      'permanent': True}
+            return redirect(current_urlpattern, **params)
 
         return super(CanonicalSlugDetailMixin, self).dispatch(
             request, *args, **kwargs)
@@ -839,13 +863,14 @@ class FormValidMessageMixin(MessageMixin):
                 '{0}.get_form_valid_message().'.format(self.__class__.__name__)
             )
 
-        if not isinstance(self.form_valid_message, six.string_types):
+        if not isinstance(self.form_valid_message,
+                          (six.string_types, six.text_type, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_valid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
             )
 
-        return self.form_valid_message
+        return force_text(self.form_valid_message)
 
     def form_valid(self, form):
         """
@@ -879,12 +904,12 @@ class FormInvalidMessageMixin(MessageMixin):
                     self.__class__.__name__))
 
         if not isinstance(self.form_invalid_message,
-                          (six.string_types, six.text_type)):
+                          (six.string_types, six.text_type, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__))
 
-        return self.form_invalid_message
+        return force_text(self.form_invalid_message)
 
     def form_invalid(self, form):
         response = super(FormInvalidMessageMixin, self).form_invalid(form)

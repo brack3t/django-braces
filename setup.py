@@ -1,8 +1,10 @@
 from setuptools import setup
 
+import braces
+
 setup(
     name="django-braces",
-    version="1.3.1",
+    version=braces.__version__,
     description="Reusable, generic mixins for Django",
     long_description="Mixins to add easy functionality to Django class-based views, forms, and models.",
     keywords="django, views, forms, mixins",
