@@ -191,6 +191,14 @@ class HeadlineView(views.SetHeadlineMixin, TemplateView):
     headline = "Test headline"
 
 
+class LazyHeadlineView(views.SetHeadlineMixin, TemplateView):
+    """
+    View for testing SetHeadlineMixin.
+    """
+    template_name = 'blank.html'
+    headline = _("Test Headline")
+
+
 class ContextView(views.StaticContextMixin, TemplateView):
     """ View for testing StaticContextMixin. """
     template_name = 'blank.html'

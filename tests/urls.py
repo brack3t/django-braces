@@ -6,7 +6,7 @@ urlpatterns = patterns(
     '',
     # LoginRequiredMixin tests
     url(r'^login_required/$', views.LoginRequiredView.as_view()),
-    
+
     # AnonymousRequiredView tests
     url(r'^unauthenticated_view/$', views.AnonymousRequiredView.as_view(),
         name='unauthenticated_view'),
@@ -45,6 +45,7 @@ urlpatterns = patterns(
 
     # SetHeadlineMixin tests
     url(r'^headline/$', views.HeadlineView.as_view(), name='headline'),
+    url(r'^headline/lazy/$', views.LazyHeadlineView.as_view()),
     url(r'^headline/(?P<s>[\w-]+)/$', views.DynamicHeadlineView.as_view()),
 
     # ExtraContextMixin tests
