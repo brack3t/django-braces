@@ -10,7 +10,6 @@ from ._access import (
     SuperuserRequiredMixin,
     StaffuserRequiredMixin
 )
-
 from ._ajax import (
     JSONResponseMixin,
     AjaxResponseMixin,
@@ -25,6 +24,12 @@ from ._forms import (
     FormValidMessageMixin,
     FormInvalidMessageMixin,
     FormMessagesMixin
+)
+from ._other import (
+    SetHeadlineMixin,
+    StaticContextMixin,
+    CanonicalSlugDetailMixin,
+    AllVerbsMixin
 )
 from ._queries import (
     OrderableListMixin,
@@ -55,4 +60,8 @@ __all__ = [
     'FormValidMessageMixin',
     'FormInvalidMessageMixin',
     'FormMessagesMixin',
+    'AllVerbsMixin',
+    'CanonicalSlugDetailMixin',
+    'SetHeadlineMixin',
+    'StaticContextMixin'
 ]
