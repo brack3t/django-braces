@@ -1,68 +1,68 @@
 from __future__ import absolute_import
 
 from ._access import (
-    LoginRequiredMixin,
     AnonymousRequiredMixin,
-    PermissionRequiredMixin,
-    MultiplePermissionsRequiredMixin,
     GroupRequiredMixin,
-    UserPassesTestMixin,
+    LoginRequiredMixin,
+    MultiplePermissionsRequiredMixin,
+    PermissionRequiredMixin,
+    StaffuserRequiredMixin,
     SuperuserRequiredMixin,
-    StaffuserRequiredMixin
+    UserPassesTestMixin
 )
 from ._ajax import (
-    JSONResponseMixin,
     AjaxResponseMixin,
-    JsonRequestResponseMixin,
-    JSONRequestResponseMixin
+    JSONRequestResponseMixin,
+    JSONResponseMixin,
+    JsonRequestResponseMixin
 )
 from ._forms import (
     CsrfExemptMixin,
-    UserFormKwargsMixin,
-    SuccessURLRedirectListMixin,
-    MessageMixin,
-    FormValidMessageMixin,
     FormInvalidMessageMixin,
     FormMessagesMixin,
+    FormValidMessageMixin,
+    MessageMixin,
+    SuccessURLRedirectListMixin,
+    UserFormKwargsMixin,
     _MessageAPIWrapper
 )
 from ._other import (
-    SetHeadlineMixin,
-    StaticContextMixin,
+    AllVerbsMixin,
     CanonicalSlugDetailMixin,
-    AllVerbsMixin
+    SetHeadlineMixin,
+    StaticContextMixin
 )
 from ._queries import (
     OrderableListMixin,
-    SelectRelatedMixin,
-    PrefetchRelatedMixin
+    PrefetchRelatedMixin,
+    SelectRelatedMixin
 )
 
 __all__ = [
-    'LoginRequiredMixin',
-    'AnonymousRequiredMixin',
-    'PermissionRequiredMixin',
-    'MultiplePermissionsRequiredMixin',
-    'GroupRequiredMixin',
-    'UserPassesTestMixin',
-    'SuperuserRequiredMixin',
-    'StaffuserRequiredMixin',
-    'OrderableListMixin',
-    'SelectRelatedMixin',
-    'PrefetchRelatedMixin',
-    'JSONResponseMixin',
     'AjaxResponseMixin',
-    'JsonRequestResponseMixin',
-    'JSONRequestResponseMixin',
+    'AllVerbsMixin',
+    'AnonymousRequiredMixin',
+    'CanonicalSlugDetailMixin',
     'CsrfExemptMixin',
-    'UserFormKwargsMixin',
-    'SuccessURLRedirectListMixin',
-    'MessageMixin',
-    'FormValidMessageMixin',
     'FormInvalidMessageMixin',
     'FormMessagesMixin',
-    'AllVerbsMixin',
-    'CanonicalSlugDetailMixin',
+    'FormValidMessageMixin',
+    'GroupRequiredMixin',
+    'JSONRequestResponseMixin',
+    'JsonRequestResponseMixin',
+    'JSONResponseMixin',
+    'LoginRequiredMixin',
+    'MessageMixin',
+    'MultiplePermissionsRequiredMixin',
+    'OrderableListMixin',
+    'PermissionRequiredMixin',
+    'PrefetchRelatedMixin',
+    'SelectRelatedMixin',
     'SetHeadlineMixin',
-    'StaticContextMixin'
+    'StaffuserRequiredMixin',
+    'StaticContextMixin',
+    'SuccessURLRedirectListMixin',
+    'SuperuserRequiredMixin',
+    'UserFormKwargsMixin',
+    'UserPassesTestMixin'
 ]
