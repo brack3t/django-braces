@@ -13,6 +13,12 @@ Mixins for Django's class-based views.
 Install from PyPI with `pip`:
 `pip install django-braces`
 
+## Building the Docs
+1. Install docs requirements: `pip install -r requirements-docs.txt`.
+2. `cd docs`.
+3. `make html`.
+4. Open `_build/index.html` in your browser.
+
 ## Contributing
 
 Fork, make a change, update the docs, add/update tests, make a pull request.
