@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import mock
 from django import test
 from django.core.exceptions import ImproperlyConfigured
@@ -353,6 +355,30 @@ class TestOverriddenCanonicalSlugDetailView(test.TestCase):
         resp = self.client.get('/article-canonical-override/1-bad-slug/')
         self.assertEqual(resp.status_code, 301)
         resp = self.client.get('/article-canonical-override/2-bad-slug/')
+        self.assertEqual(resp.status_code, 301)
+
+
+class TestCustomUrlKwargsCanonicalSlugDetailView(test.TestCase):
+    def setUp(self):
+        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+
+    def test_canonical_slug(self):
+        """
+        Test that no redirect occurs when slug is canonical
+        """
+        resp = self.client.get('/article-canonical-custom-kwargs/1-alpha/')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/article-canonical-custom-kwargs/2-zet/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_canonical_slug(self):
+        """
+        Test that a redirect occurs when the slug is non-canonical.
+        """
+        resp = self.client.get('/article-canonical-custom-kwargs/1-bad-slug/')
+        self.assertEqual(resp.status_code, 301)
+        resp = self.client.get('/article-canonical-custom-kwargs/2-bad-slug/')
         self.assertEqual(resp.status_code, 301)
 
 

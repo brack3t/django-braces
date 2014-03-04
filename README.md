@@ -13,6 +13,12 @@ Mixins for Django's class-based views.
 Install from PyPI with `pip`:
 `pip install django-braces`
 
+## Building the Docs
+1. Install docs requirements: `pip install -r requirements-docs.txt`.
+2. `cd docs`.
+3. `make html`.
+4. Open `_build/index.html` in your browser.
+
 ## Contributing
 
 Fork, make a change, update the docs, add/update tests, make a pull request.
@@ -32,6 +38,8 @@ To run the test suite, execute the following in your shell (Django install is re
 * Fixed bug in `GroupRequiredMixin` which now correctly checks for group membership against a list.
 * Added new `StaticContextMixin` mixin which lets you pass in `static_context` as a property of the view.
 * Added new `AnonymousRequiredMixin` which redirects authenticated users to another view.
+* Fixed bug in `CanonicalSlugDetailMixin` to allow it to use custom URL kwargs.
+* `FormValidMessageMixin`, `FormInvalidMessageMixin`, and `FormMessagesMixin` all allow `ugettext_lazy`-wrapped strings. 
 * Extended `PermissionRequiredMixin` and `MultiplePermissionsRequiredMixin` to accept django-guardian-style custom/object permissions.
 
 ### 1.3.1

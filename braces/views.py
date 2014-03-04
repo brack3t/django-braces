@@ -13,6 +13,7 @@ from django.http import (HttpResponse, HttpResponseBadRequest,
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
+from django.utils.functional import Promise
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
@@ -789,8 +790,10 @@ class CanonicalSlugDetailMixin(object):
         # If there's a discrepancy between the slug in the url and the
         # canonical slug, redirect to the canonical slug.
         if canonical_slug != slug:
-            return redirect(current_urlpattern, pk=obj.pk, slug=canonical_slug,
-                            permanent=True)
+            params = {self.pk_url_kwarg: obj.pk,
+                      self.slug_url_kwarg: canonical_slug,
+                      'permanent': True}
+            return redirect(current_urlpattern, **params)
 
         return super(CanonicalSlugDetailMixin, self).dispatch(
             request, *args, **kwargs)
@@ -826,13 +829,14 @@ class FormValidMessageMixin(object):
                 '{0}.get_form_valid_message().'.format(self.__class__.__name__)
             )
 
-        if not isinstance(self.form_valid_message, six.string_types):
+        if not isinstance(self.form_valid_message,
+                          (six.string_types, six.text_type, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_valid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
             )
 
-        return self.form_valid_message
+        return force_text(self.form_valid_message)
 
     def form_valid(self, form):
         """
@@ -866,12 +870,12 @@ class FormInvalidMessageMixin(object):
                     self.__class__.__name__))
 
         if not isinstance(self.form_invalid_message,
-                          (six.string_types, six.text_type)):
+                          (six.string_types, six.text_type, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__))
 
-        return self.form_invalid_message
+        return force_text(self.form_invalid_message)
 
     def form_invalid(self, form):
         response = super(FormInvalidMessageMixin, self).form_invalid(form)
