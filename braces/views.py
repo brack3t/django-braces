@@ -828,7 +828,8 @@ class _MessageAPIWrapper(object):
 
 class _MessageDescriptor(object):
     """
-    A descriptor that binds the _MessageAPIWrapper to the view's request.
+    A descriptor that binds the _MessageAPIWrapper to the view's
+    request.
     """
     def __get__(self, instance, owner):
         return _MessageAPIWrapper(instance.request)
@@ -837,8 +838,8 @@ class _MessageDescriptor(object):
 class MessageMixin(object):
     """
     Add a `messages` attribute on the view instance that wraps
-    `django.contrib .messages`, automatically passing the current request
-    object.
+    `django.contrib .messages`, automatically passing the current
+    request object.
     """
     messages = _MessageDescriptor()
 

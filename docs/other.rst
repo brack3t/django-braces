@@ -423,8 +423,10 @@ to ``django.contrib.messages`` and passes the ``request`` object automatically.
 ::
 
     from django.contrib import messages
-    from django.contrib.messages.views import MessageMixin
     from django.views.generic import TemplateView
+
+    from braces.views import MessageMixin
+
 
     class MyView(MessageMixin, TemplateView):
         """
@@ -436,6 +438,7 @@ to ``django.contrib.messages`` and passes the ``request`` object automatically.
         def get(self, request, *args, **kwargs):
             self.messages.debug("This is a debug message.")
             return super(MyView, self).get(request, *args, **kwargs)
+
 
     class OnlyWarningView(MessageMixin, TemplateView):
         """
