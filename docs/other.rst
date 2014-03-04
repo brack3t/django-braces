@@ -118,6 +118,8 @@ A simple mixin which allows you to specify a list or tuple of foreign key fields
         select_related = [u"user"]
         template_name = u"profiles/detail.html"
 
+.. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
+
 
 .. _PrefetchRelatedMixin:
 
@@ -139,6 +141,8 @@ A simple mixin which allows you to specify a list or tuple of reverse foreign ke
         model = User
         prefetch_related = [u"post_set"]  # where the Post model has an FK to the User model as an author.
         template_name = u"users/detail.html"
+
+.. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related
 
 
 .. _JSONResponseMixin:
@@ -399,6 +403,61 @@ Or by overriding the ``get_canonical_slug()`` method on the view:
             return codecs.encode(self.get_object().slug, "rot_13")
 
 Given the same Article as before, this will generate urls of `http://127.0.0.1:8000/article/1-my-blog-hello-world` and `http://127.0.0.1:8000/article/1-uryyb-jbeyq`, respectively.
+
+
+.. _MessageMixin:
+
+MessageMixin
+------------
+
+.. versionadded:: 1.4
+
+A mixin that adds a ``messages`` attribute on the view which acts as a wrapper
+to ``django.contrib.messages`` and passes the ``request`` object automatically.
+
+    .. warning::
+        If you're using Django 1.4, then the ``message`` attribute is only
+        available after the base view's ``dispatch`` method has been called
+        (so our second example would not work for instance).
+
+::
+
+    from django.views.generic import TemplateView
+
+    from braces.views import MessageMixin
+
+
+    class MyView(MessageMixin, TemplateView):
+        """
+        This view will add a debug message which can then be displayed
+        in the template.
+        """
+        template_name = "my_template.html"
+
+        def get(self, request, *args, **kwargs):
+            self.messages.debug("This is a debug message.")
+            return super(MyView, self).get(request, *args, **kwargs)
+
+
+::
+
+    from django.contrib import messages
+    from django.views.generic import TemplateView
+
+    from braces.views import MessageMixin
+
+
+    class OnlyWarningView(MessageMixin, TemplateView):
+        """
+        This view will only show messages that have a level
+        above `warning`.
+        """
+        template_name = "my_template.html"
+
+        def dispatch(self, request, *args, **kwargs):
+            self.messages.set_level(messages.WARNING)
+            return super(OnlyWarningView, self).dispatch(request, *args, **kwargs)
+
 
 .. _AllVerbsMixin:
 

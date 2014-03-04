@@ -13,7 +13,7 @@ from django.http import (HttpResponse, HttpResponseBadRequest,
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
-from django.utils.functional import Promise
+from django.utils.functional import curry, Promise
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
@@ -194,7 +194,7 @@ class PermissionRequiredMixin(AccessMixin):
 
         if not has_permission:  # If the user lacks the permission
             if self.raise_exception:
-                raise PermissionDenied # Return a 403
+                raise PermissionDenied  # Return a 403
             else:  # use our fallback failure method
                 resp = self.no_permissions_fail(request)
                 # Only return if we have a return value (a response).
@@ -813,7 +813,42 @@ class CanonicalSlugDetailMixin(object):
         return self.get_object().slug
 
 
-class FormValidMessageMixin(object):
+class _MessageAPIWrapper(object):
+    """
+    Wrap the django.contrib.messages.api module to automatically pass a given
+    request object as the first parameter of function calls.
+    """
+    API = set([
+        'add_message', 'get_messages',
+        'get_level', 'set_level',
+        'debug', 'info', 'success', 'warning', 'error',
+    ])
+
+    def __init__(self, request):
+        for name in self.API:
+            api_fn = getattr(messages.api, name)
+            setattr(self, name, curry(api_fn, request))
+
+
+class _MessageDescriptor(object):
+    """
+    A descriptor that binds the _MessageAPIWrapper to the view's
+    request.
+    """
+    def __get__(self, instance, owner):
+        return _MessageAPIWrapper(instance.request)
+
+
+class MessageMixin(object):
+    """
+    Add a `messages` attribute on the view instance that wraps
+    `django.contrib .messages`, automatically passing the current
+    request object.
+    """
+    messages = _MessageDescriptor()
+
+
+class FormValidMessageMixin(MessageMixin):
     """
     Mixin allows you to set static message which is displayed by
     Django's messages framework through a static property on the class
@@ -848,12 +883,12 @@ class FormValidMessageMixin(object):
         get_form_valid_message, we have access to the newly saved object.
         """
         response = super(FormValidMessageMixin, self).form_valid(form)
-        messages.success(self.request, self.get_form_valid_message(),
-                         fail_silently=True)
+        self.messages.success(self.get_form_valid_message(),
+                              fail_silently=True)
         return response
 
 
-class FormInvalidMessageMixin(object):
+class FormInvalidMessageMixin(MessageMixin):
     """
     Mixin allows you to set static message which is displayed by
     Django's messages framework through a static property on the class
@@ -883,8 +918,8 @@ class FormInvalidMessageMixin(object):
 
     def form_invalid(self, form):
         response = super(FormInvalidMessageMixin, self).form_invalid(form)
-        messages.error(self.request, self.get_form_invalid_message(),
-                       fail_silently=True)
+        self.messages.error(self.get_form_invalid_message(),
+                            fail_silently=True)
         return response
 
 
