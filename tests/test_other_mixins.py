@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 
 import mock
-from unittest import skipUnless
+import pytest
 
 import django
 from django.contrib import messages
@@ -370,8 +370,8 @@ class TestOverriddenCanonicalSlugDetailView(test.TestCase):
 
 class TestCustomUrlKwargsCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
-        a1 = Article.objects.create(title='Alpha', body='Zet', slug='alpha')
-        a2 = Article.objects.create(title='Zet', body='Alpha', slug='zet')
+        Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        Article.objects.create(title='Zet', body='Alpha', slug='zet')
 
     def test_canonical_slug(self):
         """
@@ -419,8 +419,9 @@ class TestModelCanonicalSlugDetailView(test.TestCase):
         self.assertEqual(resp.status_code, 301)
 
 
-# The CookieStorage is used because it doesn't require middleware to be installed
-@override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
+# CookieStorage is used because it doesn't require middleware to be installed
+@override_settings(
+    MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
 class MessageMixinTests(test.TestCase):
     def setUp(self):
         self.rf = test.RequestFactory()
@@ -458,7 +459,8 @@ class MessageMixinTests(test.TestCase):
             def get(self, request):
                 self.messages.add_message(messages.SUCCESS, 'success')
                 self.messages.add_message(messages.WARNING, 'warning')
-                content = ','.join(m.message for m in self.messages.get_messages())
+                content = ','.join(
+                    m.message for m in self.messages.get_messages())
                 return HttpResponse(content)
 
         _, response = self.get_request_response(TestView.as_view())
@@ -549,8 +551,10 @@ class MessageMixinTests(test.TestCase):
         with self.assertRaises(AttributeError):
             self.get_request_response(TestView.as_view())
 
-    @skipUnless(django.VERSION >= (1, 5), "Some features of MessageMixin are only "
-                                      "available in Django >= 1.5")
+    @pytest.mark.skipif(
+        django.VERSION < (1, 5),
+        reason='Some features of MessageMixin are only available in '
+               'Django >= 1.5')
     def test_wrapper_available_in_dispatch(self):
         """
         Make sure that self.messages is available in dispatch() even before
