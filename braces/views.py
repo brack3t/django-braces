@@ -1,5 +1,4 @@
 import six
-from types import FunctionType
 
 from django.conf import settings
 from django.contrib import messages
@@ -195,7 +194,7 @@ class PermissionRequiredMixin(AccessMixin):
 
         if not has_permission:  # If the user lacks the permission
             if self.raise_exception:
-                raise PermissionDenied # Return a 403
+                raise PermissionDenied  # Return a 403
             else:  # use our fallback failure method
                 resp = self.no_permissions_fail(request)
                 # Only return if we have a return value (a response).
@@ -820,6 +819,7 @@ class _MessageAPIWrapper(object):
         'get_level', 'set_level',
         'debug', 'info', 'success', 'warning', 'error',
     ])
+
     def __init__(self, request):
         for name in self.API:
             api_fn = getattr(messages.api, name)
@@ -879,7 +879,7 @@ class FormValidMessageMixin(MessageMixin):
         """
         response = super(FormValidMessageMixin, self).form_valid(form)
         self.messages.success(self.get_form_valid_message(),
-                         fail_silently=True)
+                              fail_silently=True)
         return response
 
 
@@ -914,7 +914,7 @@ class FormInvalidMessageMixin(MessageMixin):
     def form_invalid(self, form):
         response = super(FormInvalidMessageMixin, self).form_invalid(form)
         self.messages.error(self.get_form_invalid_message(),
-                       fail_silently=True)
+                            fail_silently=True)
         return response
 
 
