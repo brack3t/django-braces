@@ -5,6 +5,7 @@ Changelog
 =========
 
 * :release:`1.4.0 <2014-03-05>`
+* :bug:`98` Fixed bug in :ref:`CanonicalSlugDetailMixin` to allow it to use custom URL kwargs.
 * :bug:`105 major` Fixed bug in :ref:`GroupRequiredMixin` where superusers were blocked by lack of group memberships.
 * :bug:`106 major` Fixed bug in :ref:`GroupRequiredMixin` which now correctly checks for group membership against a list.
 * :feature:`102` Added new :ref:`StaticContextMixin` mixin which lets you pass in ``static_context`` as a property of the view.
