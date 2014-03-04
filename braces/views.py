@@ -545,16 +545,11 @@ class JSONResponseMixin(object):
     A mixin that allows you to easily serialize simple data such as a dict or
     Django models.
     """
-    content_type = u"application/json"
+    content_type = None
     json_dumps_kwargs = None
 
     def get_content_type(self):
-        if self.content_type is None:
-            raise ImproperlyConfigured(
-                '{0} is missing a content type. Define {0}.content_type, or '
-                'override {0}.get_content_type().'.format(
-                    self.__class__.__name__))
-        return self.content_type
+        return self.content_type or u"application/json"
 
     def get_json_dumps_kwargs(self):
         if self.json_dumps_kwargs is None:
