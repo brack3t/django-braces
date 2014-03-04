@@ -549,6 +549,13 @@ class JSONResponseMixin(object):
     json_dumps_kwargs = None
 
     def get_content_type(self):
+        if (self.content_type is not None and
+            not isinstance(self.content_type,
+                           (six.string_types, six.text_type))):
+            raise ImproperlyConfigured(
+                '{0} is missing a content type. Define {0}.content_type, '
+                'or override {0}.get_content_type().'.format(
+                    self.__class__.__name__))
         return self.content_type or u"application/json"
 
     def get_json_dumps_kwargs(self):
