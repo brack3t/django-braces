@@ -6,7 +6,7 @@ Changelog
 
 * :release:`1.4.0 <2014-03-05>`
 * :feature:`120` Added :ref:`MessageMixin` to allow easier access to Django's ``contrib.messages`` messages. :ref:`FormValidMessageMixin` and :ref:`FormInvalidMessageMixin` were updated to use it.
-* :bug:`98` Fixed bug in :ref:`CanonicalSlugDetailMixin` to allow it to use custom URL kwargs.
+* :bug:`98 major` Fixed bug in :ref:`CanonicalSlugDetailMixin` to allow it to use custom URL kwargs.
 * :bug:`105 major` Fixed bug in :ref:`GroupRequiredMixin` where superusers were blocked by lack of group memberships.
 * :bug:`106 major` Fixed bug in :ref:`GroupRequiredMixin` which now correctly checks for group membership against a list.
 * :feature:`102` Added new :ref:`StaticContextMixin` mixin which lets you pass in ``static_context`` as a property of the view.
@@ -33,9 +33,9 @@ Changelog
 * :bug:`-` Fix to allow ``reverse_lazy`` to work for all ``AccessMixin``-derived mixins.
 * :release:`1.2.0 <2013-07-27>`
 * :feature:`57` :ref:`FormValidMessageMixin` which provides a ``messages`` message when the processed form is valid.
-* :feature:`57` :ref:`FormInvalidMessageMixin` which provides a ``messages`` message when the processed form is invalid.
-* :feature:`57` :ref:`FormMessagesMixin` which provides the functionality of both of the above mixins.
-* :feature:`57` :ref:`GroupRequiredMixin` which is a new access-level mixin which requires that a user be part of a specified group to access a view.
+* :feature:`-` :ref:`FormInvalidMessageMixin` which provides a ``messages`` message when the processed form is invalid.
+* :feature:`-` :ref:`FormMessagesMixin` which provides the functionality of both of the above mixins.
+* :feature:`-` :ref:`GroupRequiredMixin` which is a new access-level mixin which requires that a user be part of a specified group to access a view.
 * :release:`1.1.0 <2013-07-18>`
 * :bug:`52 major` :ref:`JSONResponseMixin` ``.render_json_response`` method updated to accept a status code.
 * :bug:`43 major` :ref:`JSONResponseMixin` added ``json_dumps_kwargs`` attribute & get method to pass args to the JSON encoder.
