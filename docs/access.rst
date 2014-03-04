@@ -188,6 +188,7 @@ Mixin that reimplements the `user_passes_test`_ decorator. This is helpful for m
 
     from braces.views import UserPassesTestMixin
 
+
     class SomeUserPassView(UserPassesTestMixin, TemplateView):
         def test_func(self, user):
             return (user.is_staff and not user.is_superuser
@@ -204,6 +205,7 @@ Another permission-based mixin. This is specifically for requiring a user to be 
 ::
 
     from django.views import TemplateView
+
     from braces import views
 
 
@@ -279,6 +281,7 @@ Similar to :ref:`SuperuserRequiredMixin`, this mixin allows you to require a use
 ::
 
     from django.views import TemplateView
+    
     from braces import views
 
 
