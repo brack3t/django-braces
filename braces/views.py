@@ -669,6 +669,10 @@ class JsonRequestResponseMixin(JSONResponseMixin):
             request, *args, **kwargs)
 
 
+class JSONRequestResponseMixin(JsonRequestResponseMixin):
+    pass
+
+
 class OrderableListMixin(object):
     """
     Mixin allows your users to order records using GET parameters
