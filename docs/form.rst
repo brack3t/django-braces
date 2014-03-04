@@ -10,11 +10,11 @@ All of these mixins, with one exception, modify how forms are handled within vie
 CsrfExemptMixin
 ---------------
 
-If you have Django's `CSRF protection` middleware enabled you can exempt views using the `csrf_exempt` decorator. This mixin exempts POST requests from the CSRF protection middleware without requiring that you decorate the ``dispatch`` method.
+If you have Django's `CSRF protection`_ middleware enabled you can exempt views using the `csrf_exempt`_ decorator. This mixin exempts POST requests from the CSRF protection middleware without requiring that you decorate the ``dispatch`` method.
 
     .. note::
 
-        This should always be the left-most mixin of a view.
+        This mixin should always be the left-most plugin.
 
 ::
 
@@ -25,7 +25,7 @@ If you have Django's `CSRF protection` middleware enabled you can exempt views u
     from profiles.models import Profile
 
 
-    class UpdateProfileView(LoginRequiredMixin, CsrfExemptMixin, UpdateView):
+    class UpdateProfileView(CsrfExemptMixin, LoginRequiredMixin, UpdateView):
         model = Profile
 
 
@@ -34,9 +34,9 @@ If you have Django's `CSRF protection` middleware enabled you can exempt views u
 UserFormKwargsMixin
 -------------------
 
-In one of our client's CMS, we have a lot of form-based views that require a user to be passed in for permission-based form tools. For example, only superusers can delete or disable certain objects. To custom tailor the form for users, we have to pass that user instance into the form and based on their permission level, change certain fields or add specific options within the forms ``__init__`` method.
+A common pattern in Django is to have forms that are customized to a user. To custom tailor the form for users, you have to pass that user instance into the form and, based on their permission level or other details, change certain fields or add specific options within the forms ``__init__`` method.
 
-This mixin automates the process of overloading the ``get_form_kwargs`` (this method is available in any generic view which handles a form) method and stuffs the user instance into the form kwargs. We can then pop the user off in the form and do with it what we need. **Always** remember to pop the user from the kwargs before calling ``super`` on your form, otherwise the form gets an unexpected keyword argument and everything blows up.
+This mixin automates the process of overloading the ``get_form_kwargs`` (this method is available in any generic view which handles a form) method and stuffs the user instance into the form kwargs. The user can then be ``pop()``ed off in the form. **Always** remember to pop the user from the kwargs before calling ``super()`` on your form, otherwise the form will get an unexpected keyword argument.
 
 Usage
 ^^^^^
@@ -56,7 +56,7 @@ Usage
         model = User
         template_name = "path/to/template.html"
 
-This obviously pairs very nicely with the following ``Form`` mixin.
+This obviously pairs very nicely with the following mixin.
 
 
 .. _UserKwargModelFormMixin:
@@ -65,7 +65,7 @@ UserKwargModelFormMixin
 -----------------------
 
 The ``UserKwargModelFormMixin`` is a form mixin to go along with our :ref:`UserFormKwargsMixin`.
-This becomes the first inherited class of our forms that receive the user keyword argument. With this mixin, we have automated the popping off of the keyword argument in our form and no longer have to do it manually on every form that works this way. While this may be overkill for a weekend project, for us, it speeds up adding new features.
+This becomes the first inherited class of our forms that receive the ``user`` keyword argument. With this mixin, the ``pop()``ing of the ``user`` is automated and no longer has to be done manually on every form that needs this behavior. 
 
 Usage
 ^^^^^
@@ -91,25 +91,26 @@ Usage
 SuccessURLRedirectListMixin
 ---------------------------
 
-The ``SuccessURLRedirectListMixin`` is a bit more tailored to how we have handled CRUD_ within the CMSes we've built. One CMS's workflow, by design, redirects the user to the ``ListView`` for whatever model they are working with, whether they are creating a new instance, editing an existing one or deleting one. Rather than having to override ``get_success_url`` on every view, we simply use this mixin and pass it a reversible route name. Example:
+The ``SuccessURLRedirectListMixin`` is a bit more tailored to how CRUD_ is often handled within CMSes. Many CMSes, by design, redirect the user to the ``ListView`` for whatever model they are working with, whether they are creating a new instance, editing an existing one, or deleting one. Rather than having to override ``get_success_url`` on every view, use this mixin and pass it a reversible route name. Example:
 
 ::
 
     # urls.py
-    url(r"^users/$", UserListView.as_view(), name="cms_users_list"),
+    url(r"^users/$", UserListView.as_view(), name="users_list"),
 
     # views.py
-    from braces.views import (LoginRequiredMixin, PermissionRequiredMixin,
-        SuccessURLRedirectListMixin)
+    from django.views import CreateView
+
+    from braces import views
 
 
-    class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin,
-        SuccessURLRedirectListMixin, CreateView):
+    class UserCreateView(views.LoginRequiredMixin, views.PermissionRequiredMixin,
+        views.SuccessURLRedirectListMixin, CreateView):
 
         form_class = UserForm
         model = User
         permission_required = "auth.add_user"
-        success_list_url = "cms_users_list"
+        success_list_url = "users_list"
         ...
 
 
@@ -134,6 +135,7 @@ Static Example
 
 ::
 
+    from django.utils.translation import ugettext_lazy as _
     from django.views.generic import CreateView
 
     from braces.views import FormValidMessageMixin
@@ -142,7 +144,7 @@ Static Example
     class BlogPostCreateView(FormValidMessageMixin, CreateView):
         form_class = PostForm
         model = Post
-        form_valid_message = 'Blog post created!'
+        form_valid_message = _(u"Blog post created!")
 
 
 Dynamic Example
@@ -160,7 +162,7 @@ Dynamic Example
         model = Post
 
         def get_form_valid_message(self):
-            return '{0} created!'.format(self.object.title)
+            return u"{0} created!".format(self.object.title)
 
 
 
@@ -184,6 +186,7 @@ Static Example
 
 ::
 
+    from django.utils.translation import ugettext_lazy
     from django.views.generic import CreateView
 
     from braces.views import FormInvalidMessageMixin
@@ -192,7 +195,7 @@ Static Example
     class BlogPostCreateView(FormInvalidMessageMixin, CreateView):
         form_class = PostForm
         model = Post
-        form_invalid_message = 'Oh snap, something went wrong!'
+        form_invalid_message = _(u"Oh snap, something went wrong!")
 
 
 Dynamic Example
@@ -200,6 +203,7 @@ Dynamic Example
 
 ::
 
+    from django.utils.translation import ugettext_lazy as _
     from django.views.generic import CreateView
 
     from braces.views import FormInvalidMessageMixin
@@ -210,7 +214,7 @@ Dynamic Example
         model = Post
 
         def get_form_invalid_message(self):
-            return 'Some custom message'
+            return _(u"Some custom message")
 
 
 .. _FormMessagesMixin:
@@ -230,6 +234,7 @@ Static & Dynamic Example
 
 ::
 
+    from django.utils.translation import ugettext_lazy as _
     from django.views.generic import CreateView
 
     from braces.views import FormMessagesMixin
@@ -237,11 +242,11 @@ Static & Dynamic Example
 
     class BlogPostCreateView(FormMessagesMixin, CreateView):
         form_class = PostForm
-        form_invalid_message = 'Something went wrong, post was not saved'
+        form_invalid_message = _(u"Something went wrong, post was not saved")
         model = Post
 
         def get_form_valid_message(self):
-            return '{0} created!'.format(self.object.title)
+            return u"{0} created!".format(self.object.title)
 
 
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
