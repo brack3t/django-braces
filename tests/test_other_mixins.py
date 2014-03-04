@@ -1,18 +1,27 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import mock
+import pytest
 
-from django import test
+import django
+from django.contrib import messages
+from django.contrib.messages.middleware import MessageMiddleware
+from django.contrib.messages.storage.base import Message
 from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpResponse
+from django import test
+from django.test.utils import override_settings
+from django.views.generic import View
 
-from braces.views import (SetHeadlineMixin, FormValidMessageMixin,
-                          FormInvalidMessageMixin)
-
-from .models import Article, CanonicalArticle
+from braces.views import (SetHeadlineMixin, MessageMixin, _MessageAPIWrapper,
+                          FormValidMessageMixin, FormInvalidMessageMixin)
+from .compat import force_text
+from .factories import UserFactory
 from .helpers import TestViewHelper
+from .models import Article, CanonicalArticle
 from .views import (ArticleListView, AuthorDetailView, OrderableListView,
                     FormMessagesView, ContextView)
-from .factories import UserFactory
-from .compat import force_text
 
 
 class TestSuccessURLRedirectListMixin(test.TestCase):
@@ -363,6 +372,30 @@ class TestOverriddenCanonicalSlugDetailView(test.TestCase):
         self.assertEqual(resp.status_code, 301)
 
 
+class TestCustomUrlKwargsCanonicalSlugDetailView(test.TestCase):
+    def setUp(self):
+        Article.objects.create(title='Alpha', body='Zet', slug='alpha')
+        Article.objects.create(title='Zet', body='Alpha', slug='zet')
+
+    def test_canonical_slug(self):
+        """
+        Test that no redirect occurs when slug is canonical
+        """
+        resp = self.client.get('/article-canonical-custom-kwargs/1-alpha/')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/article-canonical-custom-kwargs/2-zet/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_non_canonical_slug(self):
+        """
+        Test that a redirect occurs when the slug is non-canonical.
+        """
+        resp = self.client.get('/article-canonical-custom-kwargs/1-bad-slug/')
+        self.assertEqual(resp.status_code, 301)
+        resp = self.client.get('/article-canonical-custom-kwargs/2-bad-slug/')
+        self.assertEqual(resp.status_code, 301)
+
+
 class TestModelCanonicalSlugDetailView(test.TestCase):
     def setUp(self):
         CanonicalArticle.objects.create(
@@ -388,6 +421,176 @@ class TestModelCanonicalSlugDetailView(test.TestCase):
         self.assertEqual(resp.status_code, 301)
         resp = self.client.get('/article-canonical-model/2-bad-slug/')
         self.assertEqual(resp.status_code, 301)
+
+
+# CookieStorage is used because it doesn't require middleware to be installed
+@override_settings(
+    MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
+class MessageMixinTests(test.TestCase):
+    def setUp(self):
+        self.rf = test.RequestFactory()
+        self.middleware = MessageMiddleware()
+
+    def get_request(self, *args, **kwargs):
+        request = self.rf.get('/')
+        self.middleware.process_request(request)
+        return request
+
+    def get_response(self, request, view):
+        response = view(request)
+        self.middleware.process_response(request, response)
+        return response
+
+    def get_request_response(self, view, *args, **kwargs):
+        request = self.get_request(*args, **kwargs)
+        response = self.get_response(request, view)
+        return request, response
+
+    def test_add_messages(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                self.messages.add_message(messages.SUCCESS, 'test')
+                return HttpResponse('OK')
+
+        request, response = self.get_request_response(TestView.as_view())
+        msg = list(request._messages)
+        self.assertEqual(len(msg), 1)
+        self.assertEqual(msg[0].message, 'test')
+        self.assertEqual(msg[0].level, messages.SUCCESS)
+
+    def test_get_messages(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                self.messages.add_message(messages.SUCCESS, 'success')
+                self.messages.add_message(messages.WARNING, 'warning')
+                content = ','.join(
+                    m.message for m in self.messages.get_messages())
+                return HttpResponse(content)
+
+        _, response = self.get_request_response(TestView.as_view())
+        self.assertEqual(response.content, b"success,warning")
+
+    def test_get_level(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                return HttpResponse(self.messages.get_level())
+
+        _, response = self.get_request_response(TestView.as_view())
+        self.assertEqual(int(response.content), messages.INFO)  # default
+
+    def test_set_level(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                self.messages.set_level(messages.WARNING)
+                self.messages.add_message(messages.SUCCESS, 'success')
+                self.messages.add_message(messages.WARNING, 'warning')
+                return HttpResponse('OK')
+
+        request, _ = self.get_request_response(TestView.as_view())
+        msg = list(request._messages)
+        self.assertEqual(msg, [Message(messages.WARNING, 'warning')])
+
+    @override_settings(MESSAGE_LEVEL=messages.DEBUG)
+    def test_debug(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                self.messages.debug("test")
+                return HttpResponse('OK')
+
+        request, _ = self.get_request_response(TestView.as_view())
+        msg = list(request._messages)
+        self.assertEqual(len(msg), 1)
+        self.assertEqual(msg[0], Message(messages.DEBUG, 'test'))
+
+    def test_info(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                self.messages.info("test")
+                return HttpResponse('OK')
+
+        request, _ = self.get_request_response(TestView.as_view())
+        msg = list(request._messages)
+        self.assertEqual(len(msg), 1)
+        self.assertEqual(msg[0], Message(messages.INFO, 'test'))
+
+    def test_success(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                self.messages.success("test")
+                return HttpResponse('OK')
+
+        request, _ = self.get_request_response(TestView.as_view())
+        msg = list(request._messages)
+        self.assertEqual(len(msg), 1)
+        self.assertEqual(msg[0], Message(messages.SUCCESS, 'test'))
+
+    def test_warning(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                self.messages.warning("test")
+                return HttpResponse('OK')
+
+        request, _ = self.get_request_response(TestView.as_view())
+        msg = list(request._messages)
+        self.assertEqual(len(msg), 1)
+        self.assertEqual(msg[0], Message(messages.WARNING, 'test'))
+
+    def test_error(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                self.messages.error("test")
+                return HttpResponse('OK')
+
+        request, _ = self.get_request_response(TestView.as_view())
+        msg = list(request._messages)
+        self.assertEqual(len(msg), 1)
+        self.assertEqual(msg[0], Message(messages.ERROR, 'test'))
+
+    def test_invalid_attribute(self):
+        class TestView(MessageMixin, View):
+            def get(self, request):
+                self.messages.invalid()
+                return HttpResponse('OK')
+
+        with self.assertRaises(AttributeError):
+            self.get_request_response(TestView.as_view())
+
+    @pytest.mark.skipif(
+        django.VERSION < (1, 5),
+        reason='Some features of MessageMixin are only available in '
+               'Django >= 1.5')
+    def test_wrapper_available_in_dispatch(self):
+        """
+        Make sure that self.messages is available in dispatch() even before
+        calling the parent's implementation.
+        """
+        class TestView(MessageMixin, View):
+            def dispatch(self, request):
+                self.messages.add_message(messages.SUCCESS, 'test')
+                return super(TestView, self).dispatch(request)
+
+            def get(self, request):
+                return HttpResponse('OK')
+
+        request, response = self.get_request_response(TestView.as_view())
+        msg = list(request._messages)
+        self.assertEqual(len(msg), 1)
+        self.assertEqual(msg[0].message, 'test')
+        self.assertEqual(msg[0].level, messages.SUCCESS)
+
+    def test_API(self):
+        """
+        Make sure that our assumptions about messages.api are still valid.
+        """
+        # This test is designed to break when django.contrib.messages.api
+        # changes (items being added or removed).
+        excluded_API = set()
+        if django.VERSION >= (1, 7):
+            excluded_API.add('MessageFailure')
+        self.assertEqual(
+            _MessageAPIWrapper.API | excluded_API,
+            set(messages.api.__all__)
+        )
 
 
 class TestFormMessageMixins(test.TestCase):

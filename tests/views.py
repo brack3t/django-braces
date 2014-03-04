@@ -268,6 +268,14 @@ class OverriddenCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
         return codecs.encode(self.get_object().slug, 'rot_13')
 
 
+class CanonicalSlugDetailCustomUrlKwargsView(views.CanonicalSlugDetailMixin,
+                                             DetailView):
+    model = Article
+    template_name = 'blank.html'
+    pk_url_kwarg = 'my_pk'
+    slug_url_kwarg = 'my_slug'
+
+
 class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
                                    DetailView):
     model = CanonicalArticle
@@ -276,8 +284,8 @@ class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin,
 
 class FormMessagesView(views.FormMessagesMixin, CreateView):
     form_class = ArticleForm
-    form_invalid_message = 'Invalid'
-    form_valid_message = 'Valid'
+    form_invalid_message = _('Invalid')
+    form_valid_message = _('Valid')
     model = Article
     success_url = '/form_messages/'
     template_name = 'form.html'

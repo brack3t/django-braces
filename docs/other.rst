@@ -10,19 +10,22 @@ These mixins handle other random bits of Django's views, like controlling output
 SetHeadlineMixin
 ----------------
 
-The ``SetHeadlineMixin`` is a newer edition to our client's CMS. It allows us to *statically* or *programmatically* set the headline of any of our views. We like to write as few templates as possible, so a mixin like this helps us reuse generic templates. Its usage is amazingly straightforward and works much like Django's built-in ``get_queryset`` method. This mixin has two ways of being used.
+The ``SetHeadlineMixin`` allows you to *statically* or *programmatically* set the headline of any of your views. Ideally, you'll write as few templates as possible, so a mixin like this helps you reuse generic templates. Its usage is amazingly straightforward and works much like Django's built-in ``get_queryset`` method. This mixin has two ways of being used:
 
 Static Example
 ^^^^^^^^^^^^^^
 
 ::
 
+    from django.utils.translation import ugettext_lazy as _
+    from django.views import TemplateView
+
     from braces.views import SetHeadlineMixin
 
 
     class HeadlineView(SetHeadlineMixin, TemplateView):
-        headline = "This is our headline"
-        template_name = "path/to/template.html"
+        headline = _(u"This is our headline")
+        template_name = u"path/to/template.html"
 
 
 Dynamic Example
@@ -32,26 +35,31 @@ Dynamic Example
 
     from datetime import date
 
+    from django.views import TemplateView
+    
     from braces.views import SetHeadlineMixin
 
 
     class HeadlineView(SetHeadlineMixin, TemplateView):
-        template_name = "path/to/template.html"
+        template_name = u"path/to/template.html"
 
         def get_headline(self):
-            return u"This is our headline for %s" % date.today().isoformat()
+            return u"This is our headline for {0}".format(date.today().isoformat())
 
-In both usages, in the template, just print out ``{{ headline }}`` to show the generated headline.
+For both usages, the context now contains a ``headline`` key with your headline.
 
 
 .. _StaticContextMixin:
 
 StaticContextMixin
------------------
+------------------
 
-The ``StaticContextMixin`` allows you to easily set static context data by using the ``static_context`` property. While it's possible to override
-the ``StaticContextMixin.get_static_context method``, it's not very practical. If you have a need to override a method for dynamic context data it's
-best to override the standard ``get_context_data`` method of Django's generic class-based views.
+.. versionadded:: 1.4
+
+The ``StaticContextMixin`` allows you to easily set static context data by using the ``static_context`` property.
+
+.. note::
+    While it's possible to override the ``StaticContextMixin.get_static_context method``, it's not very practical. If you have a need to override a method for dynamic context data it's best to override the standard ``get_context_data`` method of Django's generic class-based views.
 
 
 View Example
@@ -61,11 +69,13 @@ View Example
 
     # views.py
 
+    from django.views import TemplateView
+
     from braces.views import StaticContextMixin
 
 
     class ContextTemplateView(StaticContextMixin, TemplateView):
-        static_context = {'nav_home': True}
+        static_context = {u"nav_home": True}
 
 
 URL Example
@@ -77,12 +87,12 @@ URL Example
 
     urlpatterns = patterns(
         '',
-        url(r'^$',
+        url(ur"^$",
             ContextTemplateView.as_view(
-                template_name='index.html',
-                static_context={'nav_home': True}
+                template_name=u"index.html",
+                static_context={u"nav_home": True}
             ),
-            name='index')
+            name=u"index")
     )
 
 
@@ -105,8 +115,10 @@ A simple mixin which allows you to specify a list or tuple of foreign key fields
 
     class UserProfileView(SelectRelatedMixin, DetailView):
         model = Profile
-        select_related = ["user"]
-        template_name = "profiles/detail.html"
+        select_related = [u"user"]
+        template_name = u"profiles/detail.html"
+
+.. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
 
 
 .. _PrefetchRelatedMixin:
@@ -127,8 +139,10 @@ A simple mixin which allows you to specify a list or tuple of reverse foreign ke
 
     class UserView(PrefetchRelatedMixin, DetailView):
         model = User
-        prefetch_related = ["post_set"]  # where the Post model has an FK to the User model as an author.
-        template_name = "users/detail.html"
+        prefetch_related = [u"post_set"]  # where the Post model has an FK to the User model as an author.
+        template_name = u"users/detail.html"
+
+.. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related
 
 
 .. _JSONResponseMixin:
@@ -151,14 +165,14 @@ A simple mixin to handle very simple serialization as a response to the browser.
 
     class UserProfileAJAXView(JSONResponseMixin, DetailView):
         model = Profile
-        json_dumps_kwargs = {'indent': 2}
+        json_dumps_kwargs = {u"indent": 2}
 
         def get(self, request, *args, **kwargs):
             self.object = self.get_object()
 
             context_dict = {
-                'name': self.object.user.name,
-                'location': self.object.location
+                u"name": self.object.user.name,
+                u"location": self.object.location
             }
 
             return self.render_json_response(context_dict)
@@ -168,9 +182,14 @@ You can additionally use the `AjaxResponseMixin`
 ::
 
     # views.py
-    from braces.views import AjaxResponseMixin
+    from django.views import DetailView
 
-    class UserProfileView(JSONResponseMixin, AjaxResponseMixin, DetailView):
+    from braces import views
+
+    
+    class UserProfileView(views.JSONResponseMixin,
+                          views.AjaxResponseMixin,
+                          DetailView):
         model = Profile
 
         def get_ajax(self, request, *args, **kwargs):
@@ -183,25 +202,28 @@ overriding the `get_content_type()` method.
 
 ::
 
+    from django.views import DetailView
+
     from braces.views import JSONResponseMixin
 
+
     class UserProfileAJAXView(JSONResponseMixin, DetailView):
-        content_type = 'application/javascript'
+        content_type = u"application/javascript"
         model = Profile
 
         def get(self, request, *args, **kwargs):
             self.object = self.get_object()
 
             context_dict = {
-                'name': self.object.user.name,
-                'location': self.object.location
+                u"name": self.object.user.name,
+                u"location": self.object.location
             }
 
             return self.render_json_response(context_dict)
 
         def get_content_type(self):
             # Shown just for illustrative purposes
-            return 'application/javascript'
+            return u"application/javascript"
 
 .. _JsonRequestResponseMixin:
 
@@ -210,36 +232,38 @@ JsonRequestResponseMixin
 
 .. versionadded:: 1.3
 
-A mixin that attempts to parse request as JSON.  If request is properly formatted, the json is saved to self.request_json as a Python object.  request_json will be None for imparsible requests.
+A mixin that attempts to parse the request as JSON.  If the request is properly formatted, the JSON is saved to ``self.request_json`` as a Python object.  ``request_json`` will be ``None`` for imparsible requests.
 
-To catch requests that aren't JSON-formatted, set the class attribute ``require_json`` to True.
+To catch requests that aren't JSON-formatted, set the class attribute ``require_json`` to ``True``.
 
 Override the class attribute ``error_response_dict`` to customize the default error message.
 
 It extends :ref:`JSONResponseMixin`, so those utilities are available as well.
 
-Note: To allow public access to your view, you'll need to use the ``csrf_exempt`` decorator or :ref:`CsrfExemptMixin`.
+.. note::
+    To allow public access to your view, you'll need to use the ``csrf_exempt`` decorator or :ref:`CsrfExemptMixin`.
 
 ::
 
+    from django.utils.translation import ugettext_lazy as _
     from django.views.generic import View
 
-    from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
+    from braces import views
 
-    class SomeView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+    class SomeView(views.CsrfExemptMixin, views.JsonRequestResponseMixin, View):
         require_json = True
 
         def post(self, request, *args, **kwargs):
             try:
-                burrito = self.request_json['burrito']
-                toppings = self.request_json['toppings']
-            except:
-                error_dict = {'message':
-                    'your order must include a burrito AND toppings'}
+                burrito = self.request_json[u"burrito"]
+                toppings = self.request_json[u"toppings"]
+            except KeyError:
+                error_dict = {u"message":
+                   _(u"your order must include a burrito AND toppings")}
                 return self.render_bad_request_response(error_dict)
             place_order(burrito, toppings)
             return self.render_json_response(
-                {'message': 'Your order has been placed!'})
+                {u"message": _(u"Your order has been placed!")})
 
 
 .. _AjaxResponseMixin:
@@ -247,7 +271,7 @@ Note: To allow public access to your view, you'll need to use the ``csrf_exempt`
 AjaxResponseMixin
 -----------------
 
-A mixin to allow you to provide alternative methods for handling AJAX requests.
+This mixin provides hooks for altenate processing of AJAX requests based on HTTP verb.
 
 To control AJAX-specific behavior, override ``get_ajax``, ``post_ajax``, ``put_ajax``, or ``delete_ajax``. All four methods take ``request``, ``*args``, and ``**kwargs`` like the standard view methods.
 
@@ -256,15 +280,18 @@ To control AJAX-specific behavior, override ``get_ajax``, ``post_ajax``, ``put_a
     # views.py
     from django.views.generic import View
 
-    from braces.views import AjaxResponseMixin, JSONResponseMixin
+    from braces import views
 
-    class SomeView(JSONResponseMixin, AjaxResponseMixin, View):
+    class SomeView(views.JSONResponseMixin, views.AjaxResponseMixin, View):
         def get_ajax(self, request, *args, **kwargs):
             json_dict = {
                 'name': "Benny's Burritos",
                 'location': "New York, NY"
             }
             return self.render_json_response(json_dict)
+
+.. note::
+    This mixin is only useful if you need to have behavior in your view fork based on ``request.is_ajax()``.
 
 
 .. _OrderableListMixin:
@@ -276,38 +303,48 @@ OrderableListMixin
 
 A mixin to allow easy ordering of your queryset basing on the GET parameters. Works with `ListView`.
 
-To use it, define columns that the data can be order by as well as the default column to order by in your view. This can be done either by simply setting the class attributes...
+To use it, define columns that the data can be ordered by, as well as the default column to order by in your view. This can be done either by simply setting the class attributes:
 
 ::
 
     # views.py
+    from django.views import ListView
+
+    from braces.views import OrderableListMixin
+
+
     class OrderableListView(OrderableListMixin, ListView):
         model = Article
-        orderable_columns = ('id', 'title',)
-        orderable_columns_default = 'id'
+        orderable_columns = (u"id", u"title",)
+        orderable_columns_default = u"id"
 
-...or by using similarly name methods to set the ordering constraints more dynamically:
+Or by using similarly-named methods to set the ordering constraints more dynamically:
 
 ::
 
     # views.py
+    from django.views import ListView
+
+    from braces.views import OrderableListMixin
+
+
     class OrderableListView(OrderableListMixin, ListView):
         model = Article
 
         def get_orderable_columns(self):
             # return an iterable
-            return ('id', 'title', )
+            return (u"id", u"title",)
 
         def get_orderable_columns_default(self):
             # return a string
-            return 'id'
+            return u"id"
 
 The ``orderable_columns`` restriction is here in order to stop your users from launching inefficient queries, like ordering by binary columns.
 
 ``OrderableListMixin`` will order your queryset basing on following GET params:
 
-    * ``order_by``: column name, e.g. ``'title'``
-    * ``ordering``: `'asc'` (default) or ``'desc'``
+    * ``order_by``: column name, e.g. ``"title"``
+    * ``ordering``: ``"asc"`` (default) or ``"desc"``
 
 Example url: `http://127.0.0.1:8000/articles/?order_by=title&ordering=asc`
 
@@ -319,29 +356,29 @@ CanonicalSlugDetailMixin
 
 .. versionadded:: 1.3
 
-A mixin that enforces a canonical slug in the url. Works with ``DetailView``.
+A mixin that enforces a canonical slug in the URL. Works with ``DetailView``.
 
-If a urlpattern takes a object's pk and slug as arguments and the slug url argument does not equal the object's canonical slug, this mixin will redirect to the url containing the canonical slug.
+If a ``urlpattern`` takes a object's ``pk`` and ``slug`` as arguments and the ``slug`` URL argument does not equal the object's canonical slug, this mixin will redirect to the URL containing the canonical slug.
 
-To use it, the urlpattern must accept both a ``pk`` and ``slug`` argument in its regex:
+To use it, the ``urlpattern`` must accept both a ``pk`` and ``slug`` argument in its regex:
 
 ::
 
     # urls.py
     urlpatterns = patterns('',
-        url(r'^article/(?P<pk>\d+)-(?P<slug>[-\w]+)$')
+        url(r"^article/(?P<pk>\d+)-(?P<slug>[-\w]+)$")
         ArticleView.as_view(),
-        'view_article'
+        "view_article"
     )
 
-Then create a standard DetailView that inherits this mixin:
+Then create a standard ``DetailView`` that inherits this mixin:
 
 ::
 
     class ArticleView(CanonicalSlugDetailMixin, DetailView):
         model = Article
 
-Now, given an Article object with ``{pk: 1, slug: 'hello-world'}``, the url `http://127.0.0.1:8000/article/1-goodbye-moon` will redirect to `http://127.0.0.1:8000/article/1-hello-world` with the HTTP status code 301 Moved Permanently. Any other non-canonical slug, not just 'goodbye-moon', will trigger the redirect as well.
+Now, given an ``Article`` object with ``{pk: 1, slug: 'hello-world'}``, the URL `http://127.0.0.1:8000/article/1-goodbye-moon` will redirect to `http://127.0.0.1:8000/article/1-hello-world` with the HTTP status code 301 Moved Permanently. Any other non-canonical slug, not just 'goodbye-moon', will trigger the redirect as well.
 
 Control the canonical slug by either implementing the method ``get_canonical_slug()`` on the model class:
 
@@ -352,7 +389,7 @@ Control the canonical slug by either implementing the method ``get_canonical_slu
         slug = models.SlugField()
 
         def get_canonical_slug(self):
-          return "{}-{}".format(self.blog.get_canonical_slug(), self.slug)
+          return "{0}-{1}".format(self.blog.get_canonical_slug(), self.slug)
 
 Or by overriding the ``get_canonical_slug()`` method on the view:
 
@@ -363,9 +400,89 @@ Or by overriding the ``get_canonical_slug()`` method on the view:
 
         def get_canonical_slug():
             import codecs
-            return codecs.encode(self.get_object().slug, 'rot_13')
+            return codecs.encode(self.get_object().slug, "rot_13")
 
 Given the same Article as before, this will generate urls of `http://127.0.0.1:8000/article/1-my-blog-hello-world` and `http://127.0.0.1:8000/article/1-uryyb-jbeyq`, respectively.
+
+
+.. _MessageMixin:
+
+MessageMixin
+------------
+
+.. versionadded:: 1.4
+
+A mixin that adds a ``messages`` attribute on the view which acts as a wrapper
+to ``django.contrib.messages`` and passes the ``request`` object automatically.
+
+    .. warning::
+        If you're using Django 1.4, then the ``message`` attribute is only
+        available after the base view's ``dispatch`` method has been called
+        (so our second example would not work for instance).
+
+::
+
+    from django.views.generic import TemplateView
+
+    from braces.views import MessageMixin
+
+
+    class MyView(MessageMixin, TemplateView):
+        """
+        This view will add a debug message which can then be displayed
+        in the template.
+        """
+        template_name = "my_template.html"
+
+        def get(self, request, *args, **kwargs):
+            self.messages.debug("This is a debug message.")
+            return super(MyView, self).get(request, *args, **kwargs)
+
+
+::
+
+    from django.contrib import messages
+    from django.views.generic import TemplateView
+
+    from braces.views import MessageMixin
+
+
+    class OnlyWarningView(MessageMixin, TemplateView):
+        """
+        This view will only show messages that have a level
+        above `warning`.
+        """
+        template_name = "my_template.html"
+
+        def dispatch(self, request, *args, **kwargs):
+            self.messages.set_level(messages.WARNING)
+            return super(OnlyWarningView, self).dispatch(request, *args, **kwargs)
+
+
+.. _AllVerbsMixin:
+
+AllVerbsMixin
+-------------
+
+.. versionadded:: 1.4
+
+This mixin allows you to specify a single method that will response to all HTTP verbs, making a class-based view behave much like a function-based view.
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import AllVerbsMixin
+
+
+    class JustShowItView(AllVerbsMixin, TemplateView):
+        template_name = "just/show_it.html"
+
+        def all(self, request, *args, **kwargs):
+            return super(JustShowItView, self).get(request, *args, **kwargs)
+
+If you need to change the name of the method called, provide a new value to the ``all_handler`` attribute (default is ``'all'``)
+
 
 .. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
 .. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related

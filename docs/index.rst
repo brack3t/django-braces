@@ -15,6 +15,10 @@ You can view the code of our project or fork it and add your own mixins (please,
     Form Mixins <form>
     Other Mixins <other>
 
+`View our Changelog <changelog.html>`_
+
+`Want to contribute? <contributing.html>`_
+
 
 
 Indices and tables

@@ -108,13 +108,13 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         self.assertIn(a1.title, titles)
         self.assertIn(a2.title, titles)
 
-    def test_missing_content_type(self):
+    def test_bad_content_type(self):
         """
         ImproperlyConfigured exception should be raised if content_type
         attribute is not set correctly.
         """
         with self.assertRaises(ImproperlyConfigured):
-            self.dispatch_view(self.build_request(), content_type=None)
+            self.dispatch_view(self.build_request(), content_type=['a'])
 
     def test_pretty_json(self):
         """
@@ -149,7 +149,6 @@ class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
         response_json = json.loads(response.content.decode(u'utf-8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json, self.request_dict)
-
 
     def test_get_request_json_improperly_formatted(self):
         """

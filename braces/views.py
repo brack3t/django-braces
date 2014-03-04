@@ -13,6 +13,7 @@ from django.http import (HttpResponse, HttpResponseBadRequest,
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
+from django.utils.functional import curry, Promise
 from django.views.decorators.csrf import csrf_exempt
 
 ## Django 1.5+ compat
@@ -154,7 +155,12 @@ class PermissionRequiredMixin(AccessMixin):
     """
     permission_required = None  # Default required perms to none
 
-    def dispatch(self, request, *args, **kwargs):
+    def get_permission_required(self, request=None):
+        """
+        Get the required permissions and return them.
+
+        Override this to allow for custom permission_required values.
+        """
         # Make sure that the permission_required attribute is set on the
         # view, or raise a configuration error.
         if self.permission_required is None:
@@ -162,22 +168,43 @@ class PermissionRequiredMixin(AccessMixin):
                 '{0} requires the "permission_required" attribute to be '
                 'set.'.format(self.__class__.__name__))
 
-        # Check to see if the request's user has the required permission.
-        has_permission = request.user.has_perm(self.permission_required)
+        return self.permission_required
+
+    def check_permissions(self, request):
+        """
+        Returns whether or not the user has permissions
+        """
+        perms = self.get_permission_required(request)
+        return request.user.has_perm(perms)
+
+    def no_permissions_fail(self, request=None):
+        """
+        Called when the user has no permissions. This should only
+        return a valid HTTP response.
+
+        By default we redirect to login.
+        """
+        return redirect_to_login(request.get_full_path(),
+                                 self.get_login_url(),
+                                 self.get_redirect_field_name())
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Check to see if the user in the request has the required
+        permission.
+        """
+        has_permission = self.check_permissions(request)
 
         if not has_permission:  # If the user lacks the permission
-            if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied  # return a forbidden response.
-            else:
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+            if self.raise_exception:
+                raise PermissionDenied  # Return a 403
+            return self.no_permissions_fail(request)
 
         return super(PermissionRequiredMixin, self).dispatch(
             request, *args, **kwargs)
 
 
-class MultiplePermissionsRequiredMixin(AccessMixin):
+class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
     """
     View mixin which allows you to specify two types of permission
     requirements. The `permissions` attribute must be a dict which
@@ -217,11 +244,14 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
     """
     permissions = None  # Default required perms to none
 
-    def dispatch(self, request, *args, **kwargs):
+    def get_permission_required(self, request=None):
         self._check_permissions_attr()
+        return self.permissions
 
-        perms_all = self.permissions.get('all') or None
-        perms_any = self.permissions.get('any') or None
+    def check_permissions(self, request):
+        permissions = self.get_permission_required()
+        perms_all = permissions.get('all') or None
+        perms_any = permissions.get('any') or None
 
         self._check_permissions_keys_set(perms_all, perms_any)
         self._check_perms_keys("all", perms_all)
@@ -230,11 +260,7 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
         # If perms_all, check that user has all permissions in the list/tuple
         if perms_all:
             if not request.user.has_perms(perms_all):
-                if self.raise_exception:
-                    raise PermissionDenied
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+                return False
 
         # If perms_any, check that user has at least one in the list/tuple
         if perms_any:
@@ -245,14 +271,9 @@ class MultiplePermissionsRequiredMixin(AccessMixin):
                     break
 
             if not has_one_perm:
-                if self.raise_exception:
-                    raise PermissionDenied
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+                return False
 
-        return super(MultiplePermissionsRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+        return True
 
     def _check_permissions_attr(self):
         """
@@ -545,16 +566,18 @@ class JSONResponseMixin(object):
     A mixin that allows you to easily serialize simple data such as a dict or
     Django models.
     """
-    content_type = u"application/json"
+    content_type = None
     json_dumps_kwargs = None
 
     def get_content_type(self):
-        if self.content_type is None:
+        if (self.content_type is not None and
+            not isinstance(self.content_type,
+                           (six.string_types, six.text_type))):
             raise ImproperlyConfigured(
-                '{0} is missing a content type. Define {0}.content_type, or '
-                'override {0}.get_content_type().'.format(
+                '{0} is missing a content type. Define {0}.content_type, '
+                'or override {0}.get_content_type().'.format(
                     self.__class__.__name__))
-        return self.content_type
+        return self.content_type or u"application/json"
 
     def get_json_dumps_kwargs(self):
         if self.json_dumps_kwargs is None:
@@ -668,6 +691,10 @@ class JsonRequestResponseMixin(JSONResponseMixin):
             request, *args, **kwargs)
 
 
+class JSONRequestResponseMixin(JsonRequestResponseMixin):
+    pass
+
+
 class OrderableListMixin(object):
     """
     Mixin allows your users to order records using GET parameters
@@ -767,8 +794,10 @@ class CanonicalSlugDetailMixin(object):
         # If there's a discrepancy between the slug in the url and the
         # canonical slug, redirect to the canonical slug.
         if canonical_slug != slug:
-            return redirect(current_urlpattern, pk=obj.pk, slug=canonical_slug,
-                            permanent=True)
+            params = {self.pk_url_kwarg: obj.pk,
+                      self.slug_url_kwarg: canonical_slug,
+                      'permanent': True}
+            return redirect(current_urlpattern, **params)
 
         return super(CanonicalSlugDetailMixin, self).dispatch(
             request, *args, **kwargs)
@@ -784,7 +813,42 @@ class CanonicalSlugDetailMixin(object):
         return self.get_object().slug
 
 
-class FormValidMessageMixin(object):
+class _MessageAPIWrapper(object):
+    """
+    Wrap the django.contrib.messages.api module to automatically pass a given
+    request object as the first parameter of function calls.
+    """
+    API = set([
+        'add_message', 'get_messages',
+        'get_level', 'set_level',
+        'debug', 'info', 'success', 'warning', 'error',
+    ])
+
+    def __init__(self, request):
+        for name in self.API:
+            api_fn = getattr(messages.api, name)
+            setattr(self, name, curry(api_fn, request))
+
+
+class _MessageDescriptor(object):
+    """
+    A descriptor that binds the _MessageAPIWrapper to the view's
+    request.
+    """
+    def __get__(self, instance, owner):
+        return _MessageAPIWrapper(instance.request)
+
+
+class MessageMixin(object):
+    """
+    Add a `messages` attribute on the view instance that wraps
+    `django.contrib .messages`, automatically passing the current
+    request object.
+    """
+    messages = _MessageDescriptor()
+
+
+class FormValidMessageMixin(MessageMixin):
     """
     Mixin allows you to set static message which is displayed by
     Django's messages framework through a static property on the class
@@ -804,13 +868,14 @@ class FormValidMessageMixin(object):
                 '{0}.get_form_valid_message().'.format(self.__class__.__name__)
             )
 
-        if not isinstance(self.form_valid_message, six.string_types):
+        if not isinstance(self.form_valid_message,
+                          (six.string_types, six.text_type, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_valid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
             )
 
-        return self.form_valid_message
+        return force_text(self.form_valid_message)
 
     def form_valid(self, form):
         """
@@ -818,12 +883,12 @@ class FormValidMessageMixin(object):
         get_form_valid_message, we have access to the newly saved object.
         """
         response = super(FormValidMessageMixin, self).form_valid(form)
-        messages.success(self.request, self.get_form_valid_message(),
-                         fail_silently=True)
+        self.messages.success(self.get_form_valid_message(),
+                              fail_silently=True)
         return response
 
 
-class FormInvalidMessageMixin(object):
+class FormInvalidMessageMixin(MessageMixin):
     """
     Mixin allows you to set static message which is displayed by
     Django's messages framework through a static property on the class
@@ -844,17 +909,17 @@ class FormInvalidMessageMixin(object):
                     self.__class__.__name__))
 
         if not isinstance(self.form_invalid_message,
-                          (six.string_types, six.text_type)):
+                          (six.string_types, six.text_type, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__))
 
-        return self.form_invalid_message
+        return force_text(self.form_invalid_message)
 
     def form_invalid(self, form):
         response = super(FormInvalidMessageMixin, self).form_invalid(form)
-        messages.error(self.request, self.get_form_invalid_message(),
-                       fail_silently=True)
+        self.messages.error(self.get_form_invalid_message(),
+                            fail_silently=True)
         return response
 
 
