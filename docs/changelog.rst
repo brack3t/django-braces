@@ -5,7 +5,7 @@ Changelog
 =========
 
 
-* :release:`1.4.0 <2014-03-05>`
+* :release:`1.4.0 <2014-03-04>`
 * :support:`129` Split ``views.py`` out into multiple files since it was approaching 1000 LoC.
 * :feature:`119` :ref:`SetHeadlineMixin` now accepts ``headline`` with ``ugettext_lazy()``-wrapped strings.
 * :bug:`94 major` Fixed a bug where :ref:`JSONResponseMixin` would override the ``content_type`` of Django's ``TemplateView`` in Django 1.6.
