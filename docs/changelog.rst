@@ -10,7 +10,9 @@ Changelog
 * :feature:`102` Added new :ref:`StaticContextMixin` mixin which lets you pass in ``static_context`` as a property of the view.
 * :feature:`89` Added new :ref:`AnonymousRequiredMixin` which redirects authenticated users to another view.
 * :feature:`104` Added new :ref:`AllVerbsMixin` which allows a single method to response to all HTTP verbs.
-* :bug:`-` Provided ``JSONRequestResponseMixin`` as a mirror of :ref:`JsonRequestResponseMixin` because we're not PHP.
+* :bug:`- major` Provided ``JSONRequestResponseMixin`` as a mirror of :ref:`JsonRequestResponseMixin` because we're not PHP.
+* :feature:`107` :ref:`FormValidMessageMixin`, :ref:`FormInvalidMessageMixin`, and :ref:`FormMessagesMixin` all allow ``ugettext_lazy``-wrapped strings. 
+* :feature:`67` Extended :ref:`PermissionRequiredMixin` and :ref:`MultiplePermissionsRequiredMixin` to accept django-guardian-style custom/object permissions.
 * :release:`1.3.1 <2014-01-04>`
 * :bug:`-` Removed accidentally-added breakpoint.
 * :support:`-` Added ``build/`` to ``.gitignore``

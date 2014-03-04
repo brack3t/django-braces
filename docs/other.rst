@@ -400,6 +400,8 @@ Or by overriding the ``get_canonical_slug()`` method on the view:
 
 Given the same Article as before, this will generate urls of `http://127.0.0.1:8000/article/1-my-blog-hello-world` and `http://127.0.0.1:8000/article/1-uryyb-jbeyq`, respectively.
 
+.. _AllVerbsMixin:
+
 AllVerbsMixin
 -------------
 
