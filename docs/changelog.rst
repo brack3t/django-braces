@@ -5,6 +5,8 @@ Changelog
 =========
 
 * :release:`1.4.0 <2014-03-05>`
+* :bug:`94 major` Fixed a bug where :ref:`JSONResponseMixin` would override the ``content_type`` of Django's ``TemplateView`` in Django 1.6.
+* :bug:`- major` Fixed bug in :ref:`PermissionRequiredMixin` where if ``PermissionRequiredMixin.no_permissions_fail`` returned a false-y value, the user lacking the permission would pass instead of being denied access.
 * :support:`73` Added doc for how to contribute.
 * :feature:`120` Added :ref:`MessageMixin` to allow easier access to Django's ``contrib.messages`` messages. :ref:`FormValidMessageMixin` and :ref:`FormInvalidMessageMixin` were updated to use it.
 * :bug:`98 major` Fixed bug in :ref:`CanonicalSlugDetailMixin` to allow it to use custom URL kwargs.
@@ -18,7 +20,7 @@ Changelog
 * :feature:`67` Extended :ref:`PermissionRequiredMixin` and :ref:`MultiplePermissionsRequiredMixin` to accept django-guardian-style custom/object permissions.
 * :release:`1.3.1 <2014-01-04>`
 * :bug:`95` Removed accidentally-added breakpoint.
-* :support:`96` Added ``build/`` to ``.gitignore``
+* :support:`96 backported` Added ``build/`` to ``.gitignore``
 * :release:`1.3.0 <2014-01-03>`
 * :support:`59` Removed ``CreateAndRedirectToEditView`` mixin which was marked for deprecation and removal since 1.0.0.
 * :feature:`51` Added :ref:`JsonRequestResponseMixin` which attempts to parse requests as JSON.
