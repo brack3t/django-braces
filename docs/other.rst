@@ -457,3 +457,32 @@ to ``django.contrib.messages`` and passes the ``request`` object automatically.
         def dispatch(self, request, *args, **kwargs):
             self.messages.set_level(messages.WARNING)
             return super(OnlyWarningView, self).dispatch(request, *args, **kwargs)
+
+
+.. _AllVerbsMixin:
+
+AllVerbsMixin
+-------------
+
+.. versionadded:: 1.4
+
+This mixin allows you to specify a single method that will response to all HTTP verbs, making a class-based view behave much like a function-based view.
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import AllVerbsMixin
+
+
+    class JustShowItView(AllVerbsMixin, TemplateView):
+        template_name = "just/show_it.html"
+
+        def all(self, request, *args, **kwargs):
+            return super(JustShowItView, self).get(request, *args, **kwargs)
+
+If you need to change the name of the method called, provide a new value to the ``all_handler`` attribute (default is ``'all'``)
+
+
+.. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
+.. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related
