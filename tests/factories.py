@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import factory
 
 from django.contrib.auth.models import Group, Permission, User
