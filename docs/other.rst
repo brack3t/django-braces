@@ -422,7 +422,6 @@ to ``django.contrib.messages`` and passes the ``request`` object automatically.
 
 ::
 
-    from django.contrib import messages
     from django.views.generic import TemplateView
 
     from braces.views import MessageMixin
@@ -430,8 +429,8 @@ to ``django.contrib.messages`` and passes the ``request`` object automatically.
 
     class MyView(MessageMixin, TemplateView):
         """
-        This view will add a debug message which can then be displayed in the
-        template.
+        This view will add a debug message which can then be displayed
+        in the template.
         """
         template_name = "my_template.html"
 
@@ -440,9 +439,18 @@ to ``django.contrib.messages`` and passes the ``request`` object automatically.
             return super(MyView, self).get(request, *args, **kwargs)
 
 
+::
+
+    from django.contrib import messages
+    from django.views.generic import TemplateView
+
+    from braces.views import MessageMixin
+
+
     class OnlyWarningView(MessageMixin, TemplateView):
         """
-        This view will only show messages that have a level above `warning`.
+        This view will only show messages that have a level
+        above `warning`.
         """
         template_name = "my_template.html"
 
