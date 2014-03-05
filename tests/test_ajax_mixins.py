@@ -11,7 +11,8 @@ from braces.views import AjaxResponseMixin
 from .compat import force_text
 from .factories import ArticleFactory, UserFactory
 from .helpers import TestViewHelper
-from .views import SimpleJsonView, JsonRequestResponseView
+from .views import (SimpleJsonView, JsonRequestResponseView,
+                    CustomJsonEncoderView)
 from .compat import json
 
 
@@ -135,6 +136,13 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         pretty_json = json.loads(u'{0}'.format(pretty_content))
         self.assertEqual(normal_json, pretty_json)
         self.assertTrue(len(pretty_content) > len(normal_content))
+
+    def test_json_encoder_class_atrribute(self):
+        """
+        Tests setting custom `json_encoder_class` attribute.
+        """
+        data = json.loads(self.get_content(u'/simple_json_custom_encoder/'))
+        self.assertEqual({u'numbers': [1, 2, 3]}, data)
 
 
 class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):

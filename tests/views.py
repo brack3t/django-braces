@@ -12,6 +12,7 @@ from braces import views
 
 from .models import Article, CanonicalArticle
 from .forms import ArticleForm, FormWithUserKwarg
+from .helpers import SetJSONEncoder
 
 
 class OkView(View):
@@ -76,6 +77,18 @@ class SimpleJsonView(views.JSONResponseMixin, View):
     """
     def get(self, request):
         object = {'username': request.user.username}
+        return self.render_json_response(object)
+
+
+class CustomJsonEncoderView(views.JSONResponseMixin, View):
+    """
+    A view for testing JSONResponseMixin's `json_encoder_class` attribute
+    with custom JSONEncoder class.
+    """
+    json_encoder_class = SetJSONEncoder
+
+    def get(self, request):
+        object = {'numbers': set([1, 2, 3])}
         return self.render_json_response(object)
 
 
