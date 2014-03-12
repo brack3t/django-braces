@@ -46,6 +46,8 @@ This mixin is rather simple and is generally the first inherited class in any vi
         def get(self, request):
             return self.render_to_response({})
 
+An optional class attribute of ``redirect_unauthenticated_users`` can be set to ``True`` if you are using another ``access`` mixin with ``raise_exception`` set to ``True``. This will redirect to the login page if the user is not authenticated, but raises an exception if they are but do not have the required access defined by the other mixins. This defaults to ``False``.
+
 .. _PermissionRequiredMixin:
 
 PermissionRequiredMixin

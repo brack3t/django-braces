@@ -51,9 +51,11 @@ class LoginRequiredMixin(AccessMixin):
         combined with CsrfExemptMixin - which in that case should
         be the left-most mixin.
     """
+    redirect_unauthenticated_users = False
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
-            if self.raise_exception:
+            if self.raise_exception and not self.redirect_unauthenticated_users:
                 raise PermissionDenied  # return a forbidden response
             else:
                 return redirect_to_login(request.get_full_path(),
