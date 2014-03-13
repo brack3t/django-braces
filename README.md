@@ -10,8 +10,8 @@ Mixins for Django's class-based views.
 [Read The Docs](http://django-braces.readthedocs.org/en/latest/index.html)
 
 ## Installation
-Install from PyPI with `pip`:
-`pip install django-braces`
+Install from PyPI with `pip`: `pip install django-braces`
+Add `braces` to `INSTALLED_APPS`
 
 ## Building the Docs
 1. Install docs requirements: `pip install -r requirements-docs.txt`.
