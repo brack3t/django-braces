@@ -184,7 +184,7 @@ UserPassesTestMixin
 
 .. versionadded:: 1.3.0
 
-Mixin that reimplements the `user_passes_test`_ decorator. This is helpful for much more complicated cases than checking if user ``is_superuser`` (for example if their email is from specific a domain).
+Mixin that reimplements the `user_passes_test`_ decorator. This is helpful for much more complicated cases than checking if user ``is_superuser`` (for example if their email is from a specific domain).
 
 ::
 
