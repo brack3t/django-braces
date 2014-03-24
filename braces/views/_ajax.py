@@ -19,6 +19,7 @@ class JSONResponseMixin(object):
     """
     content_type = None
     json_dumps_kwargs = None
+    json_encoder_class = DjangoJSONEncoder
 
     def get_content_type(self):
         if (self.content_type is not None and
@@ -43,7 +44,7 @@ class JSONResponseMixin(object):
         """
         json_context = json.dumps(
             context_dict,
-            cls=DjangoJSONEncoder,
+            cls=self.json_encoder_class,
             **self.get_json_dumps_kwargs()).encode(u'utf-8')
         return HttpResponse(json_context,
                             content_type=self.get_content_type(),
@@ -118,7 +119,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
             error_dict = self.error_response_dict
         json_context = json.dumps(
             error_dict,
-            cls=DjangoJSONEncoder,
+            cls=self.json_encoder_class,
             **self.get_json_dumps_kwargs()
         ).encode(u'utf-8')
         return HttpResponseBadRequest(

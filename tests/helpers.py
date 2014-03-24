@@ -1,5 +1,6 @@
 from django import test
 from django.contrib.auth.models import AnonymousUser
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 class TestViewHelper(object):
@@ -47,3 +48,16 @@ class TestViewHelper(object):
         """
         view = self.build_view(request, args, kwargs, view_class, **viewkwargs)
         return view.dispatch(request, *view.args, **view.kwargs)
+
+
+class SetJSONEncoder(DjangoJSONEncoder):
+    """
+    A custom JSONEncoder extending `DjangoJSONEncoder` to handle serialization
+    of `set`.
+    """
+    def default(self, obj):
+        if isinstance(obj, set):
+            return list(obj)
+        return super(DjangoJSONEncoder, self).default(obj)
+
+

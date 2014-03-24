@@ -225,6 +225,36 @@ overriding the `get_content_type()` method.
             # Shown just for illustrative purposes
             return u"application/javascript"
 
+The `JSONResponseMixin` provides another class-level variable 
+`json_encoder_class` to use a custom json encoder with `json.dumps`.
+By default it is `django.core.serializers.json.DjangoJsonEncoder`
+
+::
+
+    from django.core.serializers.json import DjangoJSONEncoder
+
+    from braces.views import JSONResponseMixin
+
+
+    class SetJSONEncoder(DjangoJSONEncoder):
+        """
+        A custom JSONEncoder extending `DjangoJSONEncoder` to handle serialization
+        of `set`.
+        """
+        def default(self, obj):
+            if isinstance(obj, set):
+                return list(obj)
+            return super(DjangoJSONEncoder, self).default(obj)
+
+
+    class GetSetDataView(JSONResponseMixin, View):
+        json_encoder_class = SetJSONEncoder
+
+        def get(self, request, *args, **kwargs):
+            numbers_set = set(range(10))
+            data = {'numbers': numbers_set}
+            return self.render_json_response(data)
+
 .. _JsonRequestResponseMixin:
 
 JsonRequestResponseMixin
