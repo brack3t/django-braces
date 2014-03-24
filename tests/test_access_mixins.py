@@ -147,6 +147,14 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         assert resp.status_code == 200
         assert force_text(resp.content) == 'OK'
 
+    def test_anonymous_redirects(self):
+        resp = self.dispatch_view(
+                self.build_request(path=self.view_url),
+                raise_exception=True,
+                redirect_unauthenticated_users=True)
+        assert resp.status_code == 302
+        assert resp['Location'] == '/accounts/login/?next=/login_required/'
+
 
 class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
     """
