@@ -4,7 +4,9 @@
 Changelog
 =========
 
-
+* :bug:`130` New attribute on :ref:`JSONResponseMixin` to allow setting a custom JSON encoder class.
+* :bug:`131` New attribute on :ref:`LoginRequiredMixin` so it's possible to redirect unauthenticated users while
+  using ``AccessMixin``-derived mixins instead of throwing an exception.
 * :release:`1.4.0 <2014-03-04>`
 * :support:`129` Split ``views.py`` out into multiple files since it was approaching 1000 LoC.
 * :feature:`119` :ref:`SetHeadlineMixin` now accepts ``headline`` with ``ugettext_lazy()``-wrapped strings.
