@@ -1,5 +1,8 @@
+import csv
+
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import resolve
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.encoding import force_text
 
@@ -124,3 +127,29 @@ class AllVerbsMixin(object):
 
         handler = getattr(self, self.all_handler, self.http_method_not_allowed)
         return handler(request, *args, **kwargs)
+
+
+class CSVResponseMixin(object):
+    """
+    Return an array of arrays as a csv file for download using
+    ``render_to_csv`` as your response.
+    """
+    csv_filename = 'csvfile.csv'
+
+    def get_filename(self):
+        return self.csv_filename
+
+    def render_to_csv(self, data):
+        """
+        data: needs to be an array of arrays of the data
+        example: [['hello', world'], ['foo', 'bar']]
+        """
+        response = HttpResponse(content_type='text/csv')
+        cd = 'attachment; filename="{name}"'.format(name=self.get_filename())
+        response['Content-Disposition'] = cd
+
+        writer = csv.writer(response)
+        for row in data:
+            writer.writerow(row)
+
+        return response

@@ -24,6 +24,7 @@ Direct Contributors
 * Danilo Bargen
 * Jon Bolt
 * Kit Sunde
+* Buddy Lindsey, Jr.
 
 Other Contributors
 ==================

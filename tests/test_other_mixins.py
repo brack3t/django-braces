@@ -15,7 +15,8 @@ from django.test.utils import override_settings
 from django.views.generic import View
 
 from braces.views import (SetHeadlineMixin, MessageMixin, _MessageAPIWrapper,
-                          FormValidMessageMixin, FormInvalidMessageMixin)
+                          FormValidMessageMixin, FormInvalidMessageMixin,
+                          CSVResponseMixin)
 from .compat import force_text
 from .factories import UserFactory
 from .helpers import TestViewHelper
@@ -686,3 +687,22 @@ class TestAllVerbsMixin(test.TestCase):
     def test_no_all_handler(self):
         with self.assertRaises(ImproperlyConfigured):
             self.client.get('/all_verbs_no_handler/')
+
+
+class TestCSVResponseMixin(test.TestCase):
+    def test_get_filename(self):
+        mixin = CSVResponseMixin()
+        mixin.csv_filename = 'test.csv'
+        self.assertEqual(mixin.get_filename(), 'test.csv')
+
+    def test_render_to_csv(self):
+        mixin = CSVResponseMixin()
+
+        data = [['foo', 'bar'], ['hello', 'world']]
+        response = mixin.render_to_csv(data)
+
+        self.assertEqual(response.content, 'foo,bar\r\nhello,world\r\n')
+        self.assertEqual(response.get('content-type'), 'text/csv')
+        self.assertEqual(
+            response.get('content-disposition'),
+            'attachment; filename="csvfile.csv"')
