@@ -690,16 +690,21 @@ class TestAllVerbsMixin(test.TestCase):
 
 
 class TestCSVResponseMixin(test.TestCase):
-    def test_get_filename(self):
-        mixin = CSVResponseMixin()
-        mixin.csv_filename = 'test.csv'
-        self.assertEqual(mixin.get_filename(), 'test.csv')
+    def setUp(self):
+        self.mixin = CSVResponseMixin()
+
+    def test_get_csv_filename(self):
+        self.mixin.csv_filename = 'test.csv'
+        self.assertEqual(self.mixin.get_csv_filename(), 'test.csv')
+
+    def test_get_csv_filename_no_filename(self):
+        self.assertRaises(ImproperlyConfigured, self.mixin.get_csv_filename)
 
     def test_render_to_csv(self):
-        mixin = CSVResponseMixin()
+        self.mixin.csv_filename = 'csvfile.csv'
 
-        data = [['foo', 'bar'], ['hello', 'world']]
-        response = mixin.render_to_csv(data)
+        data = (('foo', 'bar'), ('hello', 'world'))
+        response = self.mixin.render_to_csv(data)
 
         self.assertEqual(response.content, 'foo,bar\r\nhello,world\r\n')
         self.assertEqual(response.get('content-type'), 'text/csv')

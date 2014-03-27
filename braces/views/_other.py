@@ -134,18 +134,23 @@ class CSVResponseMixin(object):
     Return an array of arrays as a csv file for download using
     ``render_to_csv`` as your response.
     """
-    csv_filename = 'csvfile.csv'
+    csv_filename = None
 
-    def get_filename(self):
+    def get_csv_filename(self):
+        if self.csv_filename is None:
+            raise ImproperlyConfigured(
+                '{0} is missing a filename. '
+                'Define {0}.csv_filename, or override '
+                '{0}.get_csv_filename().'.format(self.__class__.__name__))
         return self.csv_filename
 
     def render_to_csv(self, data):
         """
-        data: needs to be an array of arrays of the data
-        example: [['hello', world'], ['foo', 'bar']]
+        data: needs to be a list of lists of the data, or similar.
+        example: (('hello', world'), ('foo', 'bar'))
         """
         response = HttpResponse(content_type='text/csv')
-        cd = 'attachment; filename="{name}"'.format(name=self.get_filename())
+        cd = 'attachment; filename="{0}"'.format(self.get_csv_filename())
         response['Content-Disposition'] = cd
 
         writer = csv.writer(response)
