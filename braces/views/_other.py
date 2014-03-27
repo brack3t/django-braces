@@ -131,7 +131,7 @@ class AllVerbsMixin(object):
 
 class CSVResponseMixin(object):
     """
-    Return an array of arrays as a csv file for download using
+    Return a list of lists, or similar, as a csv file for download using
     ``render_to_csv`` as your response.
     """
     csv_filename = None
