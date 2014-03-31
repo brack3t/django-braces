@@ -223,7 +223,7 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
         return self.permissions
 
     def check_permissions(self, request):
-        permissions = self.get_permission_required()
+        permissions = self.get_permission_required(request)
         perms_all = permissions.get('all') or None
         perms_any = permissions.get('any') or None
 
