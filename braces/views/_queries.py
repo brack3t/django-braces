@@ -1,3 +1,4 @@
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 
 
@@ -120,3 +121,13 @@ class OrderableListMixin(object):
         """
         unordered_queryset = super(OrderableListMixin, self).get_queryset()
         return self.get_ordered_queryset(unordered_queryset)
+
+
+class CurrentSiteMixin(object):
+    site_field = 'site'
+
+    def get_queryset(self):
+        queryset = super(CurrentSiteMixin, self).get_queryset()
+        queryset = queryset.filter(
+            **{self.site_field: Site.objects.get_current()})
+        return queryset
