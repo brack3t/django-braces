@@ -75,8 +75,8 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
 
     def assert_json_response(self, resp, status_code=200):
         self.assertEqual(status_code, resp.status_code)
-        self.assertEqual(u'application/json',
-                         resp[u'content-type'].split(u';')[0])
+        self.assertItemsEqual([u'application/json', u'charset=utf-8'],
+                              resp[u'content-type'].split(u';'))
 
     def get_content(self, url):
         """
