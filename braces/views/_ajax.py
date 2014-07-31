@@ -29,7 +29,7 @@ class JSONResponseMixin(object):
                 '{0} is missing a content type. Define {0}.content_type, '
                 'or override {0}.get_content_type().'.format(
                     self.__class__.__name__))
-        return self.content_type or u"application/json"
+        return self.content_type or u"application/json;charset=utf-8"
 
     def get_json_dumps_kwargs(self):
         if self.json_dumps_kwargs is None:
