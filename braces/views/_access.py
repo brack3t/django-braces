@@ -41,6 +41,12 @@ class AccessMixin(object):
                     self.__class__.__name__))
         return self.redirect_field_name
 
+    @property
+    def denied_exception(self):
+        if not isinstance(self.raise_exception, bool):
+            return self.raise_exception
+        return PermissionDenied
+
 
 class LoginRequiredMixin(AccessMixin):
     """
@@ -56,7 +62,7 @@ class LoginRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
             if self.raise_exception and not self.redirect_unauthenticated_users:
-                raise PermissionDenied  # return a forbidden response
+                raise self.denied_exception  # return a forbidden response
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.get_login_url(),
@@ -112,7 +118,7 @@ class PermissionRequiredMixin(AccessMixin):
     `permission_required` - the permission to check for.
     `login_url` - the login url of site
     `redirect_field_name` - defaults to "next"
-    `raise_exception` - defaults to False - raise 403 if set to True
+    `raise_exception` - defaults to False - raise if it set to any Exception
 
     Example Usage
 
@@ -171,7 +177,7 @@ class PermissionRequiredMixin(AccessMixin):
 
         if not has_permission:  # If the user lacks the permission
             if self.raise_exception:
-                raise PermissionDenied  # Return a 403
+                raise self.denied_exception
             return self.no_permissions_fail(request)
 
         return super(PermissionRequiredMixin, self).dispatch(
@@ -200,7 +206,7 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
             permissions.
         `login_url` - the login url of site
         `redirect_field_name` - defaults to "next"
-        `raise_exception` - defaults to False - raise 403 if set to True
+        `raise_exception` - defaults to False - raise if it set to any Exception
 
     Example Usage
         class SomeView(MultiplePermissionsRequiredMixin, ListView):
@@ -313,7 +319,7 @@ class GroupRequiredMixin(AccessMixin):
 
         if not in_group:
             if self.raise_exception:
-                raise PermissionDenied
+                raise self.denied_exception
             else:
                 return redirect_to_login(
                     request.get_full_path(),
@@ -333,7 +339,7 @@ class UserPassesTestMixin(AccessMixin):
             instance and return True or False after checking conditions.
         `login_url` - the login url of site
         `redirect_field_name` - defaults to "next"
-        `raise_exception` - defaults to False - raise 403 if set to True
+        `raise_exception` - defaults to False - raise if it set to any Exception
     """
 
     def test_func(self, user):
@@ -350,7 +356,7 @@ class UserPassesTestMixin(AccessMixin):
 
         if not user_test_result:  # If user don't pass the test
             if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied
+                raise self.denied_exception
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.get_login_url(),
@@ -366,7 +372,7 @@ class SuperuserRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:  # If the user is a standard user,
             if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied  # return a forbidden response.
+                raise self.denied_exception  # return a forbidden response.
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.get_login_url(),
@@ -383,7 +389,7 @@ class StaffuserRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_staff:  # If the request's user is not staff,
             if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied  # return a forbidden response
+                raise self.denied_exception  # return a forbidden response
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.get_login_url(),
