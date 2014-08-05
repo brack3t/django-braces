@@ -9,7 +9,7 @@ These mixins all control a user's access to a given view. Since many of them ext
     redirect_field_name = REDIRECT_FIELD_NAME
     raise_exception = False
 
-The ``raise_exception`` attribute will cause the view to raise a ``PermissionDenied`` exception if it is set to ``True``, otherwise the view will redirect to the login view provided.
+The ``raise_exception`` attribute will cause the view to raise a ``PermissionDenied`` exception if it is set to ``True``, otherwise the view will raise specified exception or redirect to the login view provided if is set to ``False``.
 
 .. contents::
 
