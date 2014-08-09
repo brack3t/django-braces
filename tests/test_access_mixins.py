@@ -88,7 +88,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         def func():
             pass
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(PermissionDenied):
             self.dispatch_view(req, raise_exception=func)
 
     def test_raise_func_response(self):
@@ -105,6 +105,20 @@ class _TestAccessBasicsMixin(TestViewHelper):
         resp = self.dispatch_view(req, raise_exception=func)
         assert resp.status_code == 200
         assert force_text(resp.content) == 'CUSTOM'
+
+    def test_raise_func_false(self):
+        """
+        A custom response should be returned if user is not authorized and
+        raise_exception attribute is set to a function that returns a response.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func():
+            return False
+
+        ret = self.dispatch_view(req, raise_exception=func)
+        assert ret is False
 
     def test_raise_func_raises(self):
         """
