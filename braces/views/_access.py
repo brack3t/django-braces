@@ -1,3 +1,4 @@
+import inspect
 import six
 
 from django.conf import settings
@@ -41,6 +42,16 @@ class AccessMixin(object):
                     self.__class__.__name__))
         return self.redirect_field_name
 
+    def do_raise_exception(self, default_exc):
+        if inspect.isclass(self.raise_exception) \
+                and issubclass(self.raise_exception, Exception):
+            raise self.raise_exception
+        if callable(self.raise_exception):
+            ret = self.raise_exception()
+            if ret is not None:
+                return ret
+        raise default_exc
+
 
 class LoginRequiredMixin(AccessMixin):
     """
@@ -56,7 +67,7 @@ class LoginRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
             if self.raise_exception and not self.redirect_unauthenticated_users:
-                raise PermissionDenied  # return a forbidden response
+                return self.do_raise_exception(PermissionDenied)
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.get_login_url(),
@@ -171,7 +182,7 @@ class PermissionRequiredMixin(AccessMixin):
 
         if not has_permission:  # If the user lacks the permission
             if self.raise_exception:
-                raise PermissionDenied  # Return a 403
+                return self.do_raise_exception(PermissionDenied)
             return self.no_permissions_fail(request)
 
         return super(PermissionRequiredMixin, self).dispatch(
@@ -313,7 +324,7 @@ class GroupRequiredMixin(AccessMixin):
 
         if not in_group:
             if self.raise_exception:
-                raise PermissionDenied
+                return self.do_raise_exception(PermissionDenied)
             else:
                 return redirect_to_login(
                     request.get_full_path(),
@@ -350,7 +361,7 @@ class UserPassesTestMixin(AccessMixin):
 
         if not user_test_result:  # If user don't pass the test
             if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied
+                return self.do_raise_exception(PermissionDenied)
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.get_login_url(),
@@ -366,7 +377,7 @@ class SuperuserRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:  # If the user is a standard user,
             if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied  # return a forbidden response.
+                return self.do_raise_exception(PermissionDenied)
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.get_login_url(),
@@ -383,7 +394,7 @@ class StaffuserRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_staff:  # If the request's user is not staff,
             if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied  # return a forbidden response
+                return self.do_raise_exception(PermissionDenied)
             else:
                 return redirect_to_login(request.get_full_path(),
                                          self.get_login_url(),

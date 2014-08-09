@@ -5,6 +5,7 @@ from django import test
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
+from django.http import Http404, HttpResponse
 
 from .compat import force_text
 from .factories import GroupFactory, UserFactory
@@ -64,6 +65,61 @@ class _TestAccessBasicsMixin(TestViewHelper):
 
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(req, raise_exception=True)
+
+    def test_raise_custom_exception(self):
+        """
+        Http404 should be raised if user is not authorized and
+        raise_exception attribute is set to Http404.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        with self.assertRaises(Http404):
+            self.dispatch_view(req, raise_exception=Http404)
+
+    def test_raise_func_pass(self):
+        """
+        An exception should be raised if user is not authorized and
+        raise_exception attribute is set to a function that returns nothing.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func():
+            pass
+
+        with self.assertRaises(Exception):
+            self.dispatch_view(req, raise_exception=func)
+
+    def test_raise_func_response(self):
+        """
+        A custom response should be returned if user is not authorized and
+        raise_exception attribute is set to a function that returns a response.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func():
+            return HttpResponse("CUSTOM")
+
+        resp = self.dispatch_view(req, raise_exception=func)
+        assert resp.status_code == 200
+        assert force_text(resp.content) == 'CUSTOM'
+
+    def test_raise_func_raises(self):
+        """
+        A custom exception should be raised if user is not authorized and
+        raise_exception attribute is set to a callable that raises an
+        exception.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func():
+            raise Http404
+
+        with self.assertRaises(Http404):
+            self.dispatch_view(req, raise_exception=func)
 
     def test_custom_login_url(self):
         """
