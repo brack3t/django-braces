@@ -193,6 +193,22 @@ class _TestAccessBasicsMixin(TestViewHelper):
         self.assertRedirects(resp, u'/auth/login/?next={0}'.format(
             self.view_url))
 
+    def test_redirect_unauthenticated(self):
+        resp = self.dispatch_view(
+                self.build_request(path=self.view_url),
+                raise_exception=True,
+                redirect_unauthenticated_users=True)
+        assert resp.status_code == 302
+        assert resp['Location'] == '/accounts/login/?next={0}'.format(
+            self.view_url)
+
+    def test_redirect_unauthenticated_false(self):
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url),
+                raise_exception=True,
+                redirect_unauthenticated_users=False)
+
 
 class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
     """
@@ -216,14 +232,6 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         resp = self.client.get(self.view_url)
         assert resp.status_code == 200
         assert force_text(resp.content) == 'OK'
-
-    def test_anonymous_redirects(self):
-        resp = self.dispatch_view(
-                self.build_request(path=self.view_url),
-                raise_exception=True,
-                redirect_unauthenticated_users=True)
-        assert resp.status_code == 302
-        assert resp['Location'] == '/accounts/login/?next=/login_required/'
 
 
 class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
