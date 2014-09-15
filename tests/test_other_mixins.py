@@ -20,7 +20,8 @@ from .compat import force_text
 from .factories import UserFactory
 from .helpers import TestViewHelper
 from .models import Article, CanonicalArticle
-from .views import (ArticleListView, AuthorDetailView, OrderableListView,
+from .views import (ArticleListView, ArticleListViewWithCustomQueryset,
+                    AuthorDetailView, OrderableListView,
                     FormMessagesView, ContextView)
 
 
@@ -182,6 +183,22 @@ class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
         self.assertEqual(200, resp.status_code)
         m.assert_called_once_with('author')
 
+    @mock.patch('django.db.models.query.QuerySet.select_related')
+    def test_select_related_keeps_select_related_from_queryset(self, m):
+        """
+        Checks that an empty select_related attribute does not
+        cancel a select_related provided by queryset.
+        """
+        qs = Article.objects.all()
+        qs.select_related = m
+        m.reset_mock()
+
+        resp = self.dispatch_view(
+            self.build_request(),
+            view_class=ArticleListViewWithCustomQueryset)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual(0, m.call_count)
+
 
 class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
     view_class = AuthorDetailView
@@ -217,6 +234,22 @@ class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
         resp = self.dispatch_view(self.build_request())
         self.assertEqual(200, resp.status_code)
         m.assert_called_once_with('article_set')
+
+    @mock.patch('django.db.models.query.QuerySet.prefetch_related')
+    def test_prefetch_related_keeps_select_related_from_queryset(self, m):
+        """
+        Checks that an empty prefetch_related attribute does not
+        cancel a prefetch_related provided by queryset.
+        """
+        qs = Article.objects.all()
+        qs.prefetch_related = m
+        m.reset_mock()
+
+        resp = self.dispatch_view(
+            self.build_request(),
+            view_class=ArticleListViewWithCustomQueryset)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual(0, m.call_count)
 
 
 class TestOrderableListMixin(TestViewHelper, test.TestCase):

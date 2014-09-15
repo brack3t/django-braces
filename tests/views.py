@@ -187,6 +187,15 @@ class ArticleListView(views.SelectRelatedMixin, ListView):
     select_related = ('author',)
 
 
+class ArticleListViewWithCustomQueryset(views.SelectRelatedMixin, ListView):
+    """
+    Another list view for articles, required to test SelectRelatedMixin.
+    """
+    queryset = Article.objects.select_related('author').prefetch_related('article_set')
+    template_name = 'blank.html'
+    select_related = ()
+
+
 class FormWithUserKwargView(views.UserFormKwargsMixin, FormView):
     """
     View for testing UserFormKwargsMixin.
