@@ -122,7 +122,7 @@ The ``GroupRequiredMixin`` ensures that the requesting user is in the group or g
 
     .. note::
         The mixin assumes you're using Django's default Group model and that your user model provides ``groups`` as a ManyToMany relationship.
-        If this **is not** the case, you'll need to override ``check_membership`` in the mixin to handle your custom set up.
+        If this **is not** the case, you'll need to override ``check_membership``, and, if your groups are not known staticaly at compiletime also ``get_groups_required`` in the mixin to handle your custom set up.
 
 Standard Django Usage
 ^^^^^^^^^^^^^^^^^^^^^

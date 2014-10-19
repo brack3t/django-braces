@@ -284,7 +284,7 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
 class GroupRequiredMixin(AccessMixin):
     group_required = None
 
-    def get_group_required(self):
+    def get_groups_required(self):
         if self.group_required is None or (
                 not isinstance(self.group_required,
                                (list, tuple) + six.string_types)
@@ -309,7 +309,7 @@ class GroupRequiredMixin(AccessMixin):
         self.request = request
         in_group = False
         if self.request.user.is_authenticated():
-            in_group = self.check_membership(self.get_group_required())
+            in_group = self.check_membership(self.get_groups_required())
 
         if not in_group:
             if self.raise_exception:

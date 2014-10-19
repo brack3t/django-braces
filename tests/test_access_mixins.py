@@ -411,11 +411,11 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         view = self.view_class()
         view.group_required = None
         with self.assertRaises(ImproperlyConfigured):
-            view.get_group_required()
+            view.get_groups_required()
 
         view.group_required = {'foo': 'bar'}
         with self.assertRaises(ImproperlyConfigured):
-            view.get_group_required()
+            view.get_groups_required()
 
     def test_with_unicode(self):
         self.view_class.group_required = u'niño'
