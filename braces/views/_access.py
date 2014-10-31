@@ -33,6 +33,7 @@ class AccessMixin(object):
     raise_exception = False
     redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
     redirect_unauthenticated_users = False
+    login_redirect_message = None
 
     def get_login_url(self):
         """
@@ -373,12 +374,6 @@ class UserPassesTestMixin(AccessMixin):
 
 
 class SuperuserRequiredMixin(AccessMixin):
-
-    login_redirect_message = 'You are trying to access a resource that ' \
-                             'requires super user permissions. Loginas a ' \
-                             'user with super user persmissions to access ' \
-                             'the resource.'
-
     """
     Mixin allows you to require a user with `is_superuser` set to True.
     """
