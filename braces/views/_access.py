@@ -11,6 +11,8 @@ from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
                          Http404, HttpResponse)
 from django.shortcuts import resolve_url
 from django.utils.encoding import force_text
+from django.contrib import messages
+
 from django.utils.timezone import now
 
 # StreamingHttpResponse has been added in 1.5, and gets used for verification
@@ -64,6 +66,7 @@ class AccessMixin(object):
             if callable(self.raise_exception):
                 ret = self.raise_exception(request)
                 if isinstance(ret, (HttpResponse, StreamingHttpResponse)):
+                    messages.warning(request, self.login_redirect_message, fail_silently=True)
                     return ret
             raise PermissionDenied
 
@@ -370,6 +373,12 @@ class UserPassesTestMixin(AccessMixin):
 
 
 class SuperuserRequiredMixin(AccessMixin):
+
+    login_redirect_message = 'You are trying to access a resource that ' \
+                             'requires super user permissions. Loginas a ' \
+                             'user with super user persmissions to access ' \
+                             'the resource.'
+
     """
     Mixin allows you to require a user with `is_superuser` set to True.
     """
