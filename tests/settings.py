@@ -1,3 +1,5 @@
+from django.conf.global_settings import *
+
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
