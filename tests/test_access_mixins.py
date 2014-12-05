@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 from django import test
+from django.http import Http404
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
@@ -56,14 +57,17 @@ class _TestAccessBasicsMixin(TestViewHelper):
 
     def test_raise_permission_denied(self):
         """
-        PermissionDenied should be raised if user is not authorized and
-        raise_exception attribute is set to True.
+        raise_exception should be raised if user is not authorized and
+        raise_exception attribute is set to any Exception.
         """
         user = self.build_unauthorized_user()
         req = self.build_request(user=user, path=self.view_url)
 
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(req, raise_exception=True)
+
+        with self.assertRaises(Http404):
+            self.dispatch_view(req, raise_exception=Http404)
 
     def test_custom_login_url(self):
         """
