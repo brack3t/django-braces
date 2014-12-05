@@ -1,4 +1,5 @@
 .DS_Store
+.python-version
 ._*
 *.pyc
 *.egg-info
