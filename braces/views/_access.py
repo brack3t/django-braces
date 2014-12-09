@@ -5,7 +5,8 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import (HttpResponse, HttpResponseRedirect,
+                         StreamingHttpResponse)
 from django.utils.encoding import force_text
 
 
@@ -50,8 +51,7 @@ class AccessMixin(object):
                 raise self.raise_exception
             if callable(self.raise_exception):
                 ret = self.raise_exception()
-                # XXX: check for isinstance(ret, (HttpResponse, StreamingHttpResponse))?
-                if ret is not None:
+                if isinstance(ret, (HttpResponse, StreamingHttpResponse)):
                     return ret
             raise PermissionDenied
 
