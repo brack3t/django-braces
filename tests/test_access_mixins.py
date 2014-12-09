@@ -85,7 +85,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         req = self.build_request(user=user, path=self.view_url)
 
-        def func():
+        def func(request):
             pass
 
         with self.assertRaises(PermissionDenied):
@@ -99,7 +99,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         req = self.build_request(user=user, path=self.view_url)
 
-        def func():
+        def func(request):
             return HttpResponse("CUSTOM")
 
         resp = self.dispatch_view(req, raise_exception=func)
@@ -114,7 +114,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         req = self.build_request(user=user, path=self.view_url)
 
-        def func():
+        def func(request):
             return False
 
         with self.assertRaises(PermissionDenied):
@@ -129,7 +129,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         req = self.build_request(user=user, path=self.view_url)
 
-        def func():
+        def func(request):
             raise Http404
 
         with self.assertRaises(Http404):

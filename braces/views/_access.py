@@ -16,7 +16,7 @@ class AccessMixin(object):
     functionality.
     """
     login_url = None
-    raise_exception = False  # Default whether to raise an exception to none
+    raise_exception = False
     redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
     redirect_unauthenticated_users = False
 
@@ -50,7 +50,7 @@ class AccessMixin(object):
                     and issubclass(self.raise_exception, Exception):
                 raise self.raise_exception
             if callable(self.raise_exception):
-                ret = self.raise_exception()
+                ret = self.raise_exception(request)
                 if isinstance(ret, (HttpResponse, StreamingHttpResponse)):
                     return ret
             raise PermissionDenied
