@@ -124,3 +124,41 @@ class AllVerbsMixin(object):
 
         handler = getattr(self, self.all_handler, self.http_method_not_allowed)
         return handler(request, *args, **kwargs)
+        
+class HttpCacheMixin(object):
+    """A mixin that provides HTTP cache management that works exactly like the @cache_control and @vary_on_headers decorators."""
+    cache_timeout = 60
+    cache_varies = ['Accept']
+
+    def get_cache_timeout(self):
+        return self.cache_timeout
+
+    def get_cache_varies(self):
+        return self.cache_varies
+
+    def get_last_modified(self):
+        return None
+
+    def get_etag(self, ):
+        return None
+
+    @classmethod
+    def cacheable(self, request, response):
+        return (request.method in ['GET', 'HEAD', 'PUT'] and
+                response.status_code in [200, 203, 206, 410])
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super(HttpCacheMixin, self).dispatch(request, *args, **kwargs)
+        if self.cacheable(request, response):
+            last_modified = self.get_last_modified()
+            if last_modified is not None:
+                response['Last-Modified'] = last_modified
+            etag = self.get_etag()
+            if etag is not None:
+                response['ETag'] = etag
+            cache_timeout = int(self.get_cache_timeout())
+            patch_response_headers(response, cache_timeout)
+            cache_varies = self.get_cache_varies()
+            if len(cache_varies):
+                patch_vary_headers(response, cache_varies)
+        return response
