@@ -49,9 +49,7 @@ Usage
     from next.example import UserForm
 
 
-    class SomeSecretView(LoginRequiredMixin, UserFormKwargsMixin,
-        TemplateView):
-
+    class SomeSecretView(LoginRequiredMixin, UserFormKwargsMixin, CreateView):
         form_class = UserForm
         model = User
         template_name = "path/to/template.html"
