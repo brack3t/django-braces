@@ -6,10 +6,22 @@ These mixins all control a user's access to a given view. Since many of them ext
 ::
 
     login_url = settings.LOGIN_URL
-    redirect_field_name = REDIRECT_FIELD_NAME
     raise_exception = False
+    redirect_field_name = REDIRECT_FIELD_NAME
+    redirect_unauthenticated_users = False
 
-The ``raise_exception`` attribute will cause the view to raise a ``PermissionDenied`` exception if it is set to ``True``, otherwise the view will redirect to the login view provided.
+The ``raise_exception`` attribute allows for these scenarios, in case a
+permission is denied:
+
+    * ``False`` (default): redirects to the provided login view.
+    * ``True``: raises a ``PermissionDenied`` exception.
+    * A subclass of ``Exception``: raises this exception.
+    * A callable: gets called with the ``request`` argument.
+      The function has to return a ``HttpResponse`` or
+      ``StreamingHttpResponse`` (Django 1.5+), otherwise a ``PermissionDenied``
+      exception gets raised.
+
+This gets done in ``handle_no_permission``, which can be overridden itself.
 
 .. contents::
 
