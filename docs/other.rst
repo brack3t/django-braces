@@ -196,8 +196,9 @@ You can additionally use the `AjaxResponseMixin`
             return self.render_json_object_response(self.get_object())
 
 The `JSONResponseMixin` provides a class-level variable to control the response
-type as well. By default it is `application/json;charset=utf-8`, but you can
-override that by providing the `content_type` variable a different value or, programmatically, by overriding the `get_content_type()` method.
+type as well. By default it is `application/json`, but you can override that by
+providing the `content_type` variable a different value or, programmatically, by
+overriding the `get_content_type()` method.
 
 ::
 

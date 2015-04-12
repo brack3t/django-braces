@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import mock
 
 from django import test
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
 
@@ -78,8 +77,6 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         self.assertEqual(status_code, resp.status_code)
         self.assertEqual(u'application/json',
                          resp[u'content-type'].split(u';')[0])
-        self.assertEqual(u'charset={}'.format(settings.DEFAULT_CHARSET),
-                         resp[u'content-type'].split(u';')[1])
 
     def get_content(self, url):
         """
@@ -140,7 +137,7 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         self.assertEqual(normal_json, pretty_json)
         self.assertTrue(len(pretty_content) > len(normal_content))
 
-    def test_json_encoder_class_attribute(self):
+    def test_json_encoder_class_atrribute(self):
         """
         Tests setting custom `json_encoder_class` attribute.
         """

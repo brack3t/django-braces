@@ -1,6 +1,5 @@
 import six
 
-from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
@@ -30,8 +29,7 @@ class JSONResponseMixin(object):
                 '{0} is missing a content type. Define {0}.content_type, '
                 'or override {0}.get_content_type().'.format(
                     self.__class__.__name__))
-        return self.content_type or u"application/json;charset={}".format(
-            settings.DEFAULT_CHARSET)
+        return self.content_type or u"application/json"
 
     def get_json_dumps_kwargs(self):
         if self.json_dumps_kwargs is None:
