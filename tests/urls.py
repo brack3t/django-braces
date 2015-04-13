@@ -73,28 +73,32 @@ urlpatterns = patterns(
     url(r'^user_passes_test/$', views.UserPassesTestView.as_view()),
 
     # UserPassesTestMixin tests
-    url(r'^user_passes_test_not_implemented/$', views.UserPassesTestNotImplementedView.as_view()),
+    url(r'^user_passes_test_not_implemented/$',
+        views.UserPassesTestNotImplementedView.as_view()),
 
     # CsrfExemptMixin tests
     url(r'^csrf_exempt/$', views.CsrfExemptView.as_view()),
 
     # JSONResponseMixin tests
     url(r'^simple_json/$', views.SimpleJsonView.as_view()),
-    url(r'^simple_json_custom_encoder/$', views.CustomJsonEncoderView.as_view()),
+    url(r'^simple_json_custom_encoder/$',
+        views.CustomJsonEncoderView.as_view()),
     url(r'^simple_json_400/$', views.SimpleJsonBadRequestView.as_view()),
     url(r'^article_list_json/$', views.ArticleListJsonView.as_view()),
 
     # JsonRequestResponseMixin tests
     url(r'^json_request/$', views.JsonRequestResponseView.as_view()),
     url(r'^json_bad_request/$', views.JsonBadRequestView.as_view()),
-    url(r'^json_custom_bad_request/$', views.JsonCustomBadRequestView.as_view()),
+    url(r'^json_custom_bad_request/$',
+        views.JsonCustomBadRequestView.as_view()),
 
     # FormMessagesMixin tests
     url(r'form_messages/$', views.FormMessagesView.as_view()),
 
     # AllVerbsMixin tests
     url(r'all_verbs/$', views.AllVerbsView.as_view()),
-    url(r'all_verbs_no_handler/$', views.AllVerbsView.as_view(all_handler=None)),
+    url(r'all_verbs_no_handler/$',
+        views.AllVerbsView.as_view(all_handler=None)),
 )
 
 
