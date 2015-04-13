@@ -32,15 +32,19 @@ urlpatterns = patterns(
 
     # CanonicalSlugDetailMixin tests
     url(r'^article-canonical/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
-        views.CanonicalSlugDetailView.as_view()),
+        views.CanonicalSlugDetailView.as_view(),
+        name="canonical_slug"),
     url(r'^article-canonical-namespaced/',
         include('tests.urls_namespaced', namespace='some_namespace')),
     url(r'^article-canonical-override/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
-        views.OverriddenCanonicalSlugDetailView.as_view()),
+        views.OverriddenCanonicalSlugDetailView.as_view(),
+        name="canonical_override"),
     url(r'^article-canonical-custom-kwargs/(?P<my_pk>\d+)-(?P<my_slug>[-\w]+)/$',
-        views.CanonicalSlugDetailCustomUrlKwargsView.as_view()),
+        views.CanonicalSlugDetailCustomUrlKwargsView.as_view(),
+        name="canonical_custom_kwargs"),
     url(r'^article-canonical-model/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
-        views.ModelCanonicalSlugDetailView.as_view()),
+        views.ModelCanonicalSlugDetailView.as_view(),
+        name="canonical_model"),
 
     # UserFormKwargsMixin tests
     url(r'^form_with_user_kwarg/$', views.FormWithUserKwargView.as_view()),
