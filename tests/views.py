@@ -148,6 +148,7 @@ class CreateArticleView(CreateView):
     """
     View for testing CreateAndRedirectEditToView.
     """
+    fields = ['author', 'title', 'body', 'slug']
     model = Article
     template_name = 'form.html'
 
