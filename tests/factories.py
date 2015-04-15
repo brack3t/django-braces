@@ -19,26 +19,29 @@ def _get_perm(perm_name):
 
 
 class ArticleFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Article
-
     title = factory.Sequence(lambda n: 'Article number {0}'.format(n))
     body = factory.Sequence(lambda n: 'Body of article {0}'.format(n))
 
+    class Meta:
+        model = Article
+
 
 class GroupFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Group
-
     name = factory.Sequence(lambda n: 'group{0}'.format(n))
+
+    class Meta:
+        model = Group
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = User
-
     username = factory.Sequence(lambda n: 'user{0}'.format(n))
     first_name = factory.Sequence(lambda n: 'John {0}'.format(n))
     last_name = factory.Sequence(lambda n: 'Doe {0}'.format(n))
     email = factory.Sequence(lambda n: 'user{0}@example.com'.format(n))
     password = 'asdf1234'
+
+    class Meta:
+        model = User
 
     @classmethod
     def _prepare(cls, create, **kwargs):
