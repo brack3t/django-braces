@@ -12,7 +12,8 @@ from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
                     LoginRequiredView, GroupRequiredView, UserPassesTestView,
-                    UserPassesTestNotImplementedView, AnonymousRequiredView)
+                    UserPassesTestNotImplementedView, AnonymousRequiredView,
+                    SSLRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -474,3 +475,18 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
             view.dispatch(
                 self.build_request(path=self.view_not_implemented_url),
                 raise_exception=True)
+
+
+class TestSSLRequiredMixin(test.TestCase):
+    view_class = SSLRequiredView
+    view_url = '/sslrequired/'
+
+    def test_ssl_redirection(self):
+        self.view_class.raise_exception = False
+        resp = self.client.get(self.view_url)
+        self.assertEqual('https', resp.url[:5])
+
+    def test_raises_exception(self):
+        self.view_class.raise_exception = True
+        resp = self.client.get(self.view_url)
+        self.assertEqual(404, resp.status_code)
