@@ -131,6 +131,12 @@ class FormValidMessageMixin(MessageMixin):
                               fail_silently=True)
         return response
 
+    def delete(self, *args, **kwargs):
+        response = super(FormValidMessageMixin, self).delete(*args, **kwargs)
+        self.messages.success(self.get_form_valid_message(),
+                              fail_silently=True)
+        return response
+
 
 class FormInvalidMessageMixin(MessageMixin):
     """
