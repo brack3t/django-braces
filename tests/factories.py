@@ -24,6 +24,7 @@ class ArticleFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Article
+        abstract = False
 
 
 class GroupFactory(factory.django.DjangoModelFactory):
@@ -31,6 +32,7 @@ class GroupFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Group
+        abstract = False
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -42,6 +44,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = User
+        abstract = False
 
     @classmethod
     def _prepare(cls, create, **kwargs):
