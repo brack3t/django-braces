@@ -118,7 +118,7 @@ A simple mixin which allows you to specify a list or tuple of foreign key fields
         select_related = [u"user"]
         template_name = u"profiles/detail.html"
 
-.. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
+.. _select_related: https://docs.djangoproject.com/en/dev/ref/models/querysets/#select-related
 
 
 .. _PrefetchRelatedMixin:
@@ -142,7 +142,7 @@ A simple mixin which allows you to specify a list or tuple of reverse foreign ke
         prefetch_related = [u"post_set"]  # where the Post model has an FK to the User model as an author.
         template_name = u"users/detail.html"
 
-.. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related
+.. _prefetch_related: https://docs.djangoproject.com/en/dev/ref/models/querysets/#prefetch-related
 
 
 .. _JSONResponseMixin:
@@ -512,7 +512,3 @@ This mixin allows you to specify a single method that will response to all HTTP 
             return super(JustShowItView, self).get(request, *args, **kwargs)
 
 If you need to change the name of the method called, provide a new value to the ``all_handler`` attribute (default is ``'all'``)
-
-
-.. _select_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#select-related
-.. _prefetch_related: https://docs.djangoproject.com/en/1.5/ref/models/querysets/#prefetch-related
