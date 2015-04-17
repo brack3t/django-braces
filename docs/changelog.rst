@@ -5,6 +5,7 @@ Changelog
 =========
 
 * :release:`1.8.0 <2015-04-16>`
+* :support:`145` Allow custom exceptions to be raised by all AccessMixins.
 * :feature:`171` New :ref:`SSLRequiredMixin`. Redirect http -> https.
 * :feature:`138` New :ref:`RecentLoginRequiredMixin` to require user sessions to have a given freshness.
 * :bug:`164 major` Use `resolve_url` to handle `LOGIN_REDIRECT_URL`s in `settings.py` that are just URL names.
