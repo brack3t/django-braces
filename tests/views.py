@@ -338,3 +338,9 @@ class AllVerbsView(views.AllVerbsMixin, View):
 
 class SSLRequiredView(views.SSLRequiredMixin, OkView):
     pass
+
+
+class RecentLoginRequiredView(views.RecentLoginRequiredMixin, OkView):
+    """
+    A view for testing RecentLoginRequiredMixin.
+    """

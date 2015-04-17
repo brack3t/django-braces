@@ -106,6 +106,10 @@ urlpatterns = patterns(
 
     # SSLRequiredMixin tests
     url(r'^sslrequired/$', views.SSLRequiredView.as_view()),
+
+    # RecentLoginRequiredMixin tests
+    url(r'^recent_login/$', views.RecentLoginRequiredView.as_view()),
+    url(r'^outdated_login/$', views.RecentLoginRequiredView.as_view()),
 )
 
 

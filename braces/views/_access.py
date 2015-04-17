@@ -1,14 +1,16 @@
+import datetime
 import re
 import six
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.views import redirect_to_login, logout_then_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
                          Http404)
 from django.shortcuts import resolve_url
 from django.utils.encoding import force_text
+from django.utils.timezone import now
 
 
 class AccessMixin(object):
@@ -58,7 +60,8 @@ class LoginRequiredMixin(AccessMixin):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
-            if self.raise_exception and not self.redirect_unauthenticated_users:
+            if (self.raise_exception and
+                    not self.redirect_unauthenticated_users):
                 raise PermissionDenied  # return a forbidden response
             else:
                 return redirect_to_login(request.get_full_path(),
@@ -421,3 +424,20 @@ class SSLRequiredMixin(object):
         """ Get the full url, replace http with https """
         url = request.build_absolute_uri(request.get_full_path())
         return re.sub(r'^http', 'https', url)
+
+
+class RecentLoginRequiredMixin(LoginRequiredMixin):
+    """
+    Mixin allows you to require a login to be within a number of seconds.
+    """
+    max_last_login_delta = 1800  # Defaults to 30 minutes
+
+    def dispatch(self, request, *args, **kwargs):
+        resp = super(RecentLoginRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
+
+        delta = datetime.timedelta(seconds=self.max_last_login_delta)
+        if now() > (request.user.last_login + delta):
+            return logout_then_login(request, self.get_login_url())
+        else:
+            return resp

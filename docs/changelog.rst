@@ -4,8 +4,9 @@
 Changelog
 =========
 
-* :feature:`171` New :ref:`SSLRequiredMixin`. Redirect http -> https.
 * :release:`1.8.0 <2015-04-16>`
+* :feature:`171` New :ref:`SSLRequiredMixin`. Redirect http -> https.
+* :feature:`138` New :ref:`RecentLoginRequiredMixin` to require user sessions to have a given freshness.
 * :bug:`164` Use `resolve_url` to handle `LOGIN_REDIRECT_URL`s in `settings.py` that are just URL names.
 * :bug:`130` New attribute on :ref:`JSONResponseMixin` to allow setting a custom JSON encoder class.
 * :bug:`131` New attribute on :ref:`LoginRequiredMixin` so it's possible to redirect unauthenticated users while
@@ -24,7 +25,7 @@ Changelog
 * :feature:`89` Added new :ref:`AnonymousRequiredMixin` which redirects authenticated users to another view.
 * :feature:`104` Added new :ref:`AllVerbsMixin` which allows a single method to response to all HTTP verbs.
 * :bug:`- major` Provided ``JSONRequestResponseMixin`` as a mirror of :ref:`JsonRequestResponseMixin` because we're not PHP.
-* :feature:`107` :ref:`FormValidMessageMixin`, :ref:`FormInvalidMessageMixin`, and :ref:`FormMessagesMixin` all allow ``ugettext_lazy``-wrapped strings. 
+* :feature:`107` :ref:`FormValidMessageMixin`, :ref:`FormInvalidMessageMixin`, and :ref:`FormMessagesMixin` all allow ``ugettext_lazy``-wrapped strings.
 * :feature:`67` Extended :ref:`PermissionRequiredMixin` and :ref:`MultiplePermissionsRequiredMixin` to accept django-guardian-style custom/object permissions.
 * :release:`1.3.1 <2014-01-04>`
 * :bug:`95` Removed accidentally-added breakpoint.

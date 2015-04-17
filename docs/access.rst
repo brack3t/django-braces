@@ -145,7 +145,7 @@ Multiple Groups Possible Usage
 ::
 
     from django.views import TemplateView
-    
+
     from braces.views import GroupRequiredMixin
 
 
@@ -178,6 +178,22 @@ Custom Group Usage
             else:
                 return False
 
+
+Dynamically Build Groups
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import GroupRequiredMixin
+
+
+    class SomeProtectedView(GroupRequiredMixin, TemplateView):
+        def get_group_required(self):
+            # Get group or groups however you wish
+            group = 'secret_group'
+            return group
 
 .. _UserPassesTestMixin:
 
@@ -287,7 +303,7 @@ Similar to :ref:`SuperuserRequiredMixin`, this mixin allows you to require a use
 ::
 
     from django.views import TemplateView
-    
+
     from braces import views
 
 
@@ -296,6 +312,7 @@ Similar to :ref:`SuperuserRequiredMixin`, this mixin allows you to require a use
                             TemplateView):
 
         template_name = u"path/to/template.html"
+
 
 .. _SSLRequiredMixin
 
@@ -337,6 +354,29 @@ Standard Django Usage
         """ http request would raise 404. https renders view """
         raise_exception = True
         template_name = "path/to/template.html"
+
+
+.. _RecentLoginRequiredMixin:
+
+RecentLoginRequiredMixin
+------------------------
+
+.. versionadded:: 1.8.0
+
+This mixin requires a user to have logged in within a certain number of seconds. This is to prevent stale sessions or to create a session time-out, as is often used for financial applications and the like. This mixin includes the functionality of `LoginRequiredMixin`_, so you don't need to use both on the same view.
+
+
+::
+
+    from django.views.generic import TemplateView
+
+    from braces.views import RecentLoginRequiredMixin
+
+
+    class SomeSecretView(RecentLoginRequiredMixin, TemplateView):
+        max_last_login_delta = 600  # Require a login within the last 10 minutes
+        template_name = "path/to/template.html"
+
 
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
