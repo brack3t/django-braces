@@ -3,8 +3,8 @@ from __future__ import absolute_import
 
 import pytest
 
-import django
 from django import test
+from django import VERSION as DJANGO_VERSION
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
@@ -484,7 +484,7 @@ class TestSSLRequiredMixin(test.TestCase):
     view_class = SSLRequiredView
     view_url = '/sslrequired/'
 
-    @pytest.mark.skipif(django.VERSION[:2] < (1, 7),
+    @pytest.mark.skipif(DJANGO_VERSION[:2] < (1, 7),
                         reason='Djanog 1.6 and below behave this differently')
     def test_ssl_redirection_django_17_up(self):
         self.view_class.raise_exception = False
@@ -494,7 +494,7 @@ class TestSSLRequiredMixin(test.TestCase):
         self.assertEqual(200, resp.status_code)
         self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
 
-    @pytest.mark.skipif(django.VERSION[:2] > (1, 6),
+    @pytest.mark.skipif(DJANGO_VERSION[:2] > (1, 6),
                         reason='Django 1.7 and above behave differently')
     def test_ssl_redirection_django_16_down(self):
         self.view_class.raise_exception = False
@@ -516,7 +516,7 @@ class TestSSLRequiredMixin(test.TestCase):
         self.assertEqual(200, resp.status_code)
 
     @pytest.mark.skipif(
-        django.VERSION[:2] < (1, 7),
+        DJANGO_VERSION[:2] < (1, 7),
         reason='Djanog 1.6 and below does not have the secure=True option')
     def test_https_does_not_redirect_django_17_up(self):
         self.view_class.raise_exception = False
@@ -525,7 +525,7 @@ class TestSSLRequiredMixin(test.TestCase):
         self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
 
     @pytest.mark.skipif(
-        django.VERSION[:2] > (1, 6),
+        DJANGO_VERSION[:2] > (1, 6),
         reason='Django 1.7 and above have secure=True option, below does not')
     def test_https_does_not_redirect_django_16_down(self):
         self.view_class.raise_exception = False
