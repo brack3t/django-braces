@@ -9,6 +9,7 @@ from django import VERSION as DJANGO_VERSION
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
+from django.http import Http404, HttpResponse
 
 from .compat import force_text
 from .factories import GroupFactory, UserFactory
@@ -70,6 +71,75 @@ class _TestAccessBasicsMixin(TestViewHelper):
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(req, raise_exception=True)
 
+    def test_raise_custom_exception(self):
+        """
+        Http404 should be raised if user is not authorized and
+        raise_exception attribute is set to Http404.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        with self.assertRaises(Http404):
+            self.dispatch_view(req, raise_exception=Http404)
+
+    def test_raise_func_pass(self):
+        """
+        An exception should be raised if user is not authorized and
+        raise_exception attribute is set to a function that returns nothing.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func(request):
+            pass
+
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(req, raise_exception=func)
+
+    def test_raise_func_response(self):
+        """
+        A custom response should be returned if user is not authorized and
+        raise_exception attribute is set to a function that returns a response.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func(request):
+            return HttpResponse("CUSTOM")
+
+        resp = self.dispatch_view(req, raise_exception=func)
+        assert resp.status_code == 200
+        assert force_text(resp.content) == 'CUSTOM'
+
+    def test_raise_func_false(self):
+        """
+        PermissionDenied should be raised, if a custom raise_exception
+        function does not return HttpResponse or StreamingHttpResponse.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func(request):
+            return False
+
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(req, raise_exception=func)
+
+    def test_raise_func_raises(self):
+        """
+        A custom exception should be raised if user is not authorized and
+        raise_exception attribute is set to a callable that raises an
+        exception.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func(request):
+            raise Http404
+
+        with self.assertRaises(Http404):
+            self.dispatch_view(req, raise_exception=func)
+
     def test_custom_login_url(self):
         """
         Login url should be customizable.
@@ -127,6 +197,22 @@ class _TestAccessBasicsMixin(TestViewHelper):
         resp = self.client.get(self.view_url)
         self.assertRedirects(resp, u'/auth/login/?next={0}'.format(
             self.view_url))
+
+    def test_redirect_unauthenticated(self):
+        resp = self.dispatch_view(
+                self.build_request(path=self.view_url),
+                raise_exception=True,
+                redirect_unauthenticated_users=True)
+        assert resp.status_code == 302
+        assert resp['Location'] == '/accounts/login/?next={0}'.format(
+            self.view_url)
+
+    def test_redirect_unauthenticated_false(self):
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url),
+                raise_exception=True,
+                redirect_unauthenticated_users=False)
 
 
 class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
