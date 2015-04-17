@@ -490,3 +490,7 @@ class TestSSLRequiredMixin(test.TestCase):
         self.view_class.raise_exception = True
         resp = self.client.get(self.view_url)
         self.assertEqual(404, resp.status_code)
+
+    def test_https_does_not_redirect(self):
+        resp = self.client.get(self.view_url, secure=True)
+        self.assertEqual(200, resp.status_code)
