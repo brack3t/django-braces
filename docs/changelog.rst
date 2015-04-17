@@ -7,9 +7,9 @@ Changelog
 * :release:`1.8.0 <2015-04-16>`
 * :feature:`171` New :ref:`SSLRequiredMixin`. Redirect http -> https.
 * :feature:`138` New :ref:`RecentLoginRequiredMixin` to require user sessions to have a given freshness.
-* :bug:`164` Use `resolve_url` to handle `LOGIN_REDIRECT_URL`s in `settings.py` that are just URL names.
-* :bug:`130` New attribute on :ref:`JSONResponseMixin` to allow setting a custom JSON encoder class.
-* :bug:`131` New attribute on :ref:`LoginRequiredMixin` so it's possible to redirect unauthenticated users while
+* :bug:`164 major` Use `resolve_url` to handle `LOGIN_REDIRECT_URL`s in `settings.py` that are just URL names.
+* :bug:`130 major` New attribute on :ref:`JSONResponseMixin` to allow setting a custom JSON encoder class.
+* :bug:`131 major` New attribute on :ref:`LoginRequiredMixin` so it's possible to redirect unauthenticated users while
   using ``AccessMixin``-derived mixins instead of throwing an exception.
 * :release:`1.4.0 <2014-03-04>`
 * :support:`129` Split ``views.py`` out into multiple files since it was approaching 1000 LoC.
