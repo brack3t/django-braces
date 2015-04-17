@@ -179,6 +179,22 @@ Custom Group Usage
                 return False
 
 
+Dynamically Build Groups
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import GroupRequiredMixin
+
+
+    class SomeProtectedView(GroupRequiredMixin, TemplateView):
+        def get_group_required(self):
+            # Get group or groups however you wish
+            group = 'secret_group'
+            return group
+
 .. _UserPassesTestMixin:
 
 UserPassesTestMixin
