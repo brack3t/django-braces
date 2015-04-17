@@ -1,13 +1,17 @@
 import inspect
+import datetime
+import re
 import six
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.views import redirect_to_login, logout_then_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
+                         Http404, HttpResponse)
 from django.shortcuts import resolve_url
 from django.utils.encoding import force_text
+from django.utils.timezone import now
 
 # StreamingHttpResponse has been added in 1.5, and gets used for verification
 # only.
@@ -54,8 +58,8 @@ class AccessMixin(object):
 
     def handle_no_permission(self, request):
         if self.raise_exception and not self.redirect_unauthenticated_users:
-            if inspect.isclass(self.raise_exception) \
-                    and issubclass(self.raise_exception, Exception):
+            if (inspect.isclass(self.raise_exception)
+                    and issubclass(self.raise_exception, Exception)):
                 raise self.raise_exception
             if callable(self.raise_exception):
                 ret = self.raise_exception(request)
@@ -387,3 +391,47 @@ class StaffuserRequiredMixin(AccessMixin):
 
         return super(StaffuserRequiredMixin, self).dispatch(
             request, *args, **kwargs)
+
+
+class SSLRequiredMixin(object):
+    """
+    Simple mixin that allows you to force a view to be accessed
+    via https.
+    """
+    raise_exception = False  # Default whether to raise an exception to none
+
+    def dispatch(self, request, *args, **kwargs):
+        if getattr(settings, 'DEBUG', False):
+            return super(SSLRequiredMixin, self).dispatch(
+                request, *args, **kwargs)
+
+        if not request.is_secure():
+            if self.raise_exception:
+                raise Http404
+
+            return HttpResponsePermanentRedirect(
+                self._build_https_url(request))
+
+        return super(SSLRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+    def _build_https_url(self, request):
+        """ Get the full url, replace http with https """
+        url = request.build_absolute_uri(request.get_full_path())
+        return re.sub(r'^http', 'https', url)
+
+
+class RecentLoginRequiredMixin(LoginRequiredMixin):
+    """
+    Mixin allows you to require a login to be within a number of seconds.
+    """
+    max_last_login_delta = 1800  # Defaults to 30 minutes
+
+    def dispatch(self, request, *args, **kwargs):
+        resp = super(RecentLoginRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
+
+        delta = datetime.timedelta(seconds=self.max_last_login_delta)
+        if now() > (request.user.last_login + delta):
+            return logout_then_login(request, self.get_login_url())
+        else:
+            return resp
