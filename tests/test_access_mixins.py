@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import datetime
+
 from django import test
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
@@ -12,7 +14,8 @@ from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
                     LoginRequiredView, GroupRequiredView, UserPassesTestView,
-                    UserPassesTestNotImplementedView, AnonymousRequiredView)
+                    UserPassesTestNotImplementedView, AnonymousRequiredView,
+                    RecentLoginRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -475,3 +478,30 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
             view.dispatch(
                 self.build_request(path=self.view_not_implemented_url),
                 raise_exception=True)
+
+
+class TestRecentLoginRequiredMixin(test.TestCase):
+    """
+    Tests for RecentLoginRequiredMixin.
+    """
+    view_class = RecentLoginRequiredView
+    recent_view_url = '/recent_login/'
+    outdated_view_url = '/outdated_login/'
+
+    def test_recent_login(self):
+        self.view_class.max_last_login_delta = 1800
+        last_login = datetime.datetime.now()
+        user = UserFactory(last_login=last_login)
+        self.client.login(username=user.username, password='asdf1234')
+        print(user.last_login)
+        resp = self.client.get(self.recent_view_url)
+        assert resp.status_code == 200
+        assert force_text(resp.content) == 'OK'
+
+    def test_outdated_login(self):
+        self.view_class.max_last_login_delta = 0
+        last_login = datetime.datetime.now() - datetime.timedelta(hours=2)
+        user = UserFactory(last_login=last_login)
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.outdated_view_url)
+        assert resp.status_code == 302
