@@ -103,6 +103,10 @@ urlpatterns = patterns(
     url(r'all_verbs/$', views.AllVerbsView.as_view()),
     url(r'all_verbs_no_handler/$',
         views.AllVerbsView.as_view(all_handler=None)),
+
+    # RecentLoginRequiredMixin tests
+    url(r'^recent_login/$', views.RecentLoginRequiredView.as_view()),
+    url(r'^outdated_login/$', views.RecentLoginRequiredView.as_view()),
 )
 
 
