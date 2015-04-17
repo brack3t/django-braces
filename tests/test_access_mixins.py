@@ -493,7 +493,6 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         last_login = datetime.datetime.now()
         user = UserFactory(last_login=last_login)
         self.client.login(username=user.username, password='asdf1234')
-        print(user.last_login)
         resp = self.client.get(self.recent_view_url)
         assert resp.status_code == 200
         assert force_text(resp.content) == 'OK'
