@@ -6,6 +6,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import resolve_url
 from django.utils.encoding import force_text
 
 # StreamingHttpResponse has been added in 1.5, and gets used for verification
@@ -13,7 +14,7 @@ from django.utils.encoding import force_text
 try:
     from django.http import StreamingHttpResponse
 except ImportError:
-    class StreamingHttpResponse:
+    class StreamingHttpResponse(object):
         pass
 
 
@@ -127,7 +128,7 @@ class AnonymousRequiredMixin(object):
                 '{0}.authenticated_redirect_url or override '
                 '{0}.get_authenticated_redirect_url().'.format(
                     self.__class__.__name__))
-        return self.authenticated_redirect_url
+        return resolve_url(self.authenticated_redirect_url)
 
 
 class PermissionRequiredMixin(AccessMixin):

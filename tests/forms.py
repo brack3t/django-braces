@@ -14,3 +14,4 @@ class FormWithUserKwarg(UserKwargModelFormMixin, forms.Form):
 class ArticleForm(forms.ModelForm):
     class Meta:
         model = Article
+        fields = ['author', 'title', 'body', 'slug']

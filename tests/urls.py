@@ -32,15 +32,19 @@ urlpatterns = patterns(
 
     # CanonicalSlugDetailMixin tests
     url(r'^article-canonical/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
-        views.CanonicalSlugDetailView.as_view()),
+        views.CanonicalSlugDetailView.as_view(),
+        name="canonical_slug"),
     url(r'^article-canonical-namespaced/',
         include('tests.urls_namespaced', namespace='some_namespace')),
     url(r'^article-canonical-override/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
-        views.OverriddenCanonicalSlugDetailView.as_view()),
+        views.OverriddenCanonicalSlugDetailView.as_view(),
+        name="canonical_override"),
     url(r'^article-canonical-custom-kwargs/(?P<my_pk>\d+)-(?P<my_slug>[-\w]+)/$',
-        views.CanonicalSlugDetailCustomUrlKwargsView.as_view()),
+        views.CanonicalSlugDetailCustomUrlKwargsView.as_view(),
+        name="canonical_custom_kwargs"),
     url(r'^article-canonical-model/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
-        views.ModelCanonicalSlugDetailView.as_view()),
+        views.ModelCanonicalSlugDetailView.as_view(),
+        name="canonical_model"),
 
     # UserFormKwargsMixin tests
     url(r'^form_with_user_kwarg/$', views.FormWithUserKwargView.as_view()),
@@ -73,28 +77,32 @@ urlpatterns = patterns(
     url(r'^user_passes_test/$', views.UserPassesTestView.as_view()),
 
     # UserPassesTestMixin tests
-    url(r'^user_passes_test_not_implemented/$', views.UserPassesTestNotImplementedView.as_view()),
+    url(r'^user_passes_test_not_implemented/$',
+        views.UserPassesTestNotImplementedView.as_view()),
 
     # CsrfExemptMixin tests
     url(r'^csrf_exempt/$', views.CsrfExemptView.as_view()),
 
     # JSONResponseMixin tests
     url(r'^simple_json/$', views.SimpleJsonView.as_view()),
-    url(r'^simple_json_custom_encoder/$', views.CustomJsonEncoderView.as_view()),
+    url(r'^simple_json_custom_encoder/$',
+        views.CustomJsonEncoderView.as_view()),
     url(r'^simple_json_400/$', views.SimpleJsonBadRequestView.as_view()),
     url(r'^article_list_json/$', views.ArticleListJsonView.as_view()),
 
     # JsonRequestResponseMixin tests
     url(r'^json_request/$', views.JsonRequestResponseView.as_view()),
     url(r'^json_bad_request/$', views.JsonBadRequestView.as_view()),
-    url(r'^json_custom_bad_request/$', views.JsonCustomBadRequestView.as_view()),
+    url(r'^json_custom_bad_request/$',
+        views.JsonCustomBadRequestView.as_view()),
 
     # FormMessagesMixin tests
     url(r'form_messages/$', views.FormMessagesView.as_view()),
 
     # AllVerbsMixin tests
     url(r'all_verbs/$', views.AllVerbsView.as_view()),
-    url(r'all_verbs_no_handler/$', views.AllVerbsView.as_view(all_handler=None)),
+    url(r'all_verbs_no_handler/$',
+        views.AllVerbsView.as_view(all_handler=None)),
 )
 
 
