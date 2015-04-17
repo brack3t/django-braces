@@ -145,7 +145,7 @@ Multiple Groups Possible Usage
 ::
 
     from django.views import TemplateView
-    
+
     from braces.views import GroupRequiredMixin
 
 
@@ -303,7 +303,7 @@ Similar to :ref:`SuperuserRequiredMixin`, this mixin allows you to require a use
 ::
 
     from django.views import TemplateView
-    
+
     from braces import views
 
 
@@ -312,6 +312,49 @@ Similar to :ref:`SuperuserRequiredMixin`, this mixin allows you to require a use
                             TemplateView):
 
         template_name = u"path/to/template.html"
+
+
+.. _SSLRequiredMixin
+
+SSLRequiredMixin
+----------------
+
+.. versionadded:: 1.8.0
+
+Simple view mixin that requires the incoming request to be secure by checking
+Django's `request.is_secure()` method. By default the mixin will return a
+permanent (301) redirect to the https verison of the current url. Optionally
+you can set `raise_exception=True` and a 404 will be raised.
+
+Standard Django Usage
+^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import SSLRequiredMixin
+
+
+    class SomeSecureView(SSLRequiredMixin, TemplateView):
+        """ Redirects from http -> https """
+        template_name = "path/to/template.html"
+
+Standard Django Usage
+^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import SSLRequiredMixin
+
+
+    class SomeSecureView(SSLRequiredMixin, TemplateView):
+        """ http request would raise 404. https renders view """
+        raise_exception = True
+        template_name = "path/to/template.html"
+
 
 .. _RecentLoginRequiredMixin:
 
@@ -333,7 +376,6 @@ This mixin requires a user to have logged in within a certain number of seconds.
     class SomeSecretView(RecentLoginRequiredMixin, TemplateView):
         max_last_login_delta = 600  # Require a login within the last 10 minutes
         template_name = "path/to/template.html"
-
 
 
 .. _Daniel Sokolowski: https://github.com/danols

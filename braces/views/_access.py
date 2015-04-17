@@ -1,12 +1,13 @@
 import datetime
-
+import re
 import six
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login, logout_then_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
+                         Http404)
 from django.shortcuts import resolve_url
 from django.utils.encoding import force_text
 from django.utils.timezone import now
@@ -396,6 +397,33 @@ class StaffuserRequiredMixin(AccessMixin):
 
         return super(StaffuserRequiredMixin, self).dispatch(
             request, *args, **kwargs)
+
+
+class SSLRequiredMixin(object):
+    """
+    Simple mixin that allows you to force a view to be accessed
+    via https.
+    """
+    raise_exception = False  # Default whether to raise an exception to none
+
+    def dispatch(self, request, *args, **kwargs):
+        if getattr(settings, 'DEBUG', False):
+            return super(SSLRequiredMixin, self).dispatch(
+                request, *args, **kwargs)
+
+        if not request.is_secure():
+            if self.raise_exception:
+                raise Http404
+
+            return HttpResponsePermanentRedirect(
+                self._build_https_url(request))
+
+        return super(SSLRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+    def _build_https_url(self, request):
+        """ Get the full url, replace http with https """
+        url = request.build_absolute_uri(request.get_full_path())
+        return re.sub(r'^http', 'https', url)
 
 
 class RecentLoginRequiredMixin(LoginRequiredMixin):
