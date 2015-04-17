@@ -484,7 +484,10 @@ class TestSSLRequiredMixin(test.TestCase):
     def test_ssl_redirection(self):
         self.view_class.raise_exception = False
         resp = self.client.get(self.view_url)
-        self.assertEqual('https', resp.url[:5])
+        self.assertEqual(301, resp.status_code)
+        resp = self.client.get(self.view_url, follow=True)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
 
     def test_raises_exception(self):
         self.view_class.raise_exception = True
@@ -492,5 +495,7 @@ class TestSSLRequiredMixin(test.TestCase):
         self.assertEqual(404, resp.status_code)
 
     def test_https_does_not_redirect(self):
+        self.view_class.raise_exception = False
         resp = self.client.get(self.view_url, secure=True)
         self.assertEqual(200, resp.status_code)
+        self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
