@@ -4,6 +4,8 @@
 Changelog
 =========
 
+* :feature:`171` New SSLRequiredMixin. Redirect http -> https.
+* :release:`1.8.0 <2015-04-16>`
 * :bug:`164` Use `resolve_url` to handle `LOGIN_REDIRECT_URL`s in `settings.py` that are just URL names.
 * :bug:`130` New attribute on :ref:`JSONResponseMixin` to allow setting a custom JSON encoder class.
 * :bug:`131` New attribute on :ref:`LoginRequiredMixin` so it's possible to redirect unauthenticated users while
