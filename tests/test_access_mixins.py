@@ -18,7 +18,8 @@ from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
                     LoginRequiredView, GroupRequiredView, UserPassesTestView,
                     UserPassesTestNotImplementedView, AnonymousRequiredView,
-                    SSLRequiredView, RecentLoginRequiredView)
+                    SSLRequiredView, RecentLoginRequiredView,
+                    RedirectWithMessageView, RedirectWithNoMessageView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -645,3 +646,18 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.outdated_view_url)
         assert resp.status_code == 302
+
+
+class TestLoginRedirectMessageDefined(test.TestCase):
+    view_url_message_is_defined = '/login_redirect_message_defined/'
+    view_url_message_not_defined = '/login_redirect_message_none/'
+
+    def test_message_on_response_context(self):
+        resp = self.client.get(self.view_url_message_is_defined, follow=True)
+        messages = list(resp.context.get('messages'))
+        assert messages[0].message == 'LOGIN_REDIRECT_MESSAGE'
+
+    def test_no_message_on_response_context(self):
+        resp = self.client.get(self.view_url_message_not_defined, follow=True)
+        messages = resp.context.get('messages')
+        assert len(messages) == 0
