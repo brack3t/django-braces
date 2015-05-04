@@ -67,7 +67,6 @@ class AccessMixin(object):
             if callable(self.raise_exception):
                 ret = self.raise_exception(request)
                 if isinstance(ret, (HttpResponse, StreamingHttpResponse)):
-                    messages.warning(request, self.login_redirect_message, fail_silently=True)
                     return ret
             raise PermissionDenied
 
@@ -80,6 +79,8 @@ class AccessMixin(object):
 
         By default we redirect to login.
         """
+        if self.login_redirect_message:
+            messages.warning(request, self.login_redirect_message, fail_silently=True)
         return redirect_to_login(request.get_full_path(),
                                  self.get_login_url(),
                                  self.get_redirect_field_name())
