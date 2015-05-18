@@ -151,10 +151,12 @@ JSONResponseMixin
 -----------------
 
 .. versionchanged:: 1.1
-    ``render_json_response`` now accepts a ``status_code`` keyword argument.
+    ``render_json_response`` now accepts a ``code`` keyword argument.
     ``json_dumps_kwargs`` class-attribute and ``get_json_dumps_kwargs`` method to provide arguments to the ``json.dumps()`` method.
 
-A simple mixin to handle very simple serialization as a response to the browser.
+A simple mixin to handle very simple serialization as a response to the browser using either the python json library
+or the django supplied simplejson library. If you need to use the Django serializers to create the JSON data, use
+``render_json_object_response`` instead.
 
 ::
 
