@@ -431,7 +431,7 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
             request, *args, **kwargs)
 
         delta = datetime.timedelta(seconds=self.max_last_login_delta)
-        if now() > (request.user.last_login + delta):
-            return logout_then_login(request, self.get_login_url())
-        else:
-            return resp
+        if request.user.is_authenticated():
+            if now() > (request.user.last_login + delta):
+                return logout_then_login(request, self.get_login_url())
+        return resp
