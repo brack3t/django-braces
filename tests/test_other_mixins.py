@@ -719,3 +719,38 @@ class TestAllVerbsMixin(test.TestCase):
     def test_no_all_handler(self):
         with self.assertRaises(ImproperlyConfigured):
             self.client.get('/all_verbs_no_handler/')
+
+
+class TestHttpCacheMixin(test.TestCase):
+
+    def setUp(self):
+        self.url = "/http_cache/"
+
+    def test_last_modified(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response['Last-Modified'], 'Thu, 15 Jun 2000 08:20:30 GMT')
+
+    def test_etag(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response['Etag'], 'test_etag')
+
+    def test_vary(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response['Vary'], 'Accept, Cookie')
+
+    def test_get_cacheable(self):
+        response = self.client.get(self.url)
+        self.assertIn('Vary', response)
+
+    def test_put_cacheable(self):
+        response = self.client.put(self.url)
+        self.assertIn('Vary', response)
+
+    def test_post_cacheable(self):
+        response = self.client.post(self.url)
+        self.assertNotIn('Vary', response)
+
+    def test_delete_cacheable(self):
+        response = self.client.delete(self.url)
+        self.assertNotIn('Vary', response)
+

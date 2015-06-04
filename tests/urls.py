@@ -95,6 +95,9 @@ urlpatterns = patterns(
     # AllVerbsMixin tests
     url(r'all_verbs/$', views.AllVerbsView.as_view()),
     url(r'all_verbs_no_handler/$', views.AllVerbsView.as_view(all_handler=None)),
+
+    # CacheMixin tests
+    url(r'http_cache/$', views.HttpCacheView.as_view()),
 )
 
 

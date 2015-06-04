@@ -1,9 +1,11 @@
 from __future__ import absolute_import
 
 import codecs
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.utils.timezone import FixedOffset
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import (View, UpdateView, FormView, TemplateView,
                                   ListView, DetailView, CreateView)
@@ -332,3 +334,15 @@ class UserPassesTestNotImplementedView(views.UserPassesTestMixin, OkView):
 class AllVerbsView(views.AllVerbsMixin, View):
     def all(self, request, *args, **kwargs):
         return HttpResponse('All verbs return this!')
+
+
+class HttpCacheView(views.HttpCacheMixin, OkView):
+    cache_timeout = 3600
+    cache_varies = ['Accept', 'Cookie']
+
+    def get_etag(self):
+        return 'test_etag'
+
+    def get_last_modified(self):
+        return datetime(year=2000, month=6, day=15, hour=10, minute=20,
+                        second=30, tzinfo=FixedOffset(offset=120))
