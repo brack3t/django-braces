@@ -151,7 +151,7 @@ JSONResponseMixin
 -----------------
 
 .. versionchanged:: 1.1
-    ``render_json_response`` now accepts a ``status_code`` keyword argument.
+    ``render_json_response`` now accepts a ``status`` keyword argument.
     ``json_dumps_kwargs`` class-attribute and ``get_json_dumps_kwargs`` method to provide arguments to the ``json.dumps()`` method.
 
 A simple mixin to handle very simple serialization as a response to the browser.
