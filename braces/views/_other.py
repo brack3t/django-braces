@@ -127,7 +127,10 @@ class AllVerbsMixin(object):
         return handler(request, *args, **kwargs)
         
 class HttpCacheMixin(object):
-    """A mixin that provides HTTP cache management that works exactly like the @cache_control and @vary_on_headers decorators."""
+    """
+    A mixin that provides HTTP cache management that works exactly like the
+    @cache_control and @vary_on_headers decorators.
+    """
     cache_timeout = 60
     cache_varies = ['Accept']
 
