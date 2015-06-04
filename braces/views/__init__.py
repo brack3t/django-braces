@@ -8,7 +8,9 @@ from ._access import (
     PermissionRequiredMixin,
     StaffuserRequiredMixin,
     SuperuserRequiredMixin,
-    UserPassesTestMixin
+    UserPassesTestMixin,
+    SSLRequiredMixin,
+    RecentLoginRequiredMixin
 )
 from ._ajax import (
     AjaxResponseMixin,
@@ -66,5 +68,7 @@ __all__ = [
     'SuperuserRequiredMixin',
     'UserFormKwargsMixin',
     'UserPassesTestMixin',
+    'SSLRequiredMixin',
+    'RecentLoginRequiredMixin',
     'HttpCacheMixin'
 ]

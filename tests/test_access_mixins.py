@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import pytest
+import datetime
+
 from django import test
+from django import VERSION as DJANGO_VERSION
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import reverse_lazy
+from django.http import Http404, HttpResponse
 
 from .compat import force_text
 from .factories import GroupFactory, UserFactory
@@ -12,7 +17,8 @@ from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
                     LoginRequiredView, GroupRequiredView, UserPassesTestView,
-                    UserPassesTestNotImplementedView, AnonymousRequiredView)
+                    UserPassesTestNotImplementedView, AnonymousRequiredView,
+                    SSLRequiredView, RecentLoginRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -64,6 +70,75 @@ class _TestAccessBasicsMixin(TestViewHelper):
 
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(req, raise_exception=True)
+
+    def test_raise_custom_exception(self):
+        """
+        Http404 should be raised if user is not authorized and
+        raise_exception attribute is set to Http404.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        with self.assertRaises(Http404):
+            self.dispatch_view(req, raise_exception=Http404)
+
+    def test_raise_func_pass(self):
+        """
+        An exception should be raised if user is not authorized and
+        raise_exception attribute is set to a function that returns nothing.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func(request):
+            pass
+
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(req, raise_exception=func)
+
+    def test_raise_func_response(self):
+        """
+        A custom response should be returned if user is not authorized and
+        raise_exception attribute is set to a function that returns a response.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func(request):
+            return HttpResponse("CUSTOM")
+
+        resp = self.dispatch_view(req, raise_exception=func)
+        assert resp.status_code == 200
+        assert force_text(resp.content) == 'CUSTOM'
+
+    def test_raise_func_false(self):
+        """
+        PermissionDenied should be raised, if a custom raise_exception
+        function does not return HttpResponse or StreamingHttpResponse.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func(request):
+            return False
+
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(req, raise_exception=func)
+
+    def test_raise_func_raises(self):
+        """
+        A custom exception should be raised if user is not authorized and
+        raise_exception attribute is set to a callable that raises an
+        exception.
+        """
+        user = self.build_unauthorized_user()
+        req = self.build_request(user=user, path=self.view_url)
+
+        def func(request):
+            raise Http404
+
+        with self.assertRaises(Http404):
+            self.dispatch_view(req, raise_exception=func)
 
     def test_custom_login_url(self):
         """
@@ -123,6 +198,22 @@ class _TestAccessBasicsMixin(TestViewHelper):
         self.assertRedirects(resp, u'/auth/login/?next={0}'.format(
             self.view_url))
 
+    def test_redirect_unauthenticated(self):
+        resp = self.dispatch_view(
+                self.build_request(path=self.view_url),
+                raise_exception=True,
+                redirect_unauthenticated_users=True)
+        assert resp.status_code == 302
+        assert resp['Location'] == '/accounts/login/?next={0}'.format(
+            self.view_url)
+
+    def test_redirect_unauthenticated_false(self):
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url),
+                raise_exception=True,
+                redirect_unauthenticated_users=False)
+
 
 class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
     """
@@ -149,9 +240,8 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
 
     def test_anonymous_redirects(self):
         resp = self.dispatch_view(
-                self.build_request(path=self.view_url),
-                raise_exception=True,
-                redirect_unauthenticated_users=True)
+            self.build_request(path=self.view_url), raise_exception=True,
+            redirect_unauthenticated_users=True)
         assert resp.status_code == 302
         assert resp['Location'] == '/accounts/login/?next=/login_required/'
 
@@ -475,3 +565,83 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
             view.dispatch(
                 self.build_request(path=self.view_not_implemented_url),
                 raise_exception=True)
+
+
+class TestSSLRequiredMixin(test.TestCase):
+    view_class = SSLRequiredView
+    view_url = '/sslrequired/'
+
+    @pytest.mark.skipif(DJANGO_VERSION[:2] < (1, 7),
+                        reason='Djanog 1.6 and below behave this differently')
+    def test_ssl_redirection_django_17_up(self):
+        self.view_class.raise_exception = False
+        resp = self.client.get(self.view_url)
+        self.assertRedirects(resp, self.view_url, status_code=301)
+        resp = self.client.get(self.view_url, follow=True)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
+
+    @pytest.mark.skipif(DJANGO_VERSION[:2] > (1, 6),
+                        reason='Django 1.7 and above behave differently')
+    def test_ssl_redirection_django_16_down(self):
+        self.view_class.raise_exception = False
+        resp = self.client.get(self.view_url)
+        self.assertEqual(301, resp.status_code)
+        resp = self.client.get(self.view_url, follow=True)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
+
+    def test_raises_exception(self):
+        self.view_class.raise_exception = True
+        resp = self.client.get(self.view_url)
+        self.assertEqual(404, resp.status_code)
+
+    @override_settings(DEBUG=True)
+    def test_debug_bypasses_redirect(self):
+        self.view_class.raise_exception = False
+        resp = self.client.get(self.view_url)
+        self.assertEqual(200, resp.status_code)
+
+    @pytest.mark.skipif(
+        DJANGO_VERSION[:2] < (1, 7),
+        reason='Djanog 1.6 and below does not have the secure=True option')
+    def test_https_does_not_redirect_django_17_up(self):
+        self.view_class.raise_exception = False
+        resp = self.client.get(self.view_url, secure=True)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
+
+    @pytest.mark.skipif(
+        DJANGO_VERSION[:2] > (1, 6),
+        reason='Django 1.7 and above have secure=True option, below does not')
+    def test_https_does_not_redirect_django_16_down(self):
+        self.view_class.raise_exception = False
+        resp = self.client.get(self.view_url, **{'wsgi.url_scheme': 'https'})
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
+
+
+class TestRecentLoginRequiredMixin(test.TestCase):
+    """
+    Tests for RecentLoginRequiredMixin.
+    """
+    view_class = RecentLoginRequiredView
+    recent_view_url = '/recent_login/'
+    outdated_view_url = '/outdated_login/'
+
+    def test_recent_login(self):
+        self.view_class.max_last_login_delta = 1800
+        last_login = datetime.datetime.now()
+        user = UserFactory(last_login=last_login)
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.recent_view_url)
+        assert resp.status_code == 200
+        assert force_text(resp.content) == 'OK'
+
+    def test_outdated_login(self):
+        self.view_class.max_last_login_delta = 0
+        last_login = datetime.datetime.now() - datetime.timedelta(hours=2)
+        user = UserFactory(last_login=last_login)
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.outdated_view_url)
+        assert resp.status_code == 302

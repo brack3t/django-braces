@@ -150,6 +150,7 @@ class CreateArticleView(CreateView):
     """
     View for testing CreateAndRedirectEditToView.
     """
+    fields = ['author', 'title', 'body', 'slug']
     model = Article
     template_name = 'form.html'
 
@@ -193,7 +194,8 @@ class ArticleListViewWithCustomQueryset(views.SelectRelatedMixin, ListView):
     """
     Another list view for articles, required to test SelectRelatedMixin.
     """
-    queryset = Article.objects.select_related('author').prefetch_related('article_set')
+    queryset = Article.objects.select_related('author').prefetch_related(
+        'article_set')
     template_name = 'blank.html'
     select_related = ()
 
@@ -334,6 +336,16 @@ class UserPassesTestNotImplementedView(views.UserPassesTestMixin, OkView):
 class AllVerbsView(views.AllVerbsMixin, View):
     def all(self, request, *args, **kwargs):
         return HttpResponse('All verbs return this!')
+
+
+class SSLRequiredView(views.SSLRequiredMixin, OkView):
+    pass
+
+
+class RecentLoginRequiredView(views.RecentLoginRequiredMixin, OkView):
+    """
+    A view for testing RecentLoginRequiredMixin.
+    """
 
 
 class HttpCacheView(views.HttpCacheMixin, OkView):

@@ -1,11 +1,25 @@
+import inspect
+import datetime
+import re
 import six
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.views import redirect_to_login, logout_then_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
+                         Http404, HttpResponse)
+from django.shortcuts import resolve_url
 from django.utils.encoding import force_text
+from django.utils.timezone import now
+
+# StreamingHttpResponse has been added in 1.5, and gets used for verification
+# only.
+try:
+    from django.http import StreamingHttpResponse
+except ImportError:
+    class StreamingHttpResponse(object):
+        pass
 
 
 class AccessMixin(object):
@@ -14,8 +28,9 @@ class AccessMixin(object):
     functionality.
     """
     login_url = None
-    raise_exception = False  # Default whether to raise an exception to none
+    raise_exception = False
     redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
+    redirect_unauthenticated_users = False
 
     def get_login_url(self):
         """
@@ -41,6 +56,30 @@ class AccessMixin(object):
                     self.__class__.__name__))
         return self.redirect_field_name
 
+    def handle_no_permission(self, request):
+        if self.raise_exception and not self.redirect_unauthenticated_users:
+            if (inspect.isclass(self.raise_exception)
+                    and issubclass(self.raise_exception, Exception)):
+                raise self.raise_exception
+            if callable(self.raise_exception):
+                ret = self.raise_exception(request)
+                if isinstance(ret, (HttpResponse, StreamingHttpResponse)):
+                    return ret
+            raise PermissionDenied
+
+        return self.no_permissions_fail(request)
+
+    def no_permissions_fail(self, request=None):
+        """
+        Called when the user has no permissions and no exception was raised.
+        This should only return a valid HTTP response.
+
+        By default we redirect to login.
+        """
+        return redirect_to_login(request.get_full_path(),
+                                 self.get_login_url(),
+                                 self.get_redirect_field_name())
+
 
 class LoginRequiredMixin(AccessMixin):
     """
@@ -51,16 +90,9 @@ class LoginRequiredMixin(AccessMixin):
         combined with CsrfExemptMixin - which in that case should
         be the left-most mixin.
     """
-    redirect_unauthenticated_users = False
-
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
-            if self.raise_exception and not self.redirect_unauthenticated_users:
-                raise PermissionDenied  # return a forbidden response
-            else:
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+            return self.handle_no_permission(request)
 
         return super(LoginRequiredMixin, self).dispatch(
             request, *args, **kwargs)
@@ -100,7 +132,7 @@ class AnonymousRequiredMixin(object):
                 '{0}.authenticated_redirect_url or override '
                 '{0}.get_authenticated_redirect_url().'.format(
                     self.__class__.__name__))
-        return self.authenticated_redirect_url
+        return resolve_url(self.authenticated_redirect_url)
 
 
 class PermissionRequiredMixin(AccessMixin):
@@ -151,17 +183,6 @@ class PermissionRequiredMixin(AccessMixin):
         perms = self.get_permission_required(request)
         return request.user.has_perm(perms)
 
-    def no_permissions_fail(self, request=None):
-        """
-        Called when the user has no permissions. This should only
-        return a valid HTTP response.
-
-        By default we redirect to login.
-        """
-        return redirect_to_login(request.get_full_path(),
-                                 self.get_login_url(),
-                                 self.get_redirect_field_name())
-
     def dispatch(self, request, *args, **kwargs):
         """
         Check to see if the user in the request has the required
@@ -169,10 +190,8 @@ class PermissionRequiredMixin(AccessMixin):
         """
         has_permission = self.check_permissions(request)
 
-        if not has_permission:  # If the user lacks the permission
-            if self.raise_exception:
-                raise PermissionDenied  # Return a 403
-            return self.no_permissions_fail(request)
+        if not has_permission:
+            return self.handle_no_permission(request)
 
         return super(PermissionRequiredMixin, self).dispatch(
             request, *args, **kwargs)
@@ -312,13 +331,8 @@ class GroupRequiredMixin(AccessMixin):
             in_group = self.check_membership(self.get_group_required())
 
         if not in_group:
-            if self.raise_exception:
-                raise PermissionDenied
-            else:
-                return redirect_to_login(
-                    request.get_full_path(),
-                    self.get_login_url(),
-                    self.get_redirect_field_name())
+            return self.handle_no_permission(request)
+
         return super(GroupRequiredMixin, self).dispatch(
             request, *args, **kwargs)
 
@@ -348,13 +362,9 @@ class UserPassesTestMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()(request.user)
 
-        if not user_test_result:  # If user don't pass the test
-            if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied
-            else:
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+        if not user_test_result:
+            return self.handle_no_permission(request)
+
         return super(UserPassesTestMixin, self).dispatch(
             request, *args, **kwargs)
 
@@ -364,13 +374,8 @@ class SuperuserRequiredMixin(AccessMixin):
     Mixin allows you to require a user with `is_superuser` set to True.
     """
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_superuser:  # If the user is a standard user,
-            if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied  # return a forbidden response.
-            else:
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+        if not request.user.is_superuser:
+            return self.handle_no_permission(request)
 
         return super(SuperuserRequiredMixin, self).dispatch(
             request, *args, **kwargs)
@@ -381,13 +386,52 @@ class StaffuserRequiredMixin(AccessMixin):
     Mixin allows you to require a user with `is_staff` set to True.
     """
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:  # If the request's user is not staff,
-            if self.raise_exception:  # *and* if an exception was desired
-                raise PermissionDenied  # return a forbidden response
-            else:
-                return redirect_to_login(request.get_full_path(),
-                                         self.get_login_url(),
-                                         self.get_redirect_field_name())
+        if not request.user.is_staff:
+            return self.handle_no_permission(request)
 
         return super(StaffuserRequiredMixin, self).dispatch(
             request, *args, **kwargs)
+
+
+class SSLRequiredMixin(object):
+    """
+    Simple mixin that allows you to force a view to be accessed
+    via https.
+    """
+    raise_exception = False  # Default whether to raise an exception to none
+
+    def dispatch(self, request, *args, **kwargs):
+        if getattr(settings, 'DEBUG', False):
+            return super(SSLRequiredMixin, self).dispatch(
+                request, *args, **kwargs)
+
+        if not request.is_secure():
+            if self.raise_exception:
+                raise Http404
+
+            return HttpResponsePermanentRedirect(
+                self._build_https_url(request))
+
+        return super(SSLRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+    def _build_https_url(self, request):
+        """ Get the full url, replace http with https """
+        url = request.build_absolute_uri(request.get_full_path())
+        return re.sub(r'^http', 'https', url)
+
+
+class RecentLoginRequiredMixin(LoginRequiredMixin):
+    """
+    Mixin allows you to require a login to be within a number of seconds.
+    """
+    max_last_login_delta = 1800  # Defaults to 30 minutes
+
+    def dispatch(self, request, *args, **kwargs):
+        resp = super(RecentLoginRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
+
+        delta = datetime.timedelta(seconds=self.max_last_login_delta)
+        if now() > (request.user.last_login + delta):
+            return logout_then_login(request, self.get_login_url())
+        else:
+            return resp
