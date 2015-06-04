@@ -128,7 +128,8 @@ class AllVerbsMixin(object):
 
         handler = getattr(self, self.all_handler, self.http_method_not_allowed)
         return handler(request, *args, **kwargs)
-        
+
+
 class HttpCacheMixin(object):
     """
     A mixin that provides HTTP cache management that works exactly like the

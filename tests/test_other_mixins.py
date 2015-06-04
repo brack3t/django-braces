@@ -753,4 +753,3 @@ class TestHttpCacheMixin(test.TestCase):
     def test_delete_cacheable(self):
         response = self.client.delete(self.url)
         self.assertNotIn('Vary', response)
-
