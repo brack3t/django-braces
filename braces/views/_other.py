@@ -140,7 +140,7 @@ class HttpCacheMixin(object):
     def get_last_modified(self):
         return None
 
-    def get_etag(self, ):
+    def get_etag(self):
         return None
 
     @classmethod
