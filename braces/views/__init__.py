@@ -30,7 +30,8 @@ from ._other import (
     AllVerbsMixin,
     CanonicalSlugDetailMixin,
     SetHeadlineMixin,
-    StaticContextMixin
+    StaticContextMixin,
+    HttpCacheMixin
 )
 from ._queries import (
     OrderableListMixin,
@@ -64,5 +65,6 @@ __all__ = [
     'SuccessURLRedirectListMixin',
     'SuperuserRequiredMixin',
     'UserFormKwargsMixin',
-    'UserPassesTestMixin'
+    'UserPassesTestMixin',
+    'HttpCacheMixin'
 ]
