@@ -147,7 +147,7 @@ class HttpCacheMixin(object):
         return None
 
     @classmethod
-    def cacheable(self, request, response):
+    def cacheable(cls, request, response):
         return (request.method in ['GET', 'HEAD', 'PUT'] and
                 response.status_code in [200, 203, 206, 410])
 
