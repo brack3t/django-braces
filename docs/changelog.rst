@@ -4,6 +4,7 @@
 Changelog
 =========
 
+* :support:`-` Fix small issue in docs for JsonResponseMixin. The accepted kwarg for the render_to_response method is status not status_code.
 * :release:`1.8.0 <2015-04-16>`
 * :support:`145` Allow custom exceptions to be raised by all AccessMixins.
 * :feature:`171` New :ref:`SSLRequiredMixin`. Redirect http -> https.
