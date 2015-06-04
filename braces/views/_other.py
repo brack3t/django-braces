@@ -1,8 +1,11 @@
+from calendar import timegm
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import resolve
 from django.shortcuts import redirect
 from django.utils.cache import patch_response_headers, patch_vary_headers
 from django.utils.encoding import force_text
+from django.utils.http import http_date
+from django.utils.timezone import UTC, make_naive
 
 
 class SetHeadlineMixin(object):
@@ -141,6 +144,9 @@ class HttpCacheMixin(object):
         return self.cache_varies
 
     def get_last_modified(self):
+        """
+        Return an aware datetime or None
+        """
         return None
 
     def get_etag(self):
@@ -156,7 +162,11 @@ class HttpCacheMixin(object):
         if self.cacheable(request, response):
             last_modified = self.get_last_modified()
             if last_modified is not None:
-                response['Last-Modified'] = last_modified
+                # Convert the last_modified datetime to a UTC timestamp
+                # (as this is what Django's http_date() expects)
+                utc_last_modified = make_naive(last_modified, timezone=UTC())
+                utc_timestamp = timegm(utc_last_modified.timetuple())
+                response['Last-Modified'] = http_date(utc_timestamp)
             etag = self.get_etag()
             if etag is not None:
                 response['ETag'] = etag
