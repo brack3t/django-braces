@@ -1,6 +1,7 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import resolve
 from django.shortcuts import redirect
+from django.utils.cache import patch_response_headers, patch_vary_headers
 from django.utils.encoding import force_text
 
 
