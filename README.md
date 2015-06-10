@@ -2,8 +2,7 @@
 Mixins for Django's class-based views.
 
 [![Latest drone.io status](https://drone.io/github.com/brack3t/django-braces/status.png)](https://drone.io/github.com/brack3t/django-braces)
-[![Latest PyPI version](https://pypip.in/version/django-braces/badge.svg)](https://pypi.python.org/pypi/django-braces/)
-[![Number of PyPI downloads](https://pypip.in/d/django-braces/badge.png)](https://pypi.python.org/pypi/django-braces/)
+[![PyPI version](https://badge.fury.io/py/django-braces.png)](http://badge.fury.io/py/django-braces)
 
 ## Documentation
 [Read The Docs](http://django-braces.readthedocs.org/en/latest/index.html)
