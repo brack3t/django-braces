@@ -11,6 +11,8 @@ from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
                          Http404, HttpResponse)
 from django.shortcuts import resolve_url
 from django.utils.encoding import force_text
+from django.contrib import messages
+
 from django.utils.timezone import now
 
 # StreamingHttpResponse has been added in 1.5, and gets used for verification
@@ -31,6 +33,7 @@ class AccessMixin(object):
     raise_exception = False
     redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
     redirect_unauthenticated_users = False
+    login_redirect_message = None
 
     def get_login_url(self):
         """
@@ -76,6 +79,8 @@ class AccessMixin(object):
 
         By default we redirect to login.
         """
+        if self.login_redirect_message:
+            messages.warning(request, self.login_redirect_message, fail_silently=True)
         return redirect_to_login(request.get_full_path(),
                                  self.get_login_url(),
                                  self.get_redirect_field_name())

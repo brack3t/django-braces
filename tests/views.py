@@ -344,3 +344,11 @@ class RecentLoginRequiredView(views.RecentLoginRequiredMixin, OkView):
     """
     A view for testing RecentLoginRequiredMixin.
     """
+
+
+class RedirectWithNoMessageView(views.LoginRequiredMixin, OkView):
+    login_redirect_message = None
+
+
+class RedirectWithMessageView(views.LoginRequiredMixin, OkView):
+    login_redirect_message = 'LOGIN_REDIRECT_MESSAGE'

@@ -9,6 +9,7 @@ These mixins all control a user's access to a given view. Since many of them ext
     raise_exception = False
     redirect_field_name = REDIRECT_FIELD_NAME
     redirect_unauthenticated_users = False
+    login_redirect_message = None
 
 The ``raise_exception`` attribute allows for these scenarios, in case a
 permission is denied:
@@ -22,6 +23,8 @@ permission is denied:
       exception gets raised.
 
 This gets done in ``handle_no_permission``, which can be overridden itself.
+
+If ``raise_exception`` is set to ``False`` (default) one can define a message that will be passed to `django.contrib.messages`_ system. This is done by defining ``login_redirect_message``, which will then display the message if the login view handles messages. The message is sent at warning level.
 
 .. contents::
 
@@ -394,3 +397,4 @@ This mixin requires a user to have logged in within a certain number of seconds.
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
 .. _user_passes_test: https://docs.djangoproject.com/en/1.6/topics/auth/default/#django.contrib.auth.decorators.user_passes_test
 .. _settings.LOGIN_REDIRECT_URL: https://docs.djangoproject.com/en/1.6/ref/settings/#login-redirect-url
+.. _django.contrib.messages: https://docs.djangoproject.com/en/1.8/ref/contrib/messages/
