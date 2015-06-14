@@ -512,3 +512,26 @@ This mixin allows you to specify a single method that will response to all HTTP 
             return super(JustShowItView, self).get(request, *args, **kwargs)
 
 If you need to change the name of the method called, provide a new value to the ``all_handler`` attribute (default is ``'all'``)
+
+HttpCacheMixin
+--------------
+
+.. versionadded:: 1.9 (pending)
+
+A mixin giving control over the caches headers sent in the response. For example:
+
+.. code-block:: python
+
+    from django.views.generic import TemplateView
+
+    from braces.views import HttpCacheMixin
+
+    class CachedPageView(HttpCacheMixin, TemplateView):
+        # Default: 60
+        cache_timout = 3600
+        # Default: ['Accept']
+        cache_varies = ['Accept', 'Cookie']
+
+        def get_etag(self):
+            return "Calculate the etag here"
+
