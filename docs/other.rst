@@ -518,15 +518,17 @@ HttpCacheMixin
 
 .. versionadded:: 1.9 (pending)
 
-A mixin giving control over the caches headers sent in the response. For example:
+A mixin giving control over the caches headers sent in the response. An example with default values:
 
 .. code-block:: python
 
-    from django.views.generic import TemplateView
+    from django.views.generic import DetailView
 
     from braces.views import HttpCacheMixin
 
-    class CachedPageView(HttpCacheMixin, TemplateView):
+    class UserView(HttpCacheMixin, DetailView):
+        model = ExampleProfile
+
         # If True, shared caches should not cache
         private = True
 
@@ -561,7 +563,10 @@ A mixin giving control over the caches headers sent in the response. For example
         conditional = True
 
         def get_etag(self):
-            # Omitting this function with USE_ETAGS=True will result in the
-            # ETag being set to a hash of the content
+            # Optional. Omitting this function with USE_ETAGS=True will result
+            # in the ETag being set to a hash of the content
             return "Calculate the etag here"
 
+        def get_last_modified(self):
+            # Optional. Should return a timezone-aware datetime object
+            return self.object.last_modified
