@@ -241,7 +241,8 @@ class HttpCacheMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         if not self.conditional:
-            response = super(HttpCacheMixin, self).dispatch(request, *args, **kwargs)
+            response = super(HttpCacheMixin, self).\
+                dispatch(request, *args, **kwargs)
         else:
             # Use Django's condition() decorator to handle all the
             # (certainly non-trivial) conditional request logic.
