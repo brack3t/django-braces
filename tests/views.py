@@ -349,7 +349,7 @@ class RecentLoginRequiredView(views.RecentLoginRequiredMixin, OkView):
 
 
 class HttpCacheView(views.HttpCacheMixin, OkView):
-    cache_timeout = 3600
+    max_age = None
     cache_varies = ['Accept', 'Cookie']
 
     def get_etag(self):

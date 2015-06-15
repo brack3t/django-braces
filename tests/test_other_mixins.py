@@ -726,6 +726,20 @@ class TestHttpCacheMixin(test.TestCase):
     def setUp(self):
         self.url = "/http_cache/"
 
+    def _parse_cc(self, cc):
+        return map(lambda s: s.strip(), cc.split(','))
+
+    def assertCcEquals(self, actual, expected):
+        self.assertSetEqual(set(self._parse_cc(actual)), set(self._parse_cc(expected)))
+
+    def assertCcIn(self, member, container):
+        self.assertIn(member, self._parse_cc(container))
+
+    def assertCcNotIn(self, member, container):
+        # Note that we don't parse the CC string as in assertCcIn. This is
+        # to ensure we catch something like no-cache=False being present
+        self.assertNotIn(member, container)
+
     def test_last_modified(self):
         response = self.client.get(self.url)
         self.assertEqual(response['Last-Modified'], 'Thu, 15 Jun 2000 08:20:30 GMT')
@@ -753,3 +767,71 @@ class TestHttpCacheMixin(test.TestCase):
     def test_delete_cacheable(self):
         response = self.client.delete(self.url)
         self.assertNotIn('Vary', response)
+
+    def test_cache_control(self):
+        response = self.client.get(self.url)
+        self.assertCcEquals(response['Cache-Control'], 'max-age=3600, private, s-maxage=3600')
+
+    def test_private_true(self):
+        url = '{0}private/true/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcIn('private', response['Cache-Control'])
+        self.assertCcNotIn('public', response['Cache-Control'])
+
+    def test_private_false(self):
+        url = '{0}private/false/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcNotIn('private', response['Cache-Control'])
+        self.assertCcIn('public', response['Cache-Control'])
+
+    def test_no_cache_true(self):
+        url = '{0}no-cache/true/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcIn('no-cache', response['Cache-Control'])
+
+    def test_no_cache_false(self):
+        url = '{0}no-cache/false/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcNotIn('no-cache', response['Cache-Control'])
+
+    def test_no_transform_true(self):
+        url = '{0}no-transform/true/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcIn('no-transform', response['Cache-Control'])
+
+    def test_no_transform_false(self):
+        url = '{0}no-transform/false/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcNotIn('no-transform', response['Cache-Control'])
+
+    def test_must_revalidate_true(self):
+        url = '{0}must-revalidate/true/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcIn('must-revalidate', response['Cache-Control'])
+
+    def test_must_revalidate_false(self):
+        url = '{0}must-revalidate/false/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcNotIn('must-revalidate', response['Cache-Control'])
+
+    def test_proxy_revalidate_true(self):
+        url = '{0}proxy-revalidate/true/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcIn('proxy-revalidate', response['Cache-Control'])
+
+    def test_proxy_revalidate_false(self):
+        url = '{0}proxy-revalidate/false/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcNotIn('proxy-revalidate', response['Cache-Control'])
+
+    def test_max_age(self):
+        url = '{0}max-age/1234/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcIn('max-age=1234', response['Cache-Control'])
+        self.assertCcIn('s-maxage=1234', response['Cache-Control'])
+
+    def test_s_maxage_5678(self):
+        url = '{0}s-maxage/5678/'.format(self.url)
+        response = self.client.get(url)
+        self.assertCcNotIn('max-age', response['Cache-Control'])
+        self.assertCcIn('s-maxage=5678', response['Cache-Control'])

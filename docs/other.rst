@@ -527,10 +527,34 @@ A mixin giving control over the caches headers sent in the response. For example
     from braces.views import HttpCacheMixin
 
     class CachedPageView(HttpCacheMixin, TemplateView):
-        # Default: 60
-        cache_timout = 3600
-        # Default: ['Accept']
-        cache_varies = ['Accept', 'Cookie']
+        # If True, shared caches should not cache
+        private = True
+
+        # Do not cache at all
+        no_cache = False
+
+        # Tell shared caches not to transform (file format etc)
+        no_transform = False
+
+        # Always revalidate, do not serve stale content
+        must_revalidate = False
+
+        # Shared caches must always revalidate, do not serve stale content
+        proxy_revalidate = False
+
+        # Maximum age (in seconds) this resource may be cached for
+        max_age = 3600
+
+        # Maximum age (in seconds) this resource may be cached for
+        # by shared caches (defaults to max_age)
+        s_maxage = None
+
+        # Maximum age (in seconds) this resource may be cached for (HTTP/1.0)
+        # (defaults to max_age)
+        cache_timeout = None
+
+        # Vary the cache on the following headers
+        cache_varies = ['Accept']
 
         def get_etag(self):
             return "Calculate the etag here"

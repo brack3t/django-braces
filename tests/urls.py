@@ -112,7 +112,19 @@ urlpatterns = patterns(
     url(r'^outdated_login/$', views.RecentLoginRequiredView.as_view()),
 
     # CacheMixin tests
-    url(r'http_cache/$', views.HttpCacheView.as_view()),
+    url(r'http_cache/$', views.HttpCacheView.as_view(max_age=3600)),
+    url(r'http_cache/private/true/$', views.HttpCacheView.as_view(private=True)),
+    url(r'http_cache/private/false/$', views.HttpCacheView.as_view(private=False)),
+    url(r'http_cache/no-cache/true/$', views.HttpCacheView.as_view(no_cache=True)),
+    url(r'http_cache/no-cache/false/$', views.HttpCacheView.as_view(no_cache=False)),
+    url(r'http_cache/no-transform/true/$', views.HttpCacheView.as_view(no_transform=True)),
+    url(r'http_cache/no-transform/false/$', views.HttpCacheView.as_view(no_transform=False)),
+    url(r'http_cache/must-revalidate/true/$', views.HttpCacheView.as_view(must_revalidate=True)),
+    url(r'http_cache/must-revalidate/false/$', views.HttpCacheView.as_view(must_revalidate=False)),
+    url(r'http_cache/proxy-revalidate/true/$', views.HttpCacheView.as_view(proxy_revalidate=True)),
+    url(r'http_cache/proxy-revalidate/false/$', views.HttpCacheView.as_view(proxy_revalidate=False)),
+    url(r'http_cache/max-age/1234/$', views.HttpCacheView.as_view(max_age=1234)),
+    url(r'http_cache/s-maxage/5678/$', views.HttpCacheView.as_view(s_maxage=5678)),
 )
 
 

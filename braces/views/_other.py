@@ -2,7 +2,7 @@ from calendar import timegm
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import resolve
 from django.shortcuts import redirect
-from django.utils.cache import patch_response_headers, patch_vary_headers
+from django.utils.cache import patch_response_headers, patch_vary_headers, patch_cache_control
 from django.utils.encoding import force_text
 from django.utils.http import http_date
 from django.utils.timezone import UTC, make_naive
@@ -135,45 +135,143 @@ class HttpCacheMixin(object):
     A mixin that provides HTTP cache management that works exactly like the
     @cache_control and @vary_on_headers decorators.
     """
-    cache_timeout = 60
+
+    # If True, shared caches should not cache
+    private = True
+
+    # Do not cache at all
+    no_cache = False
+
+    # Tell shared caches not to transform (file format etc)
+    no_transform = False
+
+    # Always revalidate, do not serve stale content
+    must_revalidate = False
+
+    # Shared caches must always revalidate, do not serve stale content
+    proxy_revalidate = False
+
+    # Maximum age (in seconds) this resource may be cached for
+    max_age = 3600
+
+    # Maximum age (in seconds) this resource may be cached for
+    # by shared caches (defaults to max_age)
+    s_maxage = None
+
+    # Maximum age (in seconds) this resource may be cached for (HTTP/1.0)
+    # (defaults to max_age)
+    cache_timeout = None
+
+    # Vary the cache on the following headers
     cache_varies = ['Accept']
 
-    def get_cache_timeout(self):
-        return self.cache_timeout
-
+    # HTTP/1.1 Caching (Vary, Etag, Cache-Control)
     def get_cache_varies(self):
         return self.cache_varies
-
-    def get_last_modified(self):
-        """
-        Return an aware datetime or None
-        """
-        return None
 
     def get_etag(self):
         return None
 
-    @classmethod
-    def cacheable(cls, request, response):
+    def get_last_modified(self):
+        """Return an aware datetime or None"""
+        return None
+
+    # Cache-Control value accessors
+    def get_private(self):
+        return self.private
+
+    def get_public(self):
+        if self.private is None:
+            return None
+        return not self.private
+
+    def get_no_cache(self):
+        return self.no_cache
+
+    def get_no_transform(self):
+        return self.no_transform
+
+    def get_must_revalidate(self):
+        return self.must_revalidate
+
+    def get_proxy_revalidate(self):
+        return self.proxy_revalidate
+
+    def get_max_age(self):
+        return self.max_age
+
+    def get_s_maxage(self):
+        if self.s_maxage is None:
+            return self.get_max_age()
+        else:
+            return self.s_maxage
+
+    def get_cache_control_kwargs(self):
+        kwargs = dict(
+            private=self.get_private() or None,
+            public=self.get_public() or None,
+            no_cache=self.get_no_cache() or None,
+            no_transform=self.get_no_transform() or None,
+            must_revalidate=self.get_must_revalidate() or None,
+            proxy_revalidate=self.get_proxy_revalidate() or None,
+            max_age=self.get_max_age(),
+            s_maxage=self.get_s_maxage(),
+        )
+        # Assume a None values indicate the kwarg should be ignored
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+        return kwargs
+
+    # HTTP/1.1 headers
+    def get_cache_timeout(self):
+        if self.cache_timeout is None:
+            return self.get_max_age()
+        return self.cache_timeout
+
+    def is_cacheable(self, request, response):
+        """Should cache headers be sent at all"""
         return (request.method in ['GET', 'HEAD', 'PUT'] and
                 response.status_code in [200, 203, 206, 410])
 
+    # Accessors now finished. Now let's get on with it...
+
     def dispatch(self, request, *args, **kwargs):
         response = super(HttpCacheMixin, self).dispatch(request, *args, **kwargs)
-        if self.cacheable(request, response):
-            last_modified = self.get_last_modified()
-            if last_modified is not None:
-                # Convert the last_modified datetime to a UTC timestamp
-                # (as this is what Django's http_date() expects)
-                utc_last_modified = make_naive(last_modified, timezone=UTC())
-                utc_timestamp = timegm(utc_last_modified.timetuple())
-                response['Last-Modified'] = http_date(utc_timestamp)
+        if self.is_cacheable(request, response):
+            self._set_last_modified(request, response)
+            self._set_etag(request, response)
+            self._set_cache_control(request, response)
+            self._set_varies(request, response)
+            self._django_mop_up(request, response)
+        return response
+
+    def _set_last_modified(self, request, response):
+        last_modified = self.get_last_modified()
+        if last_modified is not None:
+            # Convert the last_modified datetime to a UTC timestamp
+            # (as this is what Django's http_date() expects)
+            utc_last_modified = make_naive(last_modified, timezone=UTC())
+            utc_timestamp = timegm(utc_last_modified.timetuple())
+            response['Last-Modified'] = http_date(utc_timestamp)
+
+    def _set_etag(self, request, response):
             etag = self.get_etag()
             if etag is not None:
                 response['ETag'] = etag
-            cache_timeout = int(self.get_cache_timeout())
-            patch_response_headers(response, cache_timeout)
-            cache_varies = self.get_cache_varies()
-            if len(cache_varies):
-                patch_vary_headers(response, cache_varies)
-        return response
+
+    def _set_cache_control(self, request, response):
+        patch_cache_control(response, **self.get_cache_control_kwargs())
+
+    def _set_varies(self, request, response):
+        cache_varies = self.get_cache_varies()
+        if cache_varies:
+            patch_vary_headers(response, cache_varies)
+
+    def _django_mop_up(self, request, response):
+        """Apply Django's caching logic
+
+        This will use the settings CACHE_MIDDLEWARE_SECONDS & USE_ETAGS
+        to set the Last-Modifed, Expires, and ETags if not set by this view
+        """
+        cache_timeout = self.get_cache_timeout()
+        if cache_timeout is not None:
+            patch_response_headers(response, int(cache_timeout))
