@@ -518,7 +518,7 @@ HttpCacheMixin
 
 .. versionadded:: 1.9 (pending)
 
-A mixin giving control over the caches headers sent in the response. An example with default values:
+A mixin giving control over the cache headers sent in the response. An example with default values:
 
 .. code-block:: python
 
