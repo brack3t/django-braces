@@ -243,6 +243,9 @@ class HttpCacheMixin(object):
         if not self.conditional:
             response = super(HttpCacheMixin, self).dispatch(request, *args, **kwargs)
         else:
+            # Use Django's condition() decorator to handle all the
+            # (certainly non-trivial) conditional request logic.
+            # Any 304 Not Modified responses will not be cached.
             view = condition(
                 etag_func=lambda *a, **kw: self.get_etag(),
                 last_modified_func=lambda *a, **kw: self.get_last_modified(),
