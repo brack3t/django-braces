@@ -125,6 +125,7 @@ urlpatterns = patterns(
     url(r'http_cache/proxy-revalidate/false/$', views.HttpCacheView.as_view(proxy_revalidate=False)),
     url(r'http_cache/max-age/1234/$', views.HttpCacheView.as_view(max_age=1234)),
     url(r'http_cache/s-maxage/5678/$', views.HttpCacheView.as_view(s_maxage=5678)),
+    url(r'http_cache/conditional/$', views.HttpCacheView.as_view(conditional=True)),
 )
 
 

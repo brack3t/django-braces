@@ -6,6 +6,7 @@ from django.utils.cache import patch_response_headers, patch_vary_headers, patch
 from django.utils.encoding import force_text
 from django.utils.http import http_date
 from django.utils.timezone import UTC, make_naive
+from django.views.decorators.http import condition
 
 
 class SetHeadlineMixin(object):
@@ -165,6 +166,10 @@ class HttpCacheMixin(object):
     # Vary the cache on the following headers
     cache_varies = ['Accept']
 
+    # Skip processing and response with Not Modified 304 if conditional
+    # request is matched
+    conditional = True
+
     # HTTP/1.1 Caching (Vary, Etag, Cache-Control)
     def get_cache_varies(self):
         return self.cache_varies
@@ -235,7 +240,15 @@ class HttpCacheMixin(object):
     # Accessors now finished. Now let's get on with it...
 
     def dispatch(self, request, *args, **kwargs):
-        response = super(HttpCacheMixin, self).dispatch(request, *args, **kwargs)
+        if not self.conditional:
+            response = super(HttpCacheMixin, self).dispatch(request, *args, **kwargs)
+        else:
+            view = condition(
+                etag_func=lambda *a, **kw: self.get_etag(),
+                last_modified_func=lambda *a, **kw: self.get_last_modified(),
+            )(super(HttpCacheMixin, self).dispatch)
+            response = view(request, *args, **kwargs)
+
         if self.is_cacheable(request, response):
             self._set_last_modified(request, response)
             self._set_etag(request, response)

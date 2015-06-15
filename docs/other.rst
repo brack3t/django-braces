@@ -556,6 +556,12 @@ A mixin giving control over the caches headers sent in the response. For example
         # Vary the cache on the following headers
         cache_varies = ['Accept']
 
+        # Skip processing and response with Not Modified 304 if conditional
+        # request is matched
+        conditional = True
+
         def get_etag(self):
+            # Omitting this function with USE_ETAGS=True will result in the
+            # ETag being set to a hash of the content
             return "Calculate the etag here"
 

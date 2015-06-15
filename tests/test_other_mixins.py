@@ -835,3 +835,25 @@ class TestHttpCacheMixin(test.TestCase):
         response = self.client.get(url)
         self.assertCcNotIn('max-age', response['Cache-Control'])
         self.assertCcIn('s-maxage=5678', response['Cache-Control'])
+
+    def test_conditional_etag_match(self):
+        url = '{0}conditional/'.format(self.url)
+        response = self.client.get(url, HTTP_IF_NONE_MATCH='test_etag')
+        self.assertEqual(response.status_code, 304)
+
+    def test_conditional_etag_no_match(self):
+        url = '{0}conditional/'.format(self.url)
+        response = self.client.get(url, HTTP_IF_NONE_MATCH='foo')
+        self.assertEqual(response.status_code, 200)
+
+    def test_conditional_last_modified_yes(self):
+        url = '{0}conditional/'.format(self.url)
+        since = 'Thu, 15 Jun 2000 08:00:00 GMT'
+        response = self.client.get(url, HTTP_IF_MODIFIED_SINCE=since)
+        self.assertEqual(response.status_code, 200)
+
+    def test_conditional_last_modified_no(self):
+        url = '{0}conditional/'.format(self.url)
+        since = 'Thu, 15 Jun 2000 09:00:00 GMT'
+        response = self.client.get(url, HTTP_IF_MODIFIED_SINCE=since)
+        self.assertEqual(response.status_code, 304)
