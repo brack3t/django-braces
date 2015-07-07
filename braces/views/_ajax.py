@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import six
 
 from django.core import serializers
@@ -29,12 +30,12 @@ class JSONResponseMixin(object):
                 '{0} is missing a content type. Define {0}.content_type, '
                 'or override {0}.get_content_type().'.format(
                     self.__class__.__name__))
-        return self.content_type or u"application/json"
+        return self.content_type or "application/json"
 
     def get_json_dumps_kwargs(self):
         if self.json_dumps_kwargs is None:
             self.json_dumps_kwargs = {}
-        self.json_dumps_kwargs.setdefault(u'ensure_ascii', False)
+        self.json_dumps_kwargs.setdefault('ensure_ascii', False)
         return self.json_dumps_kwargs
 
     def render_json_response(self, context_dict, status=200):
@@ -45,7 +46,7 @@ class JSONResponseMixin(object):
         json_context = json.dumps(
             context_dict,
             cls=self.json_encoder_class,
-            **self.get_json_dumps_kwargs()).encode(u'utf-8')
+            **self.get_json_dumps_kwargs()).encode('utf-8')
         return HttpResponse(json_context,
                             content_type=self.get_content_type(),
                             status=status)
@@ -55,7 +56,7 @@ class JSONResponseMixin(object):
         Serializes objects using Django's builtin JSON serializer. Additional
         kwargs can be used the same way for django.core.serializers.serialize.
         """
-        json_data = serializers.serialize(u"json", objects, **kwargs)
+        json_data = serializers.serialize("json", objects, **kwargs)
         return HttpResponse(json_data, content_type=self.get_content_type())
 
 
@@ -69,7 +70,7 @@ class AjaxResponseMixin(object):
         request_method = request.method.lower()
 
         if request.is_ajax() and request_method in self.http_method_names:
-            handler = getattr(self, u"{0}_ajax".format(request_method),
+            handler = getattr(self, "{0}_ajax".format(request_method),
                               self.http_method_not_allowed)
             self.request = request
             self.args = args
@@ -112,7 +113,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
                     {'message': 'Thanks!'})
     """
     require_json = False
-    error_response_dict = {u"errors": [u"Improperly formatted request"]}
+    error_response_dict = {"errors": ["Improperly formatted request"]}
 
     def render_bad_request_response(self, error_dict=None):
         if error_dict is None:
@@ -121,13 +122,13 @@ class JsonRequestResponseMixin(JSONResponseMixin):
             error_dict,
             cls=self.json_encoder_class,
             **self.get_json_dumps_kwargs()
-        ).encode(u'utf-8')
+        ).encode('utf-8')
         return HttpResponseBadRequest(
             json_context, content_type=self.get_content_type())
 
     def get_request_json(self):
         try:
-            return json.loads(self.request.body.decode(u'utf-8'))
+            return json.loads(self.request.body.decode('utf-8'))
         except ValueError:
             return None
 
