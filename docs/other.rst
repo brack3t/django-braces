@@ -275,7 +275,6 @@ It extends :ref:`JSONResponseMixin`, so those utilities are available as well.
 
 ::
 
-    from django.utils.translation import ugettext_lazy as _
     from django.views.generic import View
 
     from braces import views
@@ -289,11 +288,11 @@ It extends :ref:`JSONResponseMixin`, so those utilities are available as well.
                 toppings = self.request_json[u"toppings"]
             except KeyError:
                 error_dict = {u"message":
-                   _(u"your order must include a burrito AND toppings")}
+                   u"your order must include a burrito AND toppings"}
                 return self.render_bad_request_response(error_dict)
             place_order(burrito, toppings)
             return self.render_json_response(
-                {u"message": _(u"Your order has been placed!")})
+                {u"message": u"Your order has been placed!"})
 
 
 .. _AjaxResponseMixin:

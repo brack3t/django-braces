@@ -4,6 +4,7 @@
 Changelog
 =========
 
+* :support:`-` Changed :ref:`JsonRequestResponseMixin` docs to not use `ugettext_lazy`.
 * :support:`-` Updated tests to include Python 3.2.
 * :bug:`185` Removed `u` prefixes to allow Python 3.2 support.
 * :support:`-` Added note to docs about Python and Django versions used in tests.
