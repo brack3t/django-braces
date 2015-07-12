@@ -4,6 +4,9 @@
 Changelog
 =========
 
+* :support:`-` Updated tests to include Python 3.2.
+* :bug:`185` Removed `u` prefixes to allow Python 3.2 support.
+* :support:`-` Added note to docs about Python and Django versions used in tests.
 * :support:`-` Fix small issue in docs for JsonResponseMixin. The accepted kwarg for the render_to_response method is status not status_code.
 * :release:`1.8.0 <2015-04-16>`
 * :support:`145` Allow custom exceptions to be raised by all AccessMixins.
