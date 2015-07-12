@@ -26,6 +26,7 @@ Direct Contributors
 * Kit Sunde
 * Ben Cardy
 * Rag Sagar.V
+* Lacey Williams Henschel 
 
 Other Contributors
 ==================

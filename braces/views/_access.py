@@ -430,8 +430,10 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
         resp = super(RecentLoginRequiredMixin, self).dispatch(
             request, *args, **kwargs)
 
-        delta = datetime.timedelta(seconds=self.max_last_login_delta)
-        if now() > (request.user.last_login + delta):
-            return logout_then_login(request, self.get_login_url())
-        else:
-            return resp
+        if resp.status_code == 200:
+            delta = datetime.timedelta(seconds=self.max_last_login_delta)
+            if now() > (request.user.last_login + delta):
+                return logout_then_login(request, self.get_login_url())
+            else:
+                return resp
+        return resp
