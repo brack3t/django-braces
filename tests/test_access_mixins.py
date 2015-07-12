@@ -645,3 +645,9 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.outdated_view_url)
         assert resp.status_code == 302
+        
+    def test_not_logged_in(self):
+        last_login = datetime.datetime.now()
+        user = UserFactory(last_login=last_login)
+        resp = self.client.get(self.recent_view_url)
+        assert resp.status_code != 200
