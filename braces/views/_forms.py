@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
 from django.utils.functional import curry, Promise
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
 
 class CsrfExemptMixin(object):
@@ -20,6 +20,18 @@ class CsrfExemptMixin(object):
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super(CsrfExemptMixin, self).dispatch(*args, **kwargs)
+
+
+class EnsureCsrfCookieMixin(object):
+    """
+    Ensures that the CSRF cookie will be set.
+    NOTE:
+        This should be the left-most mixin of a view.
+    """
+
+    @method_decorator(ensure_csrf_cookie)
+    def dispatch(self, *args, **kwargs):
+        return super(EnsureCsrfCookieMixin, self).dispatch(*args, **kwargs)
 
 
 class UserFormKwargsMixin(object):
