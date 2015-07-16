@@ -83,6 +83,9 @@ urlpatterns = patterns(
     # CsrfExemptMixin tests
     url(r'^csrf_exempt/$', views.CsrfExemptView.as_view()),
 
+    # EnsureCsrfCookieMixin tests
+    url(r'^ensure_csrf_cookie/$', views.EnsureCsrfCookieView.as_view()),
+
     # JSONResponseMixin tests
     url(r'^simple_json/$', views.SimpleJsonView.as_view()),
     url(r'^simple_json_custom_encoder/$',

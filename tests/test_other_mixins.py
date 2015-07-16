@@ -148,6 +148,15 @@ class TestCsrfExemptMixin(test.TestCase):
         self.assertEqual("OK", force_text(resp.content))
 
 
+class TestEnsureCsrfCookieMixin(test.TestCase):
+    """
+    Tests for EnsureCsrfCookieMixin.
+    """
+    def test_csrf_cookie_is_set(self):
+        resp = self.client.get('/ensure_csrf_cookie/')
+        self.assertEqual(True, 'csrftoken' in resp.cookies)
+
+
 class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
     view_class = ArticleListView
 

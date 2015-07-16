@@ -268,6 +268,10 @@ class CsrfExemptView(views.CsrfExemptMixin, OkView):
     pass
 
 
+class EnsureCsrfCookieView(views.EnsureCsrfCookieMixin, OkView):
+    pass
+
+
 class AuthorDetailView(views.PrefetchRelatedMixin, ListView):
     model = User
     prefetch_related = ['article_set']
