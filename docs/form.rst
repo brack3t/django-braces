@@ -36,7 +36,7 @@ UserFormKwargsMixin
 
 A common pattern in Django is to have forms that are customized to a user. To custom tailor the form for users, you have to pass that user instance into the form and, based on their permission level or other details, change certain fields or add specific options within the forms ``__init__`` method.
 
-This mixin automates the process of overloading the ``get_form_kwargs`` (this method is available in any generic view which handles a form) method and stuffs the user instance into the form kwargs. The user can then be ``pop()``ed off in the form. **Always** remember to pop the user from the kwargs before calling ``super()`` on your form, otherwise the form will get an unexpected keyword argument.
+This mixin automates the process of overloading the ``get_form_kwargs`` (this method is available in any generic view which handles a form) method and stuffs the user instance into the form kwargs. The user can then be ``pop()``\ ped off in the form. **Always** remember to pop the user from the kwargs before calling ``super()`` on your form, otherwise the form will get an unexpected keyword argument.
 
 Usage
 ^^^^^
@@ -63,7 +63,7 @@ UserKwargModelFormMixin
 -----------------------
 
 The ``UserKwargModelFormMixin`` is a form mixin to go along with our :ref:`UserFormKwargsMixin`.
-This becomes the first inherited class of our forms that receive the ``user`` keyword argument. With this mixin, the ``pop()``ing of the ``user`` is automated and no longer has to be done manually on every form that needs this behavior. 
+This becomes the first inherited class of our forms that receive the ``user`` keyword argument. With this mixin, the ``pop()``\ ping of the ``user`` is automated and no longer has to be done manually on every form that needs this behavior. 
 
 Usage
 ^^^^^
