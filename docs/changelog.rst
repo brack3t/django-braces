@@ -4,12 +4,13 @@
 Changelog
 =========
 
-* :bug:`176` Added redirect for unauthenticated users. 
-* :support:`-` Changed :ref:`JsonRequestResponseMixin` docs to not use `ugettext_lazy`.
-* :support:`-` Updated tests to include Python 3.2.
+* :release:`1.8.1 <2015-7-12>`
+* :bug:`176` Only check time delta for authenticated users in :ref:`RecentLoginRequiredMixin`. 
+* :bug:`-` Changed :ref:`JsonRequestResponseMixin` docs to not use `ugettext_lazy`.
+* :bug:`-` Updated tests to include Python 3.2.
 * :bug:`185` Removed `u` prefixes to allow Python 3.2 support.
 * :support:`-` Added note to docs about Python and Django versions used in tests.
-* :support:`-` Fix small issue in docs for JsonResponseMixin. The accepted kwarg for the render_to_response method is status not status_code.
+* :bug:`-` Fix small issue in docs for :ref:JsonResponseMixin. The accepted kwarg for the render_to_response method is status not status_code.
 * :release:`1.8.0 <2015-04-16>`
 * :support:`145` Allow custom exceptions to be raised by all AccessMixins.
 * :feature:`171` New :ref:`SSLRequiredMixin`. Redirect http -> https.
