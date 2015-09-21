@@ -30,7 +30,7 @@ class AccessMixin(object):
     login_url = None
     raise_exception = False
     redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
-    redirect_unauthenticated_users = False
+    redirect_to_url = None
 
     def get_login_url(self):
         """
@@ -57,7 +57,11 @@ class AccessMixin(object):
         return self.redirect_field_name
 
     def handle_no_permission(self, request):
-        if self.raise_exception and not self.redirect_unauthenticated_users:
+        if not (self.raise_exception or self.redirect_to_url):
+            raise ImproperlyConfigured(
+                'Define {0}.redirect_to_url or set {0}.raise_exception.'
+                .format(self.__class__.__name__))
+        if self.raise_exception:
             if (inspect.isclass(self.raise_exception)
                     and issubclass(self.raise_exception, Exception)):
                 raise self.raise_exception
@@ -66,8 +70,8 @@ class AccessMixin(object):
                 if isinstance(ret, (HttpResponse, StreamingHttpResponse)):
                     return ret
             raise PermissionDenied
-
-        return self.no_permissions_fail(request)
+        else:
+            return HttpResponseRedirect(self.redirect_to_url)
 
     def no_permissions_fail(self, request=None):
         """
@@ -92,7 +96,7 @@ class LoginRequiredMixin(AccessMixin):
     """
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
-            return self.handle_no_permission(request)
+            return self.no_permissions_fail(request)
 
         return super(LoginRequiredMixin, self).dispatch(
             request, *args, **kwargs)
