@@ -4,8 +4,9 @@
 Changelog
 =========
 
+* :feature:`-` New :ref:`OrderableListMixin` allows to switch the default ordering setting from `asc` to `desc`.
 * :release:`1.8.1 <2015-7-12>`
-* :bug:`176` Only check time delta for authenticated users in :ref:`RecentLoginRequiredMixin`. 
+* :bug:`176` Only check time delta for authenticated users in :ref:`RecentLoginRequiredMixin`.
 * :bug:`-` Changed :ref:`JsonRequestResponseMixin` docs to not use `ugettext_lazy`.
 * :bug:`-` Updated tests to include Python 3.2.
 * :bug:`185` Removed `u` prefixes to allow Python 3.2 support.
