@@ -18,7 +18,8 @@ from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
                     LoginRequiredView, GroupRequiredView, UserPassesTestView,
                     UserPassesTestNotImplementedView, AnonymousRequiredView,
-                    SSLRequiredView, RecentLoginRequiredView)
+                    SSLRequiredView, RecentLoginRequiredView,
+                    UserPassesTestLoginRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -220,6 +221,37 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
     Tests for LoginRequiredMixin.
     """
     view_class = LoginRequiredView
+    view_url = '/login_required/'
+
+    def test_anonymous(self):
+        resp = self.client.get(self.view_url)
+        self.assertRedirects(resp, '/accounts/login/?next=/login_required/')
+
+    def test_anonymous_raises_exception(self):
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url), raise_exception=True)
+
+    def test_authenticated(self):
+        user = UserFactory()
+        self.client.login(username=user.username, password='asdf1234')
+        resp = self.client.get(self.view_url)
+        assert resp.status_code == 200
+        assert force_text(resp.content) == 'OK'
+
+    def test_anonymous_redirects(self):
+        resp = self.dispatch_view(
+            self.build_request(path=self.view_url), raise_exception=True,
+            redirect_unauthenticated_users=True)
+        assert resp.status_code == 302
+        assert resp['Location'] == '/accounts/login/?next=/login_required/'
+
+
+class TestChainedLoginRequiredMixin(TestViewHelper, test.TestCase):
+    """
+    Tests for LoginRequiredMixin combined with another AccessMixin.
+    """
+    view_class = UserPassesTestLoginRequiredView
     view_url = '/login_required/'
 
     def test_anonymous(self):

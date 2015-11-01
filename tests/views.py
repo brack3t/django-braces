@@ -327,6 +327,13 @@ class UserPassesTestView(views.UserPassesTestMixin, OkView):
             and user.email.endswith('@mydomain.com')
 
 
+class UserPassesTestLoginRequiredView(views.LoginRequiredMixin,
+                                      views.UserPassesTestMixin, OkView):
+    def test_func(self, user):
+        return user.is_staff and not user.is_superuser \
+            and user.email.endswith('@mydomain.com')
+
+
 class UserPassesTestNotImplementedView(views.UserPassesTestMixin, OkView):
     pass
 
