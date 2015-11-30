@@ -90,7 +90,7 @@ In normal use of this mixin, :ref:`LoginRequiredMixin` comes first, then the ``P
         permission_required = "auth.change_user"
         template_name = "path/to/template.html"
 
-The ``PermissionRequiredMixin`` also offers a ``check_permssions`` method that should be overridden if you need custom permissions checking.
+The ``PermissionRequiredMixin`` also offers a ``check_permissions`` method that should be overridden if you need custom permissions checking.
 
 
 .. _MultiplePermissionsRequiredMixin:
@@ -120,7 +120,7 @@ The ``MultiplePermissionsRequiredMixin`` is a more powerful version of the :ref:
             "any": ("blog.delete_post", "user.change_user")
         }
 
-The ``MultiplePermissionsRequiredMixin`` also offers a ``check_permssions`` method that should be overridden if you need custom permissions checking.
+The ``MultiplePermissionsRequiredMixin`` also offers a ``check_permissions`` method that should be overridden if you need custom permissions checking.
 
 
 .. _GroupRequiredMixin:
