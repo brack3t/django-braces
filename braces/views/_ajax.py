@@ -1,10 +1,10 @@
 from __future__ import unicode_literals
-import six
 
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.utils import six
 
 ## Django 1.5+ compat
 try:
