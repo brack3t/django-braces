@@ -719,3 +719,16 @@ class TestAllVerbsMixin(test.TestCase):
     def test_no_all_handler(self):
         with self.assertRaises(ImproperlyConfigured):
             self.client.get('/all_verbs_no_handler/')
+
+
+class TestHeaderMixin(test.TestCase):
+
+    def test_attribute(self):
+        response = self.client.get('/headers/attribute/')
+        self.assertEqual(response['X-DJANGO-BRACES-1'], '1')
+        self.assertEqual(response['X-DJANGO-BRACES-2'], '2')
+
+    def test_method(self):
+        response = self.client.get('/headers/method/')
+        self.assertEqual(response['X-DJANGO-BRACES-1'], '1')
+        self.assertEqual(response['X-DJANGO-BRACES-2'], '2')

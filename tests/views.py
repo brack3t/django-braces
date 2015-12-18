@@ -351,3 +351,19 @@ class RecentLoginRequiredView(views.RecentLoginRequiredMixin, OkView):
     """
     A view for testing RecentLoginRequiredMixin.
     """
+
+
+class AttributeHeaderView(views.HeaderMixin, OkView):
+    headers = {
+        'X-DJANGO-BRACES-1': 1,
+        'X-DJANGO-BRACES-2': 2,
+    }
+
+
+class MethodHeaderView(views.HeaderMixin, OkView):
+
+    def get_headers(self, request):
+        return {
+            'X-DJANGO-BRACES-1': 1,
+            'X-DJANGO-BRACES-2': 2,
+        }
