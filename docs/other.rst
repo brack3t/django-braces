@@ -582,3 +582,48 @@ This mixin allows you to specify a single method that will response to all HTTP 
             return super(JustShowItView, self).get(request, *args, **kwargs)
 
 If you need to change the name of the method called, provide a new value to the ``all_handler`` attribute (default is ``'all'``)
+
+
+
+.. _HeaderMixin:
+
+HeaderMixin
+-------------
+
+.. versionadded:: 1.9
+
+This mixin allows you to add arbitrary HTTP header to a response. Static headers can be defined in the ``headers`` attribute of the view.
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import HeaderMixin
+
+
+    class StaticHeadersView(HeaderMixin, TemplateView):
+        template_name = "some/headers.html"
+        headers = {
+            'X-Header-Sample': 'some value',
+            'X-Some-Number': 42
+        }
+
+
+If you need to set the headers dynamically, e.g depending on some request information, override the ``get_headers`` method instead.
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import HeaderMixin
+
+
+    class EchoHeadersView(HeaderMixin, TemplateView):
+        template_name = "some/headers.html"
+
+        def get_headers(self, request):
+            """
+            Echo back request headers with ``X-Request-`` prefix.
+            """
+            for key, value in request.META.items():
+                yield "X-Request-{}".format(key), value
