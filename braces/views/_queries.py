@@ -126,7 +126,7 @@ class OrderableListMixin(object):
         if order_by and self.request.GET.get(
                 "ordering", self.ordering) == "desc":
             order_by = "-" + order_by
-            self.ordering = "desc"
+        self.ordering = self.request.GET.get("ordering", self.ordering)
 
         return queryset.order_by(order_by)
 
