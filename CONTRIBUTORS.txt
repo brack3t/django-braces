@@ -28,6 +28,7 @@ Direct Contributors
 * Rag Sagar.V
 * Lacey Williams Henschel 
 * Gregory Shikhman
+* Mike Bryant
 
 Other Contributors
 ==================

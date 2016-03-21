@@ -252,30 +252,56 @@ class TestChainedLoginRequiredMixin(TestViewHelper, test.TestCase):
     Tests for LoginRequiredMixin combined with another AccessMixin.
     """
     view_class = UserPassesTestLoginRequiredView
-    view_url = '/login_required/'
+    view_url = '/chained_view/'
+
+    def assert_redirect_to_login(self, response):
+        """
+        Check that the response is a redirect to the login view.
+        """
+        assert response.status_code == 302
+        assert response['Location'] == '/accounts/login/?next=/chained_view/'
 
     def test_anonymous(self):
-        resp = self.client.get(self.view_url)
-        self.assertRedirects(resp, '/accounts/login/?next=/login_required/')
+        """
+        Check that anonymous users redirect to login by default.
+        """
+        resp = self.dispatch_view(
+            self.build_request(path=self.view_url))
+        self.assert_redirect_to_login(resp)
 
     def test_anonymous_raises_exception(self):
+        """
+        Check that when anonymous users hit a view that has only
+        raise_exception set, they get a PermissionDenied.
+        """
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(
                 self.build_request(path=self.view_url), raise_exception=True)
 
-    def test_authenticated(self):
+    def test_authenticated_raises_exception(self):
+        """
+        Check that when authenticated users hit a view that has raise_exception
+        set, they get a PermissionDenied.
+        """
         user = UserFactory()
-        self.client.login(username=user.username, password='asdf1234')
-        resp = self.client.get(self.view_url)
-        assert resp.status_code == 200
-        assert force_text(resp.content) == 'OK'
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url, user=user),
+                raise_exception=True)
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url, user=user),
+                raise_exception=True, redirect_unauthenticated_users=True)
 
     def test_anonymous_redirects(self):
+        """
+        Check that anonymous users are redirected to login when raise_exception
+        is overridden by redirect_unauthenticated_users.
+        """
         resp = self.dispatch_view(
             self.build_request(path=self.view_url), raise_exception=True,
             redirect_unauthenticated_users=True)
-        assert resp.status_code == 302
-        assert resp['Location'] == '/accounts/login/?next=/login_required/'
+        self.assert_redirect_to_login(resp)
 
 
 class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
