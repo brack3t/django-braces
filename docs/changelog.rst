@@ -5,10 +5,10 @@ Changelog
 =========
 
 * :release:`1.9.0 <2016-5-31>`
-* :bug:`208` Fixed errors from combining certain access mixins.
-* :bug:`196` Refactor how users without permissions are handled.
-* :bug:`181` Fixed redirect loops based on user permissions.
-* :bug:`161` Fixed redirect loop for users without proper groups for :ref:`MultipleGroupRequiredMixin` and :ref:`GroupRequiredMixin`.
+* :bug:`208 major` Fixed errors from combining certain access mixins.
+* :bug:`196 major` Refactor how users without permissions are handled.
+* :bug:`181 major` Fixed redirect loops based on user permissions.
+* :bug:`161 major` Fixed redirect loop for users without proper groups for :ref:`MultipleGroupRequiredMixin` and :ref:`GroupRequiredMixin`.
 * :support:`209` Fixed link to Django documentation for ``user_passes_test`` decorator.
 * :feature:`203` Use Django's supplied version of ``six`` to remove an external dependency.
 * :support:`202` Fixed typo in :ref:`PermissionsRequiredMixin` and :ref:`MultiplePermissionsRequiredMixin`.
