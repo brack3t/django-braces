@@ -392,5 +392,5 @@ This mixin requires a user to have logged in within a certain number of seconds.
 
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
-.. _user_passes_test: https://docs.djangoproject.com/en/1.6/topics/auth/default/#django.contrib.auth.decorators.user_passes_test
+.. _user_passes_test: https://docs.djangoproject.com/en/dev/topics/auth/default/#django.contrib.auth.decorators.user_passes_test
 .. _settings.LOGIN_REDIRECT_URL: https://docs.djangoproject.com/en/1.6/ref/settings/#login-redirect-url
