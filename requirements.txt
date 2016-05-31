@@ -2,5 +2,4 @@ factory_boy
 mock
 pytest-django
 pytest-cov
-six
 coverage
