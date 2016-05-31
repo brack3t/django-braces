@@ -326,7 +326,7 @@ Similar to :ref:`SuperuserRequiredMixin`, this mixin allows you to require a use
         template_name = u"path/to/template.html"
 
 
-.. _SSLRequiredMixin
+.. _SSLRequiredMixin:
 
 SSLRequiredMixin
 ----------------

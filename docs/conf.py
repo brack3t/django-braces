@@ -33,6 +33,8 @@ extensions = ['releases']
 
 releases_issue_uri = "https://github.com/brack3t/django-braces/issues/%s"
 releases_release_uri = "https://github.com/brack3t/django-braces/tree/%s"
+releases_unstable_prehistory = True
+# releases_debug = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

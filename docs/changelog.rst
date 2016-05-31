@@ -82,13 +82,13 @@ Changelog
 * :support:`-` Fixes to documentation.
 * :support:`-` Tests to cover new additions and changes.
 * :release:`0.2.3 <2013-02-22>`
-* :support:`30 (0.2.3)` Tests for all mixins (from rafales).
-* :feature:`26 (0.2.3)` New :ref:`CsrfExemptMixin` for marking views as being CSRF exempt (from jarcoal).
-* :support:`- (0.2.3)` Some documentation updates and a spelling error correction (from shabda).
+* :support:`30 backported` Tests for all mixins (from rafales).
+* :feature:`26 backported` New :ref:`CsrfExemptMixin` for marking views as being CSRF exempt (from jarcoal).
+* :support:`- backported` Some documentation updates and a spelling error correction (from shabda).
 * :bug:`-` :ref:`SuccessURLRedirectListMixin` raises ``ImproperlyConfigured`` if no ``success_list_url`` attribute is supplied (from kennethlove).
 * :release:`0.2.2 <2013-01-21>`
 * :bug:`25` Try importing the built-in ``json`` module first, drop back to Django if necessary.
-* :support:`0 (0.2.2)` Django 1.5 compatibility.
+* :support:`- backported` Django 1.5 compatibility.
 * :release:`0.2.1 <2012-12-10>`
 * :bug:`21 major` Fixed signature of :ref:`UserFormKwargsMixin` ``.get_form_kwargs``
 * :feature:`22` Updated :ref:`JSONResponseMixin` to work with non-ASCII characters and other datatypes (such as datetimes)
