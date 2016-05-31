@@ -27,6 +27,8 @@ Direct Contributors
 * Ben Cardy
 * Rag Sagar.V
 * Lacey Williams Henschel 
+* Gregory Shikhman
+* Mike Bryant
 
 Other Contributors
 ==================
