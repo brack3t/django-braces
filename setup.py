@@ -26,10 +26,12 @@ setup(
         "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Framework :: Django",
         "Framework :: Django :: 1.5",
         "Framework :: Django :: 1.6",
         "Framework :: Django :: 1.7",
-        "Framework :: Django :: 1.8"
+        "Framework :: Django :: 1.8",
+        "Framework :: Django :: 1.9"
     ],
 )
