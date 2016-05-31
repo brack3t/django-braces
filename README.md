@@ -1,11 +1,11 @@
 # django-braces
 Mixins for Django's class-based views.
 
-[![Latest drone.io status](https://drone.io/github.com/brack3t/django-braces/status.png)](https://drone.io/github.com/brack3t/django-braces)
+[![Latest Travis CI status](https://travis-ci.org/brack3t/django-braces.svg)](https://travis-ci.org/brack3t/django-braces)
 [![PyPI version](https://badge.fury.io/py/django-braces.png)](http://badge.fury.io/py/django-braces)
 
 ## Documentation
-[Read The Docs](http://django-braces.readthedocs.org/en/latest/index.html)
+[Read The Docs](http://django-braces.readthedocs.io/en/latest/index.html)
 
 ## Installation
 Install from PyPI with `pip`:
@@ -19,7 +19,7 @@ Install from PyPI with `pip`:
 
 ## Contributing
 
-See our [contribution guide](https://django-braces.readthedocs.org/en/latest/contributing.html)
+See our [contribution guide](https://django-braces.readthedocs.io/en/latest/contributing.html)
 
 Add yourself to `CONTRIBUTORS.txt` if you want.
 
@@ -32,7 +32,7 @@ Or test with `tox` if you have `tox` installed.
 
 ## Change Log
 
-[Changelog on Read The Docs](https://django-braces.readthedocs.org/en/latest/changelog.html)
+[Changelog on Read The Docs](https://django-braces.readthedocs.io/en/latest/changelog.html)
 
 ## Use Django 1.4.x?
 
