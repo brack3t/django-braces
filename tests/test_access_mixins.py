@@ -629,8 +629,21 @@ class TestSSLRequiredMixin(test.TestCase):
     view_class = SSLRequiredView
     view_url = '/sslrequired/'
 
+    @pytest.mark.skipif(DJANGO_VERSION[:2] < (1, 9),
+                        reason='Django 1.9 and above behave differently')
+    def test_ssl_redirection_django_19_up(self):
+        self.view_url = 'https://testserver' + self.view_url
+        self.view_class.raise_exception = False
+        resp = self.client.get(self.view_url)
+        self.assertRedirects(resp, self.view_url, status_code=301)
+        resp = self.client.get(self.view_url, follow=True)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
+
     @pytest.mark.skipif(DJANGO_VERSION[:2] < (1, 7),
-                        reason='Djanog 1.6 and below behave this differently')
+                        reason='Django 1.6 and below behave differently')
+    @pytest.mark.skipif(DJANGO_VERSION[:2] > (1, 8),
+                        reason='Django 1.6 and below behave differently')
     def test_ssl_redirection_django_17_up(self):
         self.view_class.raise_exception = False
         resp = self.client.get(self.view_url)
