@@ -88,7 +88,7 @@ Changelog
 * :bug:`-` :ref:`SuccessURLRedirectListMixin` raises ``ImproperlyConfigured`` if no ``success_list_url`` attribute is supplied (from kennethlove).
 * :release:`0.2.2 <2013-01-21>`
 * :bug:`25` Try importing the built-in ``json`` module first, drop back to Django if necessary.
-* :support:`-` Django 1.5 compatibility.
+* :support:`- major` Django 1.5 compatibility.
 * :release:`0.2.1 <2012-12-10>`
 * :bug:`21 major` Fixed signature of :ref:`UserFormKwargsMixin` ``.get_form_kwargs``
 * :feature:`22` Updated :ref:`JSONResponseMixin` to work with non-ASCII characters and other datatypes (such as datetimes)
