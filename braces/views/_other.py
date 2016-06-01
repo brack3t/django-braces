@@ -144,5 +144,6 @@ class HeaderMixin(object):
         """
         response = super(HeaderMixin, self).dispatch(request, *args, **kwargs)
         for key, value in self.get_headers(request).items():
-            response[key] = value
+            if key not in response:
+                response[key] = value
         return response
