@@ -732,3 +732,7 @@ class TestHeaderMixin(test.TestCase):
         response = self.client.get('/headers/method/')
         self.assertEqual(response['X-DJANGO-BRACES-1'], '1')
         self.assertEqual(response['X-DJANGO-BRACES-2'], '2')
+
+    def test_method(self):
+        response = self.client.get('/headers/existing/')
+        self.assertEqual(response['X-DJANGO-BRACES-EXISTING'], 'value')

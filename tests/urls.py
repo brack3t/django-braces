@@ -113,6 +113,7 @@ urlpatterns = [
     # HeaderMixin tests
     url(r'^headers/attribute/$', views.AttributeHeaderView.as_view()),
     url(r'^headers/method/$', views.MethodHeaderView.as_view()),
+    url(r'^headers/existing/$', views.ExistingHeaderView.as_view()),
 ]
 
 urlpatterns += [
