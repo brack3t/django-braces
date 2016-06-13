@@ -5,7 +5,7 @@ Mixins for Django's class-based views.
 [![PyPI version](https://badge.fury.io/py/django-braces.png)](http://badge.fury.io/py/django-braces)
 
 ## Documentation
-[Read The Docs](http://django-braces.readthedocs.io/en/latest/index.html)
+[Read The Docs](https://django-braces.readthedocs.io/en/latest/index.html)
 
 ## Installation
 Install from PyPI with `pip`:
