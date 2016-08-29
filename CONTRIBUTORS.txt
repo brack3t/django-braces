@@ -29,6 +29,7 @@ Direct Contributors
 * Lacey Williams Henschel 
 * Gregory Shikhman
 * Mike Bryant
+* Fabio C. Barrionuevo da Luz
 
 Other Contributors
 ==================
