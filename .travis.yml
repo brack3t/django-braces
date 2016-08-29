@@ -1,6 +1,10 @@
 language: python
 services: sqlite
-cache: pip
+cache:
+  directories:
+    - $HOME/.cache/pip
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
 matrix:
     include:
       - python: 2.7
@@ -50,4 +54,5 @@ matrix:
 script: tox -e $TOX_ENV
 
 install:
+    - pip install pip setuptools wheel -U
     - pip install tox
