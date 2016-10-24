@@ -23,7 +23,6 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
@@ -32,6 +31,7 @@ setup(
         "Framework :: Django :: 1.6",
         "Framework :: Django :: 1.7",
         "Framework :: Django :: 1.8",
-        "Framework :: Django :: 1.9"
+        "Framework :: Django :: 1.9",
+        "Framework :: Django :: 1.10"
     ],
 )

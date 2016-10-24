@@ -1,11 +1,10 @@
 from __future__ import absolute_import
 
+from django.contrib.auth.views import login
 from . import views
-from .compat import patterns, include, url
+from .compat import include, url, patterns_compat
 
-
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     # LoginRequiredMixin tests
     url(r'^login_required/$', views.LoginRequiredView.as_view()),
 
@@ -110,12 +109,11 @@ urlpatterns = patterns(
     # RecentLoginRequiredMixin tests
     url(r'^recent_login/$', views.RecentLoginRequiredView.as_view()),
     url(r'^outdated_login/$', views.RecentLoginRequiredView.as_view()),
-)
+]
 
+urlpatterns += [
+    url(r'^accounts/login/$', login, {'template_name': 'blank.html'}),
+    url(r'^auth/login/$', login, {'template_name': 'blank.html'}),
+]
 
-urlpatterns += patterns(
-    'django.contrib.auth.views',
-    # login page, required by some tests
-    url(r'^accounts/login/$', 'login', {'template_name': 'blank.html'}),
-    url(r'^auth/login/$', 'login', {'template_name': 'blank.html'}),
-)
+urlpatterns = patterns_compat(urlpatterns)
