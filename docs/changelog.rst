@@ -4,6 +4,10 @@
 Changelog
 =========
 
+* :release:`1.10.0 <2016-10-24>`
+* :bug:`212 major` Small changes for Django 1.10 compatibility.
+* :bug:`211 major` ReadTheDocs links updated.
+* :bug:`209 major` Django documentation link updated.
 * :release:`1.9.0 <2016-5-31>`
 * :bug:`208 major` Fixed errors from combining certain access mixins.
 * :bug:`196 major` Refactor how users without permissions are handled.
