@@ -2,3 +2,6 @@ include README.md
 include LICENSE
 include CONTRIBUTORS.txt
 recursive-include braces *.py
+recursive-include docs *.rst
+recursive-include tests *.py
+prune docs/_build
