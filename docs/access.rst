@@ -78,7 +78,7 @@ In normal use of this mixin, :ref:`LoginRequiredMixin` comes first, then the ``P
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces import views
 
@@ -105,7 +105,7 @@ The ``MultiplePermissionsRequiredMixin`` is a more powerful version of the :ref:
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces import views
 
@@ -141,7 +141,7 @@ Standard Django Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import GroupRequiredMixin
 
@@ -156,7 +156,7 @@ Multiple Groups Possible Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import GroupRequiredMixin
 
@@ -172,7 +172,7 @@ Custom Group Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import GroupRequiredMixin
 
@@ -196,7 +196,7 @@ Dynamically Build Groups
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import GroupRequiredMixin
 
@@ -218,7 +218,7 @@ Mixin that reimplements the `user_passes_test`_ decorator. This is helpful for m
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import UserPassesTestMixin
 
@@ -238,7 +238,7 @@ Another permission-based mixin. This is specifically for requiring a user to be 
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces import views
 
@@ -266,7 +266,7 @@ Static Examples
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import AnonymousRequiredMixin
 
@@ -278,7 +278,7 @@ Static Examples
 ::
 
     from django.core.urlresolvers import reverse_lazy
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import AnonymousRequiredMixin
 
@@ -292,7 +292,7 @@ Dynamic Example
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import AnonymousRequiredMixin
 
@@ -314,7 +314,7 @@ Similar to :ref:`SuperuserRequiredMixin`, this mixin allows you to require a use
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces import views
 
@@ -343,7 +343,7 @@ Standard Django Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import SSLRequiredMixin
 
@@ -357,7 +357,7 @@ Standard Django Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import SSLRequiredMixin
 
