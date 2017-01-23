@@ -397,6 +397,77 @@ by setting the ``"ordering_default"`` in your view class.
 This will reverse the order of list objects if no query param is given.
 
 
+**Front-end Example Usage**
+
+If you're using bootstrap you could create a template like the following:
+
+.. code:: html
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <tr>
+                <th><a class="order-by-column" data-column="id" href="#">ID</a></th>
+                <th><a class="order-by-column" data-column="title" href="#">Title</a></th>
+            </tr>
+            {% for object in object_list %}
+                <tr>
+                    <td>{{ object.id }}</td>
+                    <td>{{ object.title }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+    function setupOrderedColumns(order_by, orderin) {
+
+        $('.order-by-column').each(function() {
+
+            var $el = $(this),
+                column_name = $el.data('column'),
+                href = location.href,
+                next_order = 'asc',
+                has_query_string = (href.indexOf('?') !== -1),
+                order_by_param,
+                ordering_param;
+
+            if (order_by === column_name) {
+                $el.addClass('current');
+                $el.addClass(ordering);
+                $el.append('<span class="caret"></span>');
+                if (ordering === 'asc') {
+                    $el.addClass('dropup');
+                    next_order = 'desc';
+                }
+            }
+
+            order_by_param = "order_by=" + column_name;
+            ordering_param = "ordering=" + next_order;
+
+            if (!has_query_string) {
+                href = '?' + order_by_param + '&' + ordering_param;
+            } else {
+                if (href.match(/ordering=(asc|desc)/)) {
+                    href = href.replace(/ordering=(asc|desc)/, ordering_param);
+                } else {
+                    href += '&' + ordering_param;
+                }
+
+                if (href.match(/order_by=[_\w]+/)) {
+                    href = href.replace(/order_by=([_\w]+)/, order_by_param);
+                } else {
+                    href += '&' + order_by_param;
+                }
+
+            }
+
+            $el.attr('href', href);
+
+        });
+    }
+    setupOrderedColumns('{{ order_by }}', '{{ ordering }}');
+    </script>
+
 .. _CanonicalSlugDetailMixin:
 
 CanonicalSlugDetailMixin

@@ -8,6 +8,8 @@
 /.coverage.xml
 /htmlcov
 /.tox
+/.cache
 dist/
 .idea
 build/
+venv/

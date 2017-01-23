@@ -42,7 +42,7 @@ Tests
 -----
 
 All code changes should come with test changes. We use
-`py.test <https://pypi.python.org/pypi/pytest/2.5.2>`_ instead of Python's
+`py.test <https://pypi.python.org/pypi/pytest>`_ instead of Python's
 ``unittest``. This seems to only be really important when marking tests for
 skipping. 
 
@@ -50,4 +50,4 @@ We try to keep the project at 100% test coverage but know this isn't something
 we can achieve forever. So long as your tests cover your contribution 80% or
 better, we're happy to try and bump up that last bit, or just accept the code.
 
-We currently test Braces against late (usually latest) versions of Python 2.6, 2.7, 3.2, 3.3, and 3.4. We also test against the latest released version of Django from 1.5 to 1.8.
+We currently test Braces against late (usually latest) versions of Python 2.7, 3.2, 3.3, 3.4 and 3.5. We also test against the latest released version of Django from 1.5 to 1.10.

@@ -18,7 +18,8 @@ from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
                     LoginRequiredView, GroupRequiredView, UserPassesTestView,
                     UserPassesTestNotImplementedView, AnonymousRequiredView,
-                    SSLRequiredView, RecentLoginRequiredView)
+                    SSLRequiredView, RecentLoginRequiredView,
+                    UserPassesTestLoginRequiredView)
 
 
 class _TestAccessBasicsMixin(TestViewHelper):
@@ -244,6 +245,63 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
             redirect_unauthenticated_users=True)
         assert resp.status_code == 302
         assert resp['Location'] == '/accounts/login/?next=/login_required/'
+
+
+class TestChainedLoginRequiredMixin(TestViewHelper, test.TestCase):
+    """
+    Tests for LoginRequiredMixin combined with another AccessMixin.
+    """
+    view_class = UserPassesTestLoginRequiredView
+    view_url = '/chained_view/'
+
+    def assert_redirect_to_login(self, response):
+        """
+        Check that the response is a redirect to the login view.
+        """
+        assert response.status_code == 302
+        assert response['Location'] == '/accounts/login/?next=/chained_view/'
+
+    def test_anonymous(self):
+        """
+        Check that anonymous users redirect to login by default.
+        """
+        resp = self.dispatch_view(
+            self.build_request(path=self.view_url))
+        self.assert_redirect_to_login(resp)
+
+    def test_anonymous_raises_exception(self):
+        """
+        Check that when anonymous users hit a view that has only
+        raise_exception set, they get a PermissionDenied.
+        """
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url), raise_exception=True)
+
+    def test_authenticated_raises_exception(self):
+        """
+        Check that when authenticated users hit a view that has raise_exception
+        set, they get a PermissionDenied.
+        """
+        user = UserFactory()
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url, user=user),
+                raise_exception=True)
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                self.build_request(path=self.view_url, user=user),
+                raise_exception=True, redirect_unauthenticated_users=True)
+
+    def test_anonymous_redirects(self):
+        """
+        Check that anonymous users are redirected to login when raise_exception
+        is overridden by redirect_unauthenticated_users.
+        """
+        resp = self.dispatch_view(
+            self.build_request(path=self.view_url), raise_exception=True,
+            redirect_unauthenticated_users=True)
+        self.assert_redirect_to_login(resp)
 
 
 class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
@@ -571,8 +629,21 @@ class TestSSLRequiredMixin(test.TestCase):
     view_class = SSLRequiredView
     view_url = '/sslrequired/'
 
+    @pytest.mark.skipif(DJANGO_VERSION[:2] < (1, 9),
+                        reason='Django 1.9 and above behave differently')
+    def test_ssl_redirection_django_19_up(self):
+        self.view_url = 'https://testserver' + self.view_url
+        self.view_class.raise_exception = False
+        resp = self.client.get(self.view_url)
+        self.assertRedirects(resp, self.view_url, status_code=301)
+        resp = self.client.get(self.view_url, follow=True)
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
+
     @pytest.mark.skipif(DJANGO_VERSION[:2] < (1, 7),
-                        reason='Djanog 1.6 and below behave this differently')
+                        reason='Django 1.6 and below behave differently')
+    @pytest.mark.skipif(DJANGO_VERSION[:2] > (1, 8),
+                        reason='Django 1.6 and below behave differently')
     def test_ssl_redirection_django_17_up(self):
         self.view_class.raise_exception = False
         resp = self.client.get(self.view_url)

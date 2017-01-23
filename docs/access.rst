@@ -78,7 +78,7 @@ In normal use of this mixin, :ref:`LoginRequiredMixin` comes first, then the ``P
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces import views
 
@@ -90,7 +90,7 @@ In normal use of this mixin, :ref:`LoginRequiredMixin` comes first, then the ``P
         permission_required = "auth.change_user"
         template_name = "path/to/template.html"
 
-The ``PermissionRequiredMixin`` also offers a ``check_permssions`` method that should be overridden if you need custom permissions checking.
+The ``PermissionRequiredMixin`` also offers a ``check_permissions`` method that should be overridden if you need custom permissions checking.
 
 
 .. _MultiplePermissionsRequiredMixin:
@@ -105,7 +105,7 @@ The ``MultiplePermissionsRequiredMixin`` is a more powerful version of the :ref:
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces import views
 
@@ -120,7 +120,7 @@ The ``MultiplePermissionsRequiredMixin`` is a more powerful version of the :ref:
             "any": ("blog.delete_post", "user.change_user")
         }
 
-The ``MultiplePermissionsRequiredMixin`` also offers a ``check_permssions`` method that should be overridden if you need custom permissions checking.
+The ``MultiplePermissionsRequiredMixin`` also offers a ``check_permissions`` method that should be overridden if you need custom permissions checking.
 
 
 .. _GroupRequiredMixin:
@@ -141,7 +141,7 @@ Standard Django Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import GroupRequiredMixin
 
@@ -156,7 +156,7 @@ Multiple Groups Possible Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import GroupRequiredMixin
 
@@ -172,7 +172,7 @@ Custom Group Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import GroupRequiredMixin
 
@@ -196,7 +196,7 @@ Dynamically Build Groups
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import GroupRequiredMixin
 
@@ -218,7 +218,7 @@ Mixin that reimplements the `user_passes_test`_ decorator. This is helpful for m
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import UserPassesTestMixin
 
@@ -238,7 +238,7 @@ Another permission-based mixin. This is specifically for requiring a user to be 
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces import views
 
@@ -266,7 +266,7 @@ Static Examples
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import AnonymousRequiredMixin
 
@@ -278,7 +278,7 @@ Static Examples
 ::
 
     from django.core.urlresolvers import reverse_lazy
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import AnonymousRequiredMixin
 
@@ -292,7 +292,7 @@ Dynamic Example
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import AnonymousRequiredMixin
 
@@ -314,7 +314,7 @@ Similar to :ref:`SuperuserRequiredMixin`, this mixin allows you to require a use
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces import views
 
@@ -326,7 +326,7 @@ Similar to :ref:`SuperuserRequiredMixin`, this mixin allows you to require a use
         template_name = u"path/to/template.html"
 
 
-.. _SSLRequiredMixin
+.. _SSLRequiredMixin:
 
 SSLRequiredMixin
 ----------------
@@ -343,7 +343,7 @@ Standard Django Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import SSLRequiredMixin
 
@@ -357,7 +357,7 @@ Standard Django Usage
 
 ::
 
-    from django.views import TemplateView
+    from django.views.generic import TemplateView
 
     from braces.views import SSLRequiredMixin
 
@@ -392,5 +392,5 @@ This mixin requires a user to have logged in within a certain number of seconds.
 
 .. _Daniel Sokolowski: https://github.com/danols
 .. _code here: https://github.com/lukaszb/django-guardian/issues/48
-.. _user_passes_test: https://docs.djangoproject.com/en/1.6/topics/auth/default/#django.contrib.auth.decorators.user_passes_test
+.. _user_passes_test: https://docs.djangoproject.com/en/dev/topics/auth/default/#django.contrib.auth.decorators.user_passes_test
 .. _settings.LOGIN_REDIRECT_URL: https://docs.djangoproject.com/en/1.6/ref/settings/#login-redirect-url

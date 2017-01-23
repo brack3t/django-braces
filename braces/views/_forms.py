@@ -1,8 +1,7 @@
-import six
-
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
+from django.utils import six
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
 from django.utils.functional import curry, Promise
@@ -50,7 +49,7 @@ class SuccessURLRedirectListMixin(object):
         # Return the reversed success url.
         if self.success_list_url is None:
             raise ImproperlyConfigured(
-                '{0} is missing a succes_list_url '
+                '{0} is missing a success_list_url '
                 'name to reverse and redirect to. Define '
                 '{0}.success_list_url or override '
                 '{0}.get_success_url().'.format(self.__class__.__name__))

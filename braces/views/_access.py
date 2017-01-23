@@ -1,7 +1,6 @@
 import inspect
 import datetime
 import re
-import six
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -10,6 +9,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
                          Http404, HttpResponse)
 from django.shortcuts import resolve_url
+from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.timezone import now
 
@@ -57,15 +57,19 @@ class AccessMixin(object):
         return self.redirect_field_name
 
     def handle_no_permission(self, request):
-        if self.raise_exception and not self.redirect_unauthenticated_users:
-            if (inspect.isclass(self.raise_exception)
-                    and issubclass(self.raise_exception, Exception)):
-                raise self.raise_exception
-            if callable(self.raise_exception):
-                ret = self.raise_exception(request)
-                if isinstance(ret, (HttpResponse, StreamingHttpResponse)):
-                    return ret
-            raise PermissionDenied
+        if self.raise_exception:
+            if (self.redirect_unauthenticated_users
+                    and not self.request.user.is_authenticated()):
+                return self.no_permissions_fail(request)
+            else:
+                if (inspect.isclass(self.raise_exception)
+                        and issubclass(self.raise_exception, Exception)):
+                    raise self.raise_exception
+                if callable(self.raise_exception):
+                    ret = self.raise_exception(request)
+                    if isinstance(ret, (HttpResponse, StreamingHttpResponse)):
+                        return ret
+                raise PermissionDenied
 
         return self.no_permissions_fail(request)
 
