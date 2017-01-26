@@ -1,7 +1,10 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import resolve
 from django.shortcuts import redirect
 from django.utils.encoding import force_text
+try:
+    from django.urls import resolve
+except ImportError:
+    from django.core.urlresolvers import resolve
 
 
 class SetHeadlineMixin(object):
