@@ -609,7 +609,7 @@ If you need to change the name of the method called, provide a new value to the 
 HeaderMixin
 -------------
 
-.. versionadded:: 1.9
+.. versionadded:: 1.11
 
 This mixin allows you to add arbitrary HTTP header to a response. Static headers can be defined in the ``headers`` attribute of the view.
 

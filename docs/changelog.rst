@@ -5,6 +5,8 @@ Changelog
 =========
 
 * :feature:`198` New :ref:`OrderableListMixin` allows to switch the default ordering setting from `asc` to `desc`.
+* :support:`215` Imports updated for Django 2.0.
+* :feature:`204` New :ref:`HeaderMixin` that allows custom headers to be set on a view.
 * :release:`1.10.0 <2016-10-24>`
 * :bug:`212 major` Small changes for Django 1.10 compatibility.
 * :bug:`211 major` ReadTheDocs links updated.
