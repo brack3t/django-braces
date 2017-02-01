@@ -8,8 +8,11 @@ from django import test
 from django import VERSION as DJANGO_VERSION
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.core.urlresolvers import reverse_lazy
 from django.http import Http404, HttpResponse
+try:
+    from django.urls import reverse_lazy
+except ImportError:
+    from django.core.urlresolvers import reverse_lazy
 
 from .compat import force_text
 from .factories import GroupFactory, UserFactory
@@ -716,7 +719,7 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.outdated_view_url)
         assert resp.status_code == 302
-        
+
     def test_not_logged_in(self):
         last_login = datetime.datetime.now()
         user = UserFactory(last_login=last_login)
