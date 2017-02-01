@@ -109,6 +109,11 @@ urlpatterns = [
     # RecentLoginRequiredMixin tests
     url(r'^recent_login/$', views.RecentLoginRequiredView.as_view()),
     url(r'^outdated_login/$', views.RecentLoginRequiredView.as_view()),
+
+    # HeaderMixin tests
+    url(r'^headers/attribute/$', views.AttributeHeaderView.as_view()),
+    url(r'^headers/method/$', views.MethodHeaderView.as_view()),
+    url(r'^headers/existing/$', views.ExistingHeaderView.as_view()),
 ]
 
 urlpatterns += [

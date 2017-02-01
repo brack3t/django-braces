@@ -124,3 +124,26 @@ class AllVerbsMixin(object):
 
         handler = getattr(self, self.all_handler, self.http_method_not_allowed)
         return handler(request, *args, **kwargs)
+
+
+class HeaderMixin(object):
+    """
+    Add arbitrary HTTP headers to a response by specifying them in the
+    ``headers`` attribute or by overriding the ``get_headers()`` method.
+    """
+    headers = {}
+
+    def get_headers(self, request):
+        return self.headers
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Override this method to customize the way additional headers are
+        retrieved.  It is mandatory that the returned value supports the
+        ``.items()`` method.
+        """
+        response = super(HeaderMixin, self).dispatch(request, *args, **kwargs)
+        for key, value in self.get_headers(request).items():
+            if key not in response:
+                response[key] = value
+        return response
