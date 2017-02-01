@@ -278,6 +278,59 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
             get_orderable_columns=lambda: ('id', 'title', ))
         self.assertEqual(list(resp.context_data['object_list']), [a2, a1])
 
+    def test_correct_order_with_default_ordering(self):
+        """
+        Objects must be properly ordered if requested with valid column names
+        and with the default ordering
+        """
+        a1, a2 = self.__make_test_articles()
+
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=id'),
+            orderable_columns=None,
+            ordering_default=None,
+            get_orderable_columns=lambda: ('id', 'title', ))
+        self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
+
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=id'),
+            orderable_columns=None,
+            ordering_default="asc",
+            get_orderable_columns=lambda: ('id', 'title', ))
+        self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
+
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=id'),
+            orderable_columns=None,
+            ordering_default="desc",
+            get_orderable_columns=lambda: ('id', 'title', ))
+        self.assertEqual(list(resp.context_data['object_list']), [a2, a1])
+
+    def test_correct_order_with_param_not_default_ordering(self):
+        """
+        Objects must be properly ordered if requested with valid column names
+        and ordering option in the query params.
+        In this case, the ordering_default will be overwritten.
+        """
+        a1, a2 = self.__make_test_articles()
+
+        resp = self.dispatch_view(
+            self.build_request(path='?order_by=id&ordering=asc'),
+            orderable_columns=None,
+            ordering_default='desc',
+            get_orderable_columns=lambda: ('id', 'title', ))
+        self.assertEqual(list(resp.context_data['object_list']), [a1, a2])
+
+    def test_correct_order_with_incorrect_default_ordering(self):
+        """
+        Objects must be properly ordered if requested with valid column names
+        and with the default ordering
+        """
+        view = self.view_class()
+        view.ordering_default = "improper_default_value"
+        self.assertRaises(ImproperlyConfigured,
+                          lambda: view.get_ordering_default())
+
     def test_default_column(self):
         """
         When no ordering specified in GET, use

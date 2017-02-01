@@ -4,6 +4,7 @@
 Changelog
 =========
 
+* :feature:`198` New :ref:`OrderableListMixin` allows to switch the default ordering setting from `asc` to `desc`.
 * :release:`1.10.0 <2016-10-24>`
 * :bug:`212 major` Small changes for Django 1.10 compatibility.
 * :bug:`211 major` ReadTheDocs links updated.
@@ -19,7 +20,7 @@ Changelog
 * :support:`201` Fixed typo in ``SuccessURLRedirectListMixin``.
 * :support:`192` Added example for ``OrderableListView``.
 * :release:`1.8.1 <2015-7-12>`
-* :bug:`176` Only check time delta for authenticated users in :ref:`RecentLoginRequiredMixin`. 
+* :bug:`176` Only check time delta for authenticated users in :ref:`RecentLoginRequiredMixin`.
 * :bug:`-` Changed :ref:`JsonRequestResponseMixin` docs to not use `ugettext_lazy`.
 * :bug:`-` Updated tests to include Python 3.2.
 * :bug:`185` Removed `u` prefixes to allow Python 3.2 support.

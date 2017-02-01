@@ -36,7 +36,7 @@ Dynamic Example
     from datetime import date
 
     from django.views import TemplateView
-    
+
     from braces.views import SetHeadlineMixin
 
 
@@ -186,7 +186,7 @@ You can additionally use the `AjaxResponseMixin`
 
     from braces import views
 
-    
+
     class UserProfileView(views.JSONResponseMixin,
                           views.AjaxResponseMixin,
                           DetailView):
@@ -225,7 +225,7 @@ overriding the `get_content_type()` method.
             # Shown just for illustrative purposes
             return u"application/javascript"
 
-The `JSONResponseMixin` provides another class-level variable 
+The `JSONResponseMixin` provides another class-level variable
 `json_encoder_class` to use a custom json encoder with `json.dumps`.
 By default it is `django.core.serializers.json.DjangoJsonEncoder`
 
@@ -376,6 +376,25 @@ The ``orderable_columns`` restriction is here in order to stop your users from l
     * ``ordering``: ``"asc"`` (default) or ``"desc"``
 
 Example url: `http://127.0.0.1:8000/articles/?order_by=title&ordering=asc`
+
+You can also override the default ordering from ``"asc"`` to ``"desc"``
+by setting the ``"ordering_default"`` in your view class.
+
+::
+
+    # views.py
+    from django.views import ListView
+
+    from braces.views import OrderableListMixin
+
+
+    class OrderableListView(OrderableListMixin, ListView):
+        model = Article
+        orderable_columns = (u"id", u"title",)
+        orderable_columns_default = u"id"
+        ordering_default = u"desc"
+
+This will reverse the order of list objects if no query param is given.
 
 
 **Front-end Example Usage**

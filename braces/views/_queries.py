@@ -66,6 +66,7 @@ class OrderableListMixin(object):
 
     orderable_columns = None
     orderable_columns_default = None
+    ordering_default = None
     order_by = None
     ordering = None
 
@@ -95,6 +96,16 @@ class OrderableListMixin(object):
                     self.__class__.__name__))
         return self.orderable_columns_default
 
+    def get_ordering_default(self):
+        if not self.ordering_default:
+            return "asc"
+        else:
+            if self.ordering_default not in ["asc", "desc"]:
+                raise ImproperlyConfigured(
+                    '{0} only allows asc or desc as ordering option'.format(
+                        self.__class__.__name__))
+            return self.ordering_default
+
     def get_ordered_queryset(self, queryset=None):
         """
         Augments ``QuerySet`` with order_by statement if possible
@@ -110,11 +121,12 @@ class OrderableListMixin(object):
             order_by = self.get_orderable_columns_default()
 
         self.order_by = order_by
-        self.ordering = "asc"
+        self.ordering = self.get_ordering_default()
 
-        if order_by and self.request.GET.get("ordering", "asc") == "desc":
+        if order_by and self.request.GET.get(
+                "ordering", self.ordering) == "desc":
             order_by = "-" + order_by
-            self.ordering = "desc"
+        self.ordering = self.request.GET.get("ordering", self.ordering)
 
         return queryset.order_by(order_by)
 
