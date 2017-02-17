@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
+import json
 import mock
 
 from django import test
@@ -13,7 +14,6 @@ from .factories import ArticleFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (SimpleJsonView, JsonRequestResponseView,
                     CustomJsonEncoderView)
-from .compat import json
 
 
 class TestAjaxResponseMixin(TestViewHelper, test.TestCase):
