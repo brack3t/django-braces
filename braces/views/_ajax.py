@@ -1,16 +1,11 @@
 from __future__ import unicode_literals
 
+import json
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils import six
-
-## Django 1.5+ compat
-try:
-    import json
-except ImportError:  # pragma: no cover
-    from django.utils import simplejson as json
 
 
 class JSONResponseMixin(object):

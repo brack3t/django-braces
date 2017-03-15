@@ -59,5 +59,3 @@ class SetJSONEncoder(DjangoJSONEncoder):
         if isinstance(obj, set):
             return list(obj)
         return super(DjangoJSONEncoder, self).default(obj)
-
-

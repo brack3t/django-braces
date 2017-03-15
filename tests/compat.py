@@ -4,11 +4,6 @@ except ImportError:
     from django.utils.encoding import force_unicode as force_text
 
 try:
-    import json
-except ImportError:
-    from django.utils import simplejson as json
-
-try:
     from django.conf.urls import url, include
 except ImportError:
     from django.conf.urls.defaults import url, include

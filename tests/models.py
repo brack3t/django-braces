@@ -18,4 +18,3 @@ class CanonicalArticle(models.Model):
         if self.author:
             return "{0.author.username}-{0.slug}".format(self)
         return "unauthored-{0.slug}".format(self)
-
