@@ -1,3 +1,5 @@
+import warnings
+
 from django.core.exceptions import ImproperlyConfigured
 
 
@@ -26,7 +28,9 @@ class SelectRelatedMixin(object):
         queryset = super(SelectRelatedMixin, self).get_queryset()
 
         if not self.select_related:
+            warnings.warn('The select_related attribute is empty')
             return queryset
+
         return queryset.select_related(*self.select_related)
 
 
@@ -55,7 +59,9 @@ class PrefetchRelatedMixin(object):
         queryset = super(PrefetchRelatedMixin, self).get_queryset()
 
         if not self.prefetch_related:
+            warnings.warn('The prefetch_related attribute is empty')
             return queryset
+
         return queryset.prefetch_related(*self.prefetch_related)
 
 
