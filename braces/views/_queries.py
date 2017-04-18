@@ -25,8 +25,6 @@ class SelectRelatedMixin(object):
         # Get the current queryset of the view
         queryset = super(SelectRelatedMixin, self).get_queryset()
 
-        if not self.select_related:
-            return queryset
         return queryset.select_related(*self.select_related)
 
 
@@ -54,8 +52,6 @@ class PrefetchRelatedMixin(object):
         # Get the current queryset of the view
         queryset = super(PrefetchRelatedMixin, self).get_queryset()
 
-        if not self.prefetch_related:
-            return queryset
         return queryset.prefetch_related(*self.prefetch_related)
 
 
