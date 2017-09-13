@@ -1,4 +1,4 @@
-factory_boy
+factory_boy<2.9
 mock
 pytest-django
 pytest-cov
