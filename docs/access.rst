@@ -67,7 +67,9 @@ PermissionRequiredMixin
 
 This mixin was originally written by `Daniel Sokolowski`_ (`code here`_), but this version eliminates an unneeded render if the permissions check fails.
 
-Rather than overloading the dispatch method manually on every view that needs to check for the existence of a permission, use this mixin and set the ``permission_required`` class attribute on your view. If you don't specify ``permission_required`` on your view, an ``ImproperlyConfigured`` exception is raised reminding you that you haven't set it.
+Rather than overloading the dispatch method manually on every view that needs to check for the existence of a permission, use this mixin and set the ``permission_required`` class attribute on your view.
+If you don't specify ``permission_required`` on your view, an ``ImproperlyConfigured`` exception is raised reminding you that you haven't set it.
+If you need to enforce permissions against a given object, set the ``object_level_permissions`` attribute to ``True``.
 
 The one limitation of this mixin is that it can **only** accept a single permission. If you need multiple permissions use :ref:`MultiplePermissionsRequiredMixin`.
 
