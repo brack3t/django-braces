@@ -11,8 +11,8 @@ class SelectRelatedMixin(object):
     select_related = None  # Default related fields to none
 
     def get_queryset(self):
-        if self.select_related is None:  # If no fields were provided,
-                                         # raise a configuration error
+        if self.select_related is None:
+            # If no fields were provided, raise a configuration error
             raise ImproperlyConfigured(
                 '{0} is missing the select_related property. This must be '
                 'a tuple or list.'.format(self.__class__.__name__))
@@ -42,8 +42,8 @@ class PrefetchRelatedMixin(object):
     prefetch_related = None  # Default prefetch fields to none
 
     def get_queryset(self):
-        if self.prefetch_related is None:  # If no fields were provided,
-                                           # raise a configuration error
+        if self.prefetch_related is None:
+            # If no fields were provided, raise a configuration error
             raise ImproperlyConfigured(
                 '{0} is missing the prefetch_related property. This must be '
                 'a tuple or list.'.format(self.__class__.__name__))

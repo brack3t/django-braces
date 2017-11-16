@@ -9,6 +9,8 @@ from django import VERSION as DJANGO_VERSION
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404, HttpResponse
+from django.utils.timezone import make_aware, get_current_timezone
+
 try:
     from django.urls import reverse_lazy
 except ImportError:
@@ -706,6 +708,7 @@ class TestRecentLoginRequiredMixin(test.TestCase):
     def test_recent_login(self):
         self.view_class.max_last_login_delta = 1800
         last_login = datetime.datetime.now()
+        last_login = make_aware(last_login, get_current_timezone())
         user = UserFactory(last_login=last_login)
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.recent_view_url)
@@ -715,6 +718,7 @@ class TestRecentLoginRequiredMixin(test.TestCase):
     def test_outdated_login(self):
         self.view_class.max_last_login_delta = 0
         last_login = datetime.datetime.now() - datetime.timedelta(hours=2)
+        last_login = make_aware(last_login, get_current_timezone())
         user = UserFactory(last_login=last_login)
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.outdated_view_url)
@@ -722,6 +726,7 @@ class TestRecentLoginRequiredMixin(test.TestCase):
 
     def test_not_logged_in(self):
         last_login = datetime.datetime.now()
+        last_login = make_aware(last_login, get_current_timezone())
         user = UserFactory(last_login=last_login)
         resp = self.client.get(self.recent_view_url)
         assert resp.status_code != 200
