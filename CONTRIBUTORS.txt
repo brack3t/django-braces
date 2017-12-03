@@ -30,6 +30,7 @@ Direct Contributors
 * Gregory Shikhman
 * Mike Bryant
 * Fabio C. Barrionuevo da Luz
+* Sam Spencer
 
 Other Contributors
 ==================
