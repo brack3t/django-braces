@@ -13,7 +13,7 @@ from .compat import force_text
 from .factories import ArticleFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (SimpleJsonView, JsonRequestResponseView,
-                    CustomJsonEncoderView)
+                    JsonBadRequestView)
 
 
 class TestAjaxResponseMixin(TestViewHelper, test.TestCase):
@@ -174,6 +174,24 @@ class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json, None)
 
+    def test_bad_request_response_with_custom_error_message(self):
+        """
+        If a view calls render_bad_request_response when request_json is empty
+        or None, the client should get a 400 error
+        """
+        response = self.client.post(
+            '/json_custom_bad_request/',
+            data=self.request_dict
+        )
+        response_json = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json, {'error': 'you messed up'})
+
+
+class TestJsonBadRequestMixin(TestViewHelper, test.TestCase):
+    view_class = JsonBadRequestView
+    request_dict = {'status': 'operational'}
+
     def test_bad_request_response(self):
         """
         If a view calls render_bad_request_response when request_json is empty
@@ -187,15 +205,16 @@ class TestJsonRequestResponseMixin(TestViewHelper, test.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response_json, self.view_class.error_response_dict)
 
-    def test_bad_request_response_with_custom_error_message(self):
+    def test_options_request_with_required_json_should_pass(self):
         """
-        If a view calls render_bad_request_response when request_json is empty
-        or None, the client should get a 400 error
+        If a the client sends an OPTIONS request,
+        even if require_json is set to true
+        the client should get not a 400 error, because:
+        * it's not possible to send HTTP body within an OPTIONS request
+        * it's not up to an OPTIONS request to decide if the payload is valid
         """
-        response = self.client.post(
-            '/json_custom_bad_request/',
-            data=self.request_dict
+        response = self.client.options(
+            '/json_bad_request/',
+            data=None
         )
-        response_json = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response_json, {'error': 'you messed up'})
+        self.assertEqual(response.status_code, 200)

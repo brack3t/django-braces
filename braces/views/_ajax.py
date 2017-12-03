@@ -133,7 +133,11 @@ class JsonRequestResponseMixin(JSONResponseMixin):
         self.kwargs = kwargs
 
         self.request_json = self.get_request_json()
-        if self.require_json and self.request_json is None:
+        if all([
+            request.method != 'OPTIONS',
+            self.require_json,
+            self.request_json is None
+        ]):
             return self.render_bad_request_response()
         return super(JsonRequestResponseMixin, self).dispatch(
             request, *args, **kwargs)

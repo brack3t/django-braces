@@ -2,7 +2,7 @@
 Mixins for Django's class-based views.
 
 [![Latest Travis CI status](https://travis-ci.org/brack3t/django-braces.svg)](https://travis-ci.org/brack3t/django-braces)
-[![PyPI version](https://badge.fury.io/py/django-braces.png)](http://badge.fury.io/py/django-braces)
+[![PyPI version](https://badge.fury.io/py/django-braces.svg)](http://badge.fury.io/py/django-braces)
 
 ## Documentation
 [Read The Docs](https://django-braces.readthedocs.io/en/latest/index.html)
