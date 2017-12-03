@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.views import login
 from . import views
 from .compat import include, url, patterns_compat
@@ -33,8 +34,6 @@ urlpatterns = [
     url(r'^article-canonical/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.CanonicalSlugDetailView.as_view(),
         name="canonical_slug"),
-    url(r'^article-canonical-namespaced/',
-        include('tests.urls_namespaced', namespace='some_namespace')),
     url(r'^article-canonical-override/(?P<pk>\d+)-(?P<slug>[-\w]+)/$',
         views.OverriddenCanonicalSlugDetailView.as_view(),
         name="canonical_override"),
@@ -120,5 +119,16 @@ urlpatterns += [
     url(r'^accounts/login/$', login, {'template_name': 'blank.html'}),
     url(r'^auth/login/$', login, {'template_name': 'blank.html'}),
 ]
+try:
+    urlpatterns += [
+        url(r'^article-canonical-namespaced/',
+            include(('tests.urls_namespaced', 'tests'),
+                    namespace='some_namespace')),
+    ]
+except ImproperlyConfigured:
+    urlpatterns += [
+        url(r'^article-canonical-namespaced/',
+            include('tests.urls_namespaced', namespace='some_namespace')),
+    ]
 
 urlpatterns = patterns_compat(urlpatterns)

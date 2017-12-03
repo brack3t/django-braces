@@ -2,14 +2,24 @@ from django.db import models
 
 
 class Article(models.Model):
-    author = models.ForeignKey('auth.User', null=True, blank=True)
+    author = models.ForeignKey(
+        'auth.User',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE
+    )
     title = models.CharField(max_length=30)
     body = models.TextField()
     slug = models.SlugField(blank=True)
 
 
 class CanonicalArticle(models.Model):
-    author = models.ForeignKey('auth.User', null=True, blank=True)
+    author = models.ForeignKey(
+        'auth.User',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE
+    )
     title = models.CharField(max_length=30)
     body = models.TextField()
     slug = models.SlugField(blank=True)
