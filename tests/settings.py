@@ -85,9 +85,3 @@ else:
         'django.core.context_processors.request',
         'django.contrib.messages.context_processors.messages'
     ]
-
-if django.VERSION < (1, 4):
-    TEMPLATE_CONTEXT_PROCESSORS.remove('django.core.context_processors.tz')
-    MIDDLEWARE_CLASSES.remove(
-        'django.middleware.clickjacking.XFrameOptionsMiddleware'
-    )

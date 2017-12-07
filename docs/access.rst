@@ -18,7 +18,7 @@ permission is denied:
     * A subclass of ``Exception``: raises this exception.
     * A callable: gets called with the ``request`` argument.
       The function has to return a ``HttpResponse`` or
-      ``StreamingHttpResponse`` (Django 1.5+), otherwise a ``PermissionDenied``
+      ``StreamingHttpResponse``, otherwise a ``PermissionDenied``
       exception gets raised.
 
 This gets done in ``handle_no_permission``, which can be overridden itself.

@@ -8,12 +8,6 @@ before_cache:
 matrix:
     include:
       - python: 2.7
-        env: TOX_ENV=py27-django15
-      - python: 2.7
-        env: TOX_ENV=py27-django16
-      - python: 2.7
-        env: TOX_ENV=py27-django17
-      - python: 2.7
         env: TOX_ENV=py27-django18
       - python: 2.7
         env: TOX_ENV=py27-django19
@@ -21,12 +15,6 @@ matrix:
         env: TOX_ENV=py27-django110
       - python: 2.7
         env: TOX_ENV=py27-django111
-      - python: 3.4
-        env: TOX_ENV=py34-django15
-      - python: 3.4
-        env: TOX_ENV=py34-django16
-      - python: 3.4
-        env: TOX_ENV=py34-django17
       - python: 3.4
         env: TOX_ENV=py34-django18
       - python: 3.4
