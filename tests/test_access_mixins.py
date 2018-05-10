@@ -5,7 +5,6 @@ import pytest
 import datetime
 
 from django import test
-from django import VERSION as DJANGO_VERSION
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404, HttpResponse
@@ -634,9 +633,7 @@ class TestSSLRequiredMixin(test.TestCase):
     view_class = SSLRequiredView
     view_url = '/sslrequired/'
 
-    @pytest.mark.skipif(DJANGO_VERSION[:2] < (1, 9),
-                        reason='Django 1.9 and above behave differently')
-    def test_ssl_redirection_django_19_up(self):
+    def test_ssl_redirection(self):
         self.view_url = 'https://testserver' + self.view_url
         self.view_class.raise_exception = False
         resp = self.client.get(self.view_url)
@@ -656,7 +653,7 @@ class TestSSLRequiredMixin(test.TestCase):
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
 
-    def test_https_does_not_redirect_django_17_up(self):
+    def test_https_does_not_redirect(self):
         self.view_class.raise_exception = False
         resp = self.client.get(self.view_url, secure=True)
         self.assertEqual(200, resp.status_code)

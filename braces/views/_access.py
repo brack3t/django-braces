@@ -2,7 +2,6 @@ import inspect
 import datetime
 import re
 
-from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login, logout_then_login
@@ -13,13 +12,6 @@ from django.shortcuts import resolve_url
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.timezone import now
-
-
-if DJANGO_VERSION >= (1, 10, 0):
-    _is_authenticated = lambda user: user.is_authenticated  # noqa
-else:
-    # Django<1.10 compatibility
-    _is_authenticated = lambda user: user.is_authenticated()  # noqa
 
 
 class AccessMixin(object):
@@ -59,7 +51,7 @@ class AccessMixin(object):
     def handle_no_permission(self, request):
         if self.raise_exception:
             if (self.redirect_unauthenticated_users
-                    and not _is_authenticated(request.user)):
+                    and not request.user.is_authenticated):
                 return self.no_permissions_fail(request)
             else:
                 if (inspect.isclass(self.raise_exception)
@@ -95,7 +87,7 @@ class LoginRequiredMixin(AccessMixin):
         be the left-most mixin.
     """
     def dispatch(self, request, *args, **kwargs):
-        if not _is_authenticated(request.user):
+        if not request.user.is_authenticated:
             return self.handle_no_permission(request)
 
         return super(LoginRequiredMixin, self).dispatch(
@@ -122,7 +114,7 @@ class AnonymousRequiredMixin(object):
     authenticated_redirect_url = settings.LOGIN_REDIRECT_URL
 
     def dispatch(self, request, *args, **kwargs):
-        if _is_authenticated(request.user):
+        if request.user.is_authenticated:
             return HttpResponseRedirect(self.get_authenticated_redirect_url())
         return super(AnonymousRequiredMixin, self).dispatch(
             request, *args, **kwargs)
@@ -341,7 +333,7 @@ class GroupRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         self.request = request
         in_group = False
-        if _is_authenticated(request.user):
+        if request.user.is_authenticated:
             in_group = self.check_membership(self.get_group_required())
 
         if not in_group:
