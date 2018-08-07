@@ -300,7 +300,7 @@ It extends :ref:`JSONResponseMixin`, so those utilities are available as well.
 AjaxResponseMixin
 -----------------
 
-This mixin provides hooks for altenate processing of AJAX requests based on HTTP verb.
+This mixin provides hooks for alternate processing of AJAX requests based on HTTP verb.
 
 To control AJAX-specific behavior, override ``get_ajax``, ``post_ajax``, ``put_ajax``, or ``delete_ajax``. All four methods take ``request``, ``*args``, and ``**kwargs`` like the standard view methods.
 
