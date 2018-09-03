@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
+import warnings
+
 import mock
 import pytest
 
@@ -192,9 +194,16 @@ class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
         qs.select_related = m
         m.reset_mock()
 
-        resp = self.dispatch_view(
-            self.build_request(),
-            view_class=ArticleListViewWithCustomQueryset)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            resp = self.dispatch_view(
+                self.build_request(),
+                view_class=ArticleListViewWithCustomQueryset)
+            assert len(w) == 1
+            warning = w[0]
+            assert issubclass(warning.category, UserWarning)
+            assert "The select_related attribute is empty" in str(warning.message)
+
         self.assertEqual(200, resp.status_code)
         self.assertEqual(0, m.call_count)
 
@@ -244,9 +253,16 @@ class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
         qs.prefetch_related = m
         m.reset_mock()
 
-        resp = self.dispatch_view(
-            self.build_request(),
-            view_class=ArticleListViewWithCustomQueryset)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            resp = self.dispatch_view(
+                self.build_request(),
+                view_class=ArticleListViewWithCustomQueryset)
+            assert len(w) == 1
+            warning = w[0]
+            assert issubclass(warning.category, UserWarning)
+            assert "The select_related attribute is empty" in str(warning.message)
+
         self.assertEqual(200, resp.status_code)
         self.assertEqual(0, m.call_count)
 
