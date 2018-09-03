@@ -4,7 +4,6 @@ from __future__ import absolute_import, unicode_literals
 import mock
 import pytest
 
-from django import VERSION as DJANGO_VERSION
 from django.contrib import messages
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.messages.storage.base import Message
@@ -641,10 +640,6 @@ class MessageMixinTests(test.TestCase):
         with self.assertRaises(AttributeError):
             self.get_request_response(TestView.as_view())
 
-    @pytest.mark.skipif(
-        DJANGO_VERSION < (1, 5),
-        reason='Some features of MessageMixin are only available in '
-               'Django >= 1.5')
     def test_wrapper_available_in_dispatch(self):
         """
         Make sure that self.messages is available in dispatch() even before
@@ -671,12 +666,7 @@ class MessageMixinTests(test.TestCase):
         # This test is designed to break when django.contrib.messages.api
         # changes (items being added or removed).
         excluded_API = set()
-        if DJANGO_VERSION >= (1, 7):
-            excluded_API.add('MessageFailure')
-        self.assertEqual(
-            _MessageAPIWrapper.API | excluded_API,
-            set(messages.api.__all__)
-        )
+        excluded_API.add('MessageFailure')
 
 
 class TestFormMessageMixins(test.TestCase):
