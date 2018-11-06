@@ -250,4 +250,4 @@ Static & Dynamic Example
 .. _CRUD: http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
 .. _CSRF protection: https://docs.djangoproject.com/en/1.5/ref/contrib/csrf/
 .. _csrf_exempt: https://docs.djangoproject.com/en/1.5/ref/contrib/csrf/#django.views.decorators.csrf.csrf_exempt
-.. _messages: https://docs.djangoproject.com/en/1.5/ref/contrib/messages/
+.. _messages: https://docs.djangoproject.com/en/1.7/ref/contrib/messages/
