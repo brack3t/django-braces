@@ -204,5 +204,5 @@ class NeverCacheMixin(object):
     """
     @classmethod
     def as_view(cls, *args, **kwargs):
-        view_func = super().as_view(*args, **kwargs)
+        view_func = super(NeverCacheMixin, self).as_view(*args, **kwargs)
         return never_cache(view_func)
