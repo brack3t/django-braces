@@ -113,6 +113,12 @@ urlpatterns = [
     url(r'^headers/attribute/$', views.AttributeHeaderView.as_view()),
     url(r'^headers/method/$', views.MethodHeaderView.as_view()),
     url(r'^headers/existing/$', views.ExistingHeaderView.as_view()),
+
+    # CacheControlMixin tests
+    url(r'^cachecontrol/public/$', views.CacheControlPublicView.as_view()),
+
+    # NeverCacheMixin tests
+    url(r'^nevercache/$', views.NeverCacheView.as_view()),
 ]
 
 urlpatterns += [

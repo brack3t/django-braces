@@ -33,7 +33,9 @@ from ._other import (
     CanonicalSlugDetailMixin,
     SetHeadlineMixin,
     StaticContextMixin,
-    HeaderMixin
+    HeaderMixin,
+    CacheControlMixin,
+    NeverCacheMixin
 )
 from ._queries import (
     OrderableListMixin,

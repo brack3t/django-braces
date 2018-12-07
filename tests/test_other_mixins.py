@@ -779,3 +779,17 @@ class TestHeaderMixin(test.TestCase):
     def test_existing(self):
         response = self.client.get('/headers/existing/')
         self.assertEqual(response['X-DJANGO-BRACES-EXISTING'], 'value')
+
+
+class TestCacheControlMixin(test.TestCase):
+
+    def test_cachecontrol_public(self):
+        response = self.client.get('/cachecontrol/public/')
+        self.assertEqual(response['Cache-Control'], 'public, max-age=60')
+
+
+class TestNeverCacheMixin(test.TestCase):
+
+    def test_nevercache(self):
+        response = self.client.get('/nevercache/')
+        self.assertEqual(response['Cache-Control'], 'max-age=0, no-cache, no-store, must-revalidate')

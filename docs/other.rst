@@ -646,3 +646,88 @@ If you need to set the headers dynamically, e.g depending on some request inform
             """
             for key, value in request.META.items():
                 yield "X-Request-{}".format(key), value
+
+
+
+.. _CacheControlMixin:
+
+CacheControlMixin
+-----------------------
+
+Mixin that allows setting ``Cache-Control`` header options.
+
+``Cache-Control`` directive explanations:
+
+http://condor.depaul.edu/dmumaugh/readings/handouts/SE435/HTTP/node24.html
+
+Django's ``django.views.decorators.cache.cache_control`` options:
+
+https://docs.djangoproject.com/en/dev/topics/cache/#controlling-cache-using-other-headers
+
+::
+
+    from django.views import TemplateView
+    from braces.views import CacheControlMixin
+
+
+    class MyView(CacheControlMixin, TemplateView):
+        template_name = "project/template.html"
+
+        # Specify Cache-Control options as class-level attributes.
+        # The arguments are passed to Django's `cache_control()` view decorator
+        # directly (with the `cachecontrol_` prefix removed.)
+        cachecontrol_public = True
+        cachecontrol_max_age = 60
+
+        # Alternatively, you can implement the ``get_cachecontrol_options()``
+        # classmethod that should return a dictionary of the kwargs passed to
+        # Django's `cache_control()` view decorator.
+        @classmethod
+        def get_cachecontrol_options(cls):
+            return {'public': True, 'max_age': 60}
+
+
+This will cause the following header to be emitted for every request to this view:
+
+::
+
+    Cache-Control: public, max-age=60
+
+
+Available ``Cache-Control`` options:
+
+::
+
+    # These are all `None` by default, which indicates unset.
+    cachecontrol_public = None
+    cachecontrol_private = None
+    cachecontrol_no_cache = None
+    cachecontrol_no_transform = None
+    cachecontrol_must_revalidate = None
+    cachecontrol_proxy_revalidate = None
+    cachecontrol_max_age = None
+    cachecontrol_s_maxage = None
+
+
+.. _NeverCacheMixin:
+
+NeverCacheMixin
+-----------------------
+
+Mixin that applies Django's ``django.views.decorators.cache.never_cache`` view decorator to prevent upstream HTTP-based caching.
+
+::
+
+    from django.views import TemplateView
+    from braces.views import NeverCacheMixin
+
+
+    class MyView(NeverCacheMixin, TemplateView):
+        template_name = "project/template.html"
+
+
+This will cause the following header to be emitted for every request to this view:
+
+::
+
+    Cache-Control: max-age=0, no-cache, no-store, must-revalidate
