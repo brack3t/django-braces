@@ -785,11 +785,13 @@ class TestCacheControlMixin(test.TestCase):
 
     def test_cachecontrol_public(self):
         response = self.client.get('/cachecontrol/public/')
-        self.assertEqual(response['Cache-Control'], 'public, max-age=60')
+        options = [i.strip() for i in response['Cache-Control'].split(',')]
+        self.assertEqual(sorted(options), ['max-age=60', 'public'])
 
 
 class TestNeverCacheMixin(test.TestCase):
 
     def test_nevercache(self):
         response = self.client.get('/nevercache/')
-        self.assertEqual(response['Cache-Control'], 'max-age=0, no-cache, no-store, must-revalidate')
+        options = [i.strip() for i in response['Cache-Control'].split(',')]
+        self.assertEqual(sorted(options), ['max-age=0', 'must-revalidate', 'no-cache', 'no-store', ])
