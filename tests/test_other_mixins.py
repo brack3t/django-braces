@@ -794,4 +794,4 @@ class TestNeverCacheMixin(test.TestCase):
     def test_nevercache(self):
         response = self.client.get('/nevercache/')
         options = [i.strip() for i in response['Cache-Control'].split(',')]
-        self.assertEqual(sorted(options), ['max-age=0', 'must-revalidate', 'no-cache', 'no-store', ])
+        self.assertEqual(sorted(options), ['max-age=0', 'must-revalidate', 'no-cache', 'no-store'])
