@@ -36,4 +36,4 @@ Or test with `tox` if you have `tox` installed.
 
 ## Supported Django Versions
 
-Our policy is that `django-braces` officially supports the current version of Django and one version each direction (e.g. 1.6.x is current, so 1.5.x, 1.6.x, and 1.7.x are all supported). There won't be any restraints on using other versions of Django, though, but it will be a "buyer beware" situation.
+Our policy is that `django-braces` officially supports, and is tested on, Django 2.0 and Django 1.11 LTS. There won't be any restraints on using other versions of Django, though, but it will be a "buyer beware" situation.
