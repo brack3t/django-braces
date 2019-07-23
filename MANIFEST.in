@@ -2,7 +2,7 @@ include README.md
 include LICENSE
 include CONTRIBUTORS.txt
 recursive-include braces *.py
-recursive-include docs *.rst
+recursive-include docs Makefile conf.py *.rst
 recursive-include tests *.py
 recursive-include tests/templates *.html
 include conftest.py tox.ini requirements.txt
