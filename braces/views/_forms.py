@@ -1,9 +1,17 @@
+try:
+    from functools import partialmethod as curry
+except ImportError:
+    def curry(_curried_func, *args, **kwargs):
+        def _curried(*moreargs, **morekwargs):
+            return _curried_func(*(args + moreargs), **dict(kwargs, **morekwargs))
+        return _curried
+
+import six
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import six
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
-from django.utils.functional import curry, Promise
+from django.utils.functional import Promise
 from django.views.decorators.csrf import csrf_exempt
 try:
     from django.urls import reverse

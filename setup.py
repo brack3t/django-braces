@@ -15,6 +15,7 @@ setup(
     packages=["braces"],
     zip_safe=False,
     include_package_data=True,
+    install_requires=["six==1.12.0"],
     classifiers=[
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules",

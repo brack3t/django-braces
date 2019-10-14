@@ -2,6 +2,7 @@ import inspect
 import datetime
 import re
 
+import six
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login, logout_then_login
@@ -9,7 +10,6 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
                          Http404, HttpResponse, StreamingHttpResponse)
 from django.shortcuts import resolve_url
-from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.timezone import now
 
