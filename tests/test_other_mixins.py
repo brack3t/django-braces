@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 
 import mock
-import pytest
 
 from django.contrib import messages
 from django.contrib.messages.middleware import MessageMiddleware
@@ -13,7 +12,7 @@ from django import test
 from django.test.utils import override_settings
 from django.views.generic import View
 
-from braces.views import (SetHeadlineMixin, MessageMixin, _MessageAPIWrapper,
+from braces.views import (SetHeadlineMixin, MessageMixin,
                           FormValidMessageMixin, FormInvalidMessageMixin)
 from .compat import force_text
 from .factories import UserFactory
