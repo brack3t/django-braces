@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from django.core.exceptions import ImproperlyConfigured
-from django.contrib.auth.views import login
+from django.contrib.auth.views import LoginView
 from . import views
 from .compat import include, url, patterns_compat
 
@@ -116,8 +116,8 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    url(r'^accounts/login/$', login, {'template_name': 'blank.html'}),
-    url(r'^auth/login/$', login, {'template_name': 'blank.html'}),
+    url(r'^accounts/login/$', LoginView.as_view(template_name='blank.html')),
+    url(r'^auth/login/$', LoginView.as_view(template_name='blank.html')),
 ]
 try:
     urlpatterns += [
