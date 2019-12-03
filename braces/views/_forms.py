@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import six
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
 from django.utils.functional import curry, Promise
@@ -114,8 +113,7 @@ class FormValidMessageMixin(MessageMixin):
                 '{0}.get_form_valid_message().'.format(self.__class__.__name__)
             )
 
-        if not isinstance(self.form_valid_message,
-                          (six.string_types, six.text_type, Promise)):
+        if not isinstance(self.form_valid_message, (str, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_valid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
@@ -160,8 +158,7 @@ class FormInvalidMessageMixin(MessageMixin):
                 '{0}.get_form_invalid_message().'.format(
                     self.__class__.__name__))
 
-        if not isinstance(self.form_invalid_message,
-                          (six.string_types, six.text_type, Promise)):
+        if not isinstance(self.form_invalid_message, (str, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__))

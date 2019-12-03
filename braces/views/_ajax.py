@@ -5,7 +5,6 @@ from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.utils import six
 
 
 class JSONResponseMixin(object):
@@ -18,9 +17,7 @@ class JSONResponseMixin(object):
     json_encoder_class = DjangoJSONEncoder
 
     def get_content_type(self):
-        if (self.content_type is not None and
-            not isinstance(self.content_type,
-                           (six.string_types, six.text_type))):
+        if (self.content_type is not None and not isinstance(self.content_type, str)):
             raise ImproperlyConfigured(
                 '{0} is missing a content type. Define {0}.content_type, '
                 'or override {0}.get_content_type().'.format(

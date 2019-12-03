@@ -9,7 +9,6 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
                          Http404, HttpResponse, StreamingHttpResponse)
 from django.shortcuts import resolve_url
-from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.timezone import now
 
@@ -311,9 +310,7 @@ class GroupRequiredMixin(AccessMixin):
 
     def get_group_required(self):
         if self.group_required is None or (
-                not isinstance(self.group_required,
-                               (list, tuple) + six.string_types)
-        ):
+                not isinstance(self.group_required, (list, tuple, str))):
 
             raise ImproperlyConfigured(
                 '{0} requires the "group_required" attribute to be set and be '
