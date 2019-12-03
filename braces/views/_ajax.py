@@ -5,7 +5,16 @@ from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.utils import six
+
+try:
+    from django.utils import six
+except ImportError:
+    try:
+        import six
+    except ImportError:
+        raise ImproperlyConfigured(
+            'Starting from django 3.0, you must provide your own installation '
+            'of the `six` package.')
 
 
 class JSONResponseMixin(object):

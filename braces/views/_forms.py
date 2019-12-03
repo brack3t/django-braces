@@ -1,14 +1,28 @@
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import six
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
-from django.utils.functional import curry, Promise
+from django.utils.functional import Promise
 from django.views.decorators.csrf import csrf_exempt
 try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
+
+try:
+    from django.utils import six
+except ImportError:
+    try:
+        import six
+    except ImportError:
+        raise ImproperlyConfigured(
+            'Starting from django 3.0, you must provide your own installation '
+            'of the `six` package.')
+
+try:
+    from django.utils.functional import curry
+except ImportError:
+    from functools import partialmethod as curry
 
 
 class CsrfExemptMixin(object):
