@@ -22,7 +22,7 @@ except ImportError:
 try:
     from django.utils.functional import curry
 except ImportError:
-    from functools import partialmethod as curry
+    from functools import partial as curry
 
 
 class CsrfExemptMixin(object):
