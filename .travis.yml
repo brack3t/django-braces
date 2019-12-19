@@ -8,10 +8,6 @@ before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
 matrix:
     include:
-      - python: 2.7
-        env: TOX_ENV=py27-django111
-      - python: 3.6
-        env: TOX_ENV=py36-django111
       - python: 3.6
         env: TOX_ENV=py36-django22
       - python: 3.6
@@ -28,6 +24,10 @@ matrix:
         env: TOX_ENV=py38-django22
       - python: 3.8
         env: TOX_ENV=py38-django30
+      - python: 2.7
+        env: TOX_ENV=py27-django111
+      - python: 3.6
+        env: TOX_ENV=py36-django111
 
 script: tox -e $TOX_ENV
 
