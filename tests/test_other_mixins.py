@@ -13,8 +13,8 @@ from django import test
 from django.test.utils import override_settings
 from django.views.generic import View
 
-from braces.views import (SetHeadlineMixin, MessageMixin, _MessageAPIWrapper,
-                          FormValidMessageMixin, FormInvalidMessageMixin)
+from braces.views import (SetHeadlineMixin, MessageMixin, FormValidMessageMixin,
+                          FormInvalidMessageMixin)
 from .compat import force_text
 from .factories import UserFactory
 from .helpers import TestViewHelper
