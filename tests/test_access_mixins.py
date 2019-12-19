@@ -3,6 +3,8 @@ from __future__ import absolute_import, unicode_literals
 
 import datetime
 
+import pytest
+
 from django import test
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
@@ -25,6 +27,7 @@ from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     UserPassesTestLoginRequiredView)
 
 
+@pytest.mark.django_db
 class _TestAccessBasicsMixin(TestViewHelper):
     """
     A set of basic tests for access mixins.
