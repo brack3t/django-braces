@@ -5,7 +5,8 @@ from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.utils import six
+
+import six
 
 
 class JSONResponseMixin(object):

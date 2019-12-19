@@ -1,14 +1,17 @@
+from functools import partial
+
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import six
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
-from django.utils.functional import curry, Promise
+from django.utils.functional import Promise
 from django.views.decorators.csrf import csrf_exempt
 try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
+
+import six
 
 
 class CsrfExemptMixin(object):
@@ -73,7 +76,7 @@ class _MessageAPIWrapper(object):
     def __init__(self, request):
         for name in self.API:
             api_fn = getattr(messages.api, name)
-            setattr(self, name, curry(api_fn, request))
+            setattr(self, name, partial(api_fn, request))
 
 
 class _MessageDescriptor(object):
