@@ -1,5 +1,6 @@
 language: python
 services: sqlite
+sudo: false
 cache:
   directories:
     - $HOME/.cache/pip
@@ -32,4 +33,4 @@ script: tox -e $TOX_ENV
 
 install:
     - pip install pip setuptools wheel -U
-    - pip install tox
+    - pip install tox tox-travis
