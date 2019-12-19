@@ -35,4 +35,5 @@ Direct Contributors
 Other Contributors
 ==================
 
-* The entire Python and Django communities for providing us the tools and desire we to build these things.
+* The entire Python and Django communities for providing us the tools
+  and desire we to build these things.
