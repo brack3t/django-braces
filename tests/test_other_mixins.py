@@ -192,9 +192,10 @@ class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
         qs.select_related = m
         m.reset_mock()
 
-        resp = self.dispatch_view(
-            self.build_request(),
-            view_class=ArticleListViewWithCustomQueryset)
+        with pytest.warns(UserWarning):
+            resp = self.dispatch_view(
+                self.build_request(),
+                view_class=ArticleListViewWithCustomQueryset)
         self.assertEqual(200, resp.status_code)
         self.assertEqual(0, m.call_count)
 
@@ -244,9 +245,10 @@ class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
         qs.prefetch_related = m
         m.reset_mock()
 
-        resp = self.dispatch_view(
-            self.build_request(),
-            view_class=ArticleListViewWithCustomQueryset)
+        with pytest.warns(UserWarning):
+            resp = self.dispatch_view(
+                self.build_request(),
+                view_class=ArticleListViewWithCustomQueryset)
         self.assertEqual(200, resp.status_code)
         self.assertEqual(0, m.call_count)
 
