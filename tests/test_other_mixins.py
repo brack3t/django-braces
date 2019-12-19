@@ -713,7 +713,7 @@ class TestFormMessageMixins(test.TestCase):
     def test_form_valid_returns_message(self):
         mixin = FormValidMessageMixin()
         mixin.form_valid_message = 'Good øø'
-        self.assertEqual('Good øø', mixin.get_form_valid_message())
+        self.assertEqual(force_string('Good øø'), mixin.get_form_valid_message())
 
     def test_form_invalid_message_not_set(self):
         mixin = FormInvalidMessageMixin()
@@ -729,7 +729,7 @@ class TestFormMessageMixins(test.TestCase):
     def test_form_invalid_returns_message(self):
         mixin = FormInvalidMessageMixin()
         mixin.form_invalid_message = 'Bad øø'
-        self.assertEqual('Bad øø', mixin.get_form_invalid_message())
+        self.assertEqual(force_string('Bad øø'), mixin.get_form_invalid_message())
 
 
 class TestAllVerbsMixin(test.TestCase):
