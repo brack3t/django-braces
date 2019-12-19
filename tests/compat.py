@@ -1,7 +1,7 @@
 try:
-    from django.utils.encoding import force_text
+    from django.utils.encoding import force_str as force_string
 except ImportError:
-    from django.utils.encoding import force_unicode as force_text
+    from django.utils.encoding import force_text as force_string
 
 try:
     from django.conf.urls import url, include

@@ -14,7 +14,7 @@ try:
 except ImportError:
     from django.core.urlresolvers import reverse_lazy
 
-from .compat import force_text
+from .compat import force_string
 from .factories import GroupFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
@@ -51,7 +51,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_redirects_to_login(self):
         """
@@ -113,7 +113,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
 
         resp = self.dispatch_view(req, raise_exception=func)
         assert resp.status_code == 200
-        assert force_text(resp.content) == 'CUSTOM'
+        assert force_string(resp.content) == 'CUSTOM'
 
     def test_raise_func_false(self):
         """
@@ -240,7 +240,7 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         assert resp.status_code == 200
-        assert force_text(resp.content) == 'OK'
+        assert force_string(resp.content) == 'OK'
 
     def test_anonymous_redirects(self):
         resp = self.dispatch_view(
@@ -321,14 +321,14 @@ class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
         """
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
         # Test with reverse_lazy
         resp = self.dispatch_view(
             self.build_request(),
             login_url=reverse_lazy(self.view_url))
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_authenticated(self):
         """
@@ -462,7 +462,7 @@ class TestMultiplePermissionsRequiredMixin(
         req = self.build_request(user=user)
 
         resp = self.dispatch_view(req, permissions=permissions)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
         user = UserFactory(permissions=['auth.add_user'])
         with self.assertRaises(PermissionDenied):
@@ -479,7 +479,7 @@ class TestMultiplePermissionsRequiredMixin(
         req = self.build_request(user=user)
 
         resp = self.dispatch_view(req, permissions=permissions)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
         user = UserFactory(permissions=[])
         with self.assertRaises(PermissionDenied):
@@ -535,7 +535,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_with_group_list(self):
         group_list = ['test_group', 'editors']
@@ -547,7 +547,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
         self.view_class.group_required = 'test_group'
         self.assertEqual('test_group', self.view_class.group_required)
 
@@ -556,7 +556,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_improperly_configured(self):
         view = self.view_class()
@@ -581,7 +581,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
         self.view_class.group_required = 'test_group'
         self.assertEqual('test_group', self.view_class.group_required)
 
@@ -606,7 +606,7 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
         resp = self.client.get(self.view_url)
 
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_with_user_not_pass(self):
         user = self.build_authorized_user(is_superuser=True)
@@ -675,7 +675,7 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.recent_view_url)
         assert resp.status_code == 200
-        assert force_text(resp.content) == 'OK'
+        assert force_string(resp.content) == 'OK'
 
     def test_outdated_login(self):
         self.view_class.max_last_login_delta = 0

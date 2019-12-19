@@ -15,7 +15,7 @@ from django.views.generic import View
 
 from braces.views import (SetHeadlineMixin, MessageMixin, FormValidMessageMixin,
                           FormInvalidMessageMixin)
-from .compat import force_text
+from .compat import force_string
 from .factories import UserFactory
 from .helpers import TestViewHelper
 from .models import Article, CanonicalArticle
@@ -53,7 +53,7 @@ class TestUserFormKwargsMixin(test.TestCase):
         user = UserFactory()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.post('/form_with_user_kwarg/', {'field1': 'foo'})
-        assert force_text(resp.content) == "username: %s" % user.username
+        assert force_string(resp.content) == "username: %s" % user.username
 
     def test_get_method(self):
         user = UserFactory()
@@ -144,7 +144,7 @@ class TestCsrfExemptMixin(test.TestCase):
         """
         resp = self.client.post('/csrf_exempt/', {'field1': 'test'})
         self.assertEqual(200, resp.status_code)
-        self.assertEqual("OK", force_text(resp.content))
+        self.assertEqual("OK", force_string(resp.content))
 
 
 class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
