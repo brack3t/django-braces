@@ -12,6 +12,7 @@ before_script:
 env:
   global:
   - DATABASE_URL='postgres://postgres:@localhost:5432/test_database_travis'
+  - IN_TRAVIS='yes'
 matrix:
     include:
       - python: 3.6

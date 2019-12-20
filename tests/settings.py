@@ -1,4 +1,3 @@
-import logging
 import os
 
 import dj_database_url
@@ -29,16 +28,17 @@ SECRET_KEY = 'local'
 
 ROOT_URLCONF = 'tests.urls'
 
-DATABASES['default'] = dj_database_url.config(
-    default="sqlite:///:memory:"
-)
-DATABASES['default']['TEST'] = {}
-DATABASES['default']['TEST']['NAME'] = DATABASES['default']['NAME']
-
 try:
-    logging.ERROR(get_env_variable("DATABASE_URL"))
-except ImproperlyConfigured as e:
-    logging.ERROR(e)
+    TRAVIS = get_env_variable("IN_TRAVIS")
+except ImproperlyConfigured:
+    TRAVIS = False
+
+if TRAVIS:
+    DATABASES['default'] = dj_database_url.parse(get_env_variable("DATABASE_URL"))
+    DATABASES['default']['TEST'] = {}
+    DATABASES['default']['TEST']['NAME'] = DATABASES['default']['NAME']
+else:
+    DATABASES['default'] = dj_database_url.parse("sqlite:///:memory:")
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
