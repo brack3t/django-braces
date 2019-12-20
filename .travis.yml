@@ -1,7 +1,6 @@
 language: python
 services:
   - postgresql
-  - sqlite
 cache:
   directories:
     - $HOME/.cache/pip
