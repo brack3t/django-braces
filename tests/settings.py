@@ -1,5 +1,7 @@
 from django.conf.global_settings import *
 
+import dj_database_url
+
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
@@ -13,12 +15,9 @@ SECRET_KEY = 'local'
 
 ROOT_URLCONF = 'tests.urls'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
-}
+DATABASES['default'] = dj_database_url.config(
+    default="sqlite://:memory:"
+)
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
