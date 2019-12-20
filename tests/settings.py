@@ -16,8 +16,10 @@ SECRET_KEY = 'local'
 ROOT_URLCONF = 'tests.urls'
 
 DATABASES['default'] = dj_database_url.config(
-    default="sqlite://:memory:"
+    default="sqlite:///:memory:"
 )
+DATABASES['default']['TEST'] = {}
+DATABASES['default']['TEST']['NAME'] = DATABASES['default']['NAME']
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
