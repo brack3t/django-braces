@@ -147,7 +147,6 @@ class _TestAccessBasicsMixin(TestViewHelper):
         with self.assertRaises(Http404):
             self.dispatch_view(req, raise_exception=func)
 
-    @pytest.mark.django_db
     def test_custom_login_url(self):
         """
         Login url should be customizable.
@@ -223,6 +222,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
                 redirect_unauthenticated_users=False)
 
 
+@pytest.mark.django_db
 class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
     """
     Tests for LoginRequiredMixin.
@@ -254,6 +254,7 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         assert resp['Location'] == '/accounts/login/?next=/login_required/'
 
 
+@pytest.mark.django_db
 class TestChainedLoginRequiredMixin(TestViewHelper, test.TestCase):
     """
     Tests for LoginRequiredMixin combined with another AccessMixin.
@@ -311,6 +312,7 @@ class TestChainedLoginRequiredMixin(TestViewHelper, test.TestCase):
         self.assert_redirect_to_login(resp)
 
 
+@pytest.mark.django_db
 class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
     """
     Tests for AnonymousRequiredMixin.
@@ -362,6 +364,7 @@ class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
         self.assertEqual(404, resp.status_code)
 
 
+@pytest.mark.django_db
 class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     """
     Tests for PermissionRequiredMixin.
@@ -384,6 +387,7 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
             self.dispatch_view(self.build_request(), permission_required=None)
 
 
+@pytest.mark.django_db
 class TestMultiplePermissionsRequiredMixin(
         _TestAccessBasicsMixin, test.TestCase):
     view_class = MultiplePermissionsRequiredView
@@ -492,6 +496,7 @@ class TestMultiplePermissionsRequiredMixin(
                 permissions=permissions)
 
 
+@pytest.mark.django_db
 class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = SuperuserRequiredView
     view_url = '/superuser_required/'
@@ -503,6 +508,7 @@ class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         return UserFactory()
 
 
+@pytest.mark.django_db
 class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = StaffuserRequiredView
     view_url = '/staffuser_required/'
@@ -514,6 +520,7 @@ class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         return UserFactory()
 
 
+@pytest.mark.django_db
 class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = GroupRequiredView
     view_url = '/group_required/'
@@ -590,6 +597,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.assertEqual('test_group', self.view_class.group_required)
 
 
+@pytest.mark.django_db
 class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = UserPassesTestView
     view_url = '/user_passes_test/'
@@ -632,6 +640,7 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
                 raise_exception=True)
 
 
+@pytest.mark.django_db
 class TestSSLRequiredMixin(test.TestCase):
     view_class = SSLRequiredView
     view_url = '/sslrequired/'
@@ -663,6 +672,7 @@ class TestSSLRequiredMixin(test.TestCase):
         self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
 
 
+@pytest.mark.django_db
 class TestRecentLoginRequiredMixin(test.TestCase):
     """
     Tests for RecentLoginRequiredMixin.
