@@ -1,3 +1,4 @@
+import logging
 import os
 
 import dj_database_url
@@ -35,9 +36,9 @@ DATABASES['default']['TEST'] = {}
 DATABASES['default']['TEST']['NAME'] = DATABASES['default']['NAME']
 
 try:
-    print(get_env_variable("DATABASE_URL"))
+    logging.ERROR(get_env_variable("DATABASE_URL"))
 except ImproperlyConfigured as e:
-    print(e)
+    logging.ERROR(e)
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
