@@ -147,6 +147,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         with self.assertRaises(Http404):
             self.dispatch_view(req, raise_exception=func)
 
+    @pytest.mark.django_db
     def test_custom_login_url(self):
         """
         Login url should be customizable.
