@@ -33,10 +33,6 @@ try:
 except ImproperlyConfigured:
     TRAVIS = False
 
-print("="*50)
-print("TRAVIS: {}".format(TRAVIS))
-print("="*50)
-
 if TRAVIS:
     DATABASES['default'] = dj_database_url.parse(get_env_variable("DATABASE_URL"))
     DATABASES['default']['TEST'] = {}
