@@ -1,34 +1,15 @@
 language: python
-cache:
-  directories:
-    - $HOME/.cache/pip
-before_cache:
-  - rm -f $HOME/.cache/pip/log/debug.log
-matrix:
-    include:
-      # - python: 2.7
-      #   env: TOX_ENV=py27-django111
-      # - python: 3.6
-      #   env: TOX_ENV=py36-django111
-      - python: 3.6
-        env: TOX_ENV=py36-django22
-      - python: 3.6
-        env: TOX_ENV=py36-django30
-      # - python: 3.7
-      #   env: TOX_ENV=py37-django111
-      - python: 3.7
-        env: TOX_ENV=py37-django22
-      - python: 3.7
-        env: TOX_ENV=py37-django30
-      # - python: 3.8
-      #   env: TOX_ENV=py38-django111
-      - python: 3.8
-        env: TOX_ENV=py38-django22
-      - python: 3.8
-        env: TOX_ENV=py38-django30
+cache: pip
 
-script: tox -e $TOX_ENV
+matrix:
+  include:
+  - python: 2.7
+  - python: 3.6
+  - python: 3.7
+  - python: 3.8
 
 install:
-    - pip install pip setuptools wheel -U
-    - pip install tox tox-travis
+  - pip install -U pip setuptools wheel
+  - pip install tox-travis
+
+script: tox
