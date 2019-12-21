@@ -1,17 +1,9 @@
 language: python
-services:
-  - postgresql
 cache:
   directories:
     - $HOME/.cache/pip
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
-before_script:
-  - psql -c 'create database test_database_travis;' -U postgres
-env:
-  global:
-  - DATABASE_URL='postgres://postgres:@localhost:5432/test_database_travis'
-  - IN_TRAVIS='yes'
 matrix:
     include:
       # - python: 2.7
