@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
-from . import views
-from .compat import url, patterns_compat
+from tests.compat import url, patterns_compat
+from tests.testapp import views
 
 urlpatterns = [
     # CanonicalSlugDetailMixin namespace tests

@@ -13,9 +13,9 @@ from django.views.generic import (View, UpdateView, FormView, TemplateView,
 
 from braces import views
 
-from .models import Article, CanonicalArticle
-from .forms import ArticleForm, FormWithUserKwarg
-from .helpers import SetJSONEncoder
+from tests.helpers import SetJSONEncoder
+from tests.testapp.models import Article, CanonicalArticle
+from tests.testapp.forms import ArticleForm, FormWithUserKwarg
 
 
 class OkView(View):
@@ -254,7 +254,7 @@ class PermissionRequiredView(views.PermissionRequiredMixin, OkView):
 class MultiplePermissionsRequiredView(views.MultiplePermissionsRequiredMixin,
                                       OkView):
     permissions = {
-        'all': ['tests.add_article', 'tests.change_article'],
+        'all': ['testapp.add_article', 'testapp.change_article'],
         'any': ['auth.add_user', 'auth.change_user'],
     }
 

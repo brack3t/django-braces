@@ -15,11 +15,11 @@ from django.views.generic import View
 
 from braces.views import (SetHeadlineMixin, MessageMixin, FormValidMessageMixin,
                           FormInvalidMessageMixin)
-from .compat import force_string
-from .factories import UserFactory
-from .helpers import TestViewHelper
-from .models import Article, CanonicalArticle
-from .views import (ArticleListView, ArticleListViewWithCustomQueryset,
+from tests.compat import force_string
+from tests.testapp.factories import UserFactory
+from tests.helpers import TestViewHelper
+from tests.testapp.models import Article, CanonicalArticle
+from tests.testapp.views import (ArticleListView, ArticleListViewWithCustomQueryset,
                     AuthorDetailView, OrderableListView,
                     FormMessagesView, ContextView)
 

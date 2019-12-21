@@ -9,10 +9,10 @@ from django.http import HttpResponse
 
 from braces.views import AjaxResponseMixin
 
-from .compat import force_string
-from .factories import ArticleFactory, UserFactory
-from .helpers import TestViewHelper
-from .views import (SimpleJsonView, JsonRequestResponseView,
+from tests.compat import force_string
+from tests.testapp.factories import ArticleFactory, UserFactory
+from tests.helpers import TestViewHelper
+from tests.testapp.views import (SimpleJsonView, JsonRequestResponseView,
                     JsonBadRequestView)
 
 

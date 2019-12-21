@@ -1,5 +1,3 @@
-from django.conf.global_settings import *
-
 DEBUG = False
 
 TIME_ZONE = "UTC"
@@ -10,7 +8,7 @@ USE_TZ = True
 
 SECRET_KEY = "local"
 
-ROOT_URLCONF = "tests.urls"
+ROOT_URLCONF = "tests.testapp.urls"
 
 DATABASES = {
     "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"},
@@ -39,7 +37,7 @@ INSTALLED_APPS = (
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    "tests",
+    "tests.testapp",
 )
 
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)

@@ -16,10 +16,10 @@ try:
 except ImportError:
     from django.core.urlresolvers import reverse_lazy
 
-from .compat import force_string
-from .factories import GroupFactory, UserFactory
-from .helpers import TestViewHelper
-from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
+from tests.compat import force_string
+from tests.testapp.factories import GroupFactory, UserFactory
+from tests.helpers import TestViewHelper
+from tests.testapp.views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     SuperuserRequiredView, StaffuserRequiredView,
                     LoginRequiredView, GroupRequiredView, UserPassesTestView,
                     UserPassesTestNotImplementedView, AnonymousRequiredView,
@@ -395,10 +395,10 @@ class TestMultiplePermissionsRequiredMixin(
 
     def build_authorized_user(self):
         return UserFactory(permissions=[
-            'tests.add_article', 'tests.change_article', 'auth.change_user'])
+            'testapp.add_article', 'testapp.change_article', 'auth.change_user'])
 
     def build_unauthorized_user(self):
-        return UserFactory(permissions=['tests.add_article'])
+        return UserFactory(permissions=['testapp.add_article'])
 
     def test_redirects_to_login(self):
         """
@@ -408,9 +408,9 @@ class TestMultiplePermissionsRequiredMixin(
         url = '/multiple_permissions_required/'
         test_cases = (
             # missing one permission from 'any'
-            ['tests.add_article', 'tests.change_article'],
+            ['testapp.add_article', 'testapp.change_article'],
             # missing one permission from 'all'
-            ['tests.add_article', 'auth.add_user'],
+            ['testapp.add_article', 'auth.add_user'],
             # no permissions at all
             [],
         )
@@ -448,9 +448,9 @@ class TestMultiplePermissionsRequiredMixin(
         """
         test_cases = (
             # missing one permission from 'any'
-            ['tests.add_article', 'tests.change_article'],
+            ['testapp.add_article', 'testapp.change_article'],
             # missing one permission from 'all'
-            ['tests.add_article', 'auth.add_user'],
+            ['testapp.add_article', 'auth.add_user'],
             # no permissions at all
             [],
         )
@@ -465,7 +465,7 @@ class TestMultiplePermissionsRequiredMixin(
         """
         Tests if everything works if only 'all' permissions has been set.
         """
-        permissions = {'all': ['auth.add_user', 'tests.add_article']}
+        permissions = {'all': ['auth.add_user', 'testapp.add_article']}
         user = UserFactory(permissions=permissions['all'])
         req = self.build_request(user=user)
 
@@ -482,8 +482,8 @@ class TestMultiplePermissionsRequiredMixin(
         """
         Tests if everything works if only 'any' permissions has been set.
         """
-        permissions = {'any': ['auth.add_user', 'tests.add_article']}
-        user = UserFactory(permissions=['tests.add_article'])
+        permissions = {'any': ['auth.add_user', 'testapp.add_article']}
+        user = UserFactory(permissions=['testapp.add_article'])
         req = self.build_request(user=user)
 
         resp = self.dispatch_view(req, permissions=permissions)

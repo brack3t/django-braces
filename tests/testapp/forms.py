@@ -4,7 +4,7 @@ from django import forms
 
 from braces.forms import UserKwargModelFormMixin
 
-from .models import Article
+from tests.testapp.models import Article
 
 
 class FormWithUserKwarg(UserKwargModelFormMixin, forms.Form):

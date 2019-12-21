@@ -4,7 +4,7 @@ import factory
 
 from django.contrib.auth.models import Group, Permission, User
 
-from .models import Article
+from tests.testapp.models import Article
 
 
 def _get_perm(perm_name):

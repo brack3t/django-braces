@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.views import LoginView
-from . import views
-from .compat import include, url, patterns_compat
+from tests.testapp import views
+from tests.compat import include, url, patterns_compat
 
 urlpatterns = [
     # LoginRequiredMixin tests
@@ -122,13 +122,13 @@ urlpatterns += [
 try:
     urlpatterns += [
         url(r'^article-canonical-namespaced/',
-            include(('tests.urls_namespaced', 'tests'),
+            include(('tests.testapp.urls_namespaced', 'tests'),
                     namespace='some_namespace')),
     ]
 except ImproperlyConfigured:
     urlpatterns += [
         url(r'^article-canonical-namespaced/',
-            include('tests.urls_namespaced', namespace='some_namespace')),
+            include('tests.testapp.urls_namespaced', namespace='some_namespace')),
     ]
 
 urlpatterns = patterns_compat(urlpatterns)
