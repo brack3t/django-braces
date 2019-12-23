@@ -11,7 +11,7 @@ def get_env_variable(var_name):
     try:
         return os.environ[var_name]
     except KeyError:
-        error_msg = "Set the {} environemnt variable.".format(var_name)
+        error_msg = "Set the {} environment variable.".format(var_name)
         raise ImproperlyConfigured(error_msg)
 
 
@@ -32,10 +32,6 @@ try:
     TRAVIS = get_env_variable("IN_TRAVIS")
 except ImproperlyConfigured:
     TRAVIS = False
-
-print("="*50)
-print("TRAVIS: {}".format(TRAVIS))
-print("="*50)
 
 if TRAVIS:
     DATABASES['default'] = dj_database_url.parse(get_env_variable("DATABASE_URL"))
