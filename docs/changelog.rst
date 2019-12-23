@@ -4,6 +4,24 @@
 Changelog
 =========
 
+* :release:`1.14.0 <2019-12-23>`
+* :support:`260` Fixes the goshdang Travis tests.
+* :support:`250` Include documentation Makefile and conf.py in source distribution.
+* :support:`246` README more accurately explains the supported Django versions.
+* :support:`243` Adds support for Python 3.7 and Django 2.1.
+* :support:`244` Documentation link fix.
+* :support:`236` Refines the Django and Python versions tested against.
+* :support:`241` Fixes a documentation typo, "altenate" should be "alternate".
+* :support:`237` Updates for Django 2.0.
+* :support:`232` Updates for Django 1.11.
+* :support:`227` Use SVG in README instead of PNG.
+* :support:`221` Renamed a duplicative method name.
+* :support:`220` Adds a warning for cases where ``prefetch_related`` or ``select_related`` are empty in their respective mixins.
+* :bug:`215` Imports for 1.11 and 2.x ``reverse`` and ``reverse_lazy`` functions.
+* :support:`248` Include some files necessary for testing in the source distribution.
+* :feature:`228` Adds an ``object_level_permissions`` attribute to the ``PermissionRequiredMixin`` to allow for object-level permission checks instead of just view-level checks.
+* :bug:`224` Allows ``OPTIONS`` requests to be body-less.
+* :bug:`218` ``AccessMixin.handle_no_permission` now accepts a ``request`` parameter.
 * :feature:`198` New :ref:`OrderableListMixin` allows to switch the default ordering setting from `asc` to `desc`.
 * :support:`215` Imports updated for Django 2.0.
 * :feature:`204` New :ref:`HeaderMixin` that allows custom headers to be set on a view.
