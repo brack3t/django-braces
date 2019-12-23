@@ -1,19 +1,4 @@
-import os
-
-import dj_database_url
-
 from django.conf.global_settings import *
-from django.core.exceptions import ImproperlyConfigured
-
-
-def get_env_variable(var_name):
-    """Get the environment variable or raise exception."""
-    try:
-        return os.environ[var_name]
-    except KeyError:
-        error_msg = "Set the {} environment variable.".format(var_name)
-        raise ImproperlyConfigured(error_msg)
-
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -28,17 +13,12 @@ SECRET_KEY = 'local'
 
 ROOT_URLCONF = 'tests.urls'
 
-try:
-    TRAVIS = get_env_variable("IN_TRAVIS")
-except ImproperlyConfigured:
-    TRAVIS = False
-
-if TRAVIS:
-    DATABASES['default'] = dj_database_url.parse(get_env_variable("DATABASE_URL"))
-    DATABASES['default']['TEST'] = {}
-    DATABASES['default']['TEST']['NAME'] = DATABASES['default']['NAME']
-else:
-    DATABASES['default'] = dj_database_url.parse("sqlite:///:memory:")
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite',
+        'NAME': ':memory:'
+    }
+}
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
