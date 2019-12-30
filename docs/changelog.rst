@@ -4,7 +4,7 @@
 Changelog
 =========
 
-* :release:`1.14.0 <2019-12-24>`
+* :release:`1.14.0 <2019-12-30>`
 * :support:`260` Fixes the goshdang Travis tests.
 * :support:`250` Include documentation Makefile and conf.py in source distribution.
 * :support:`246` README more accurately explains the supported Django versions.
