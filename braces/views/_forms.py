@@ -1,14 +1,20 @@
+from functools import partial
+
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import six
 from django.utils.decorators import method_decorator
-from django.utils.encoding import force_text
-from django.utils.functional import curry, Promise
+try:
+    from django.utils.encoding import force_str as force_string
+except ImportError:
+    from django.utils.encoding import force_text as force_string
+from django.utils.functional import Promise
 from django.views.decorators.csrf import csrf_exempt
 try:
     from django.urls import reverse
 except ImportError:
     from django.core.urlresolvers import reverse
+
+import six
 
 
 class CsrfExemptMixin(object):
@@ -73,7 +79,7 @@ class _MessageAPIWrapper(object):
     def __init__(self, request):
         for name in self.API:
             api_fn = getattr(messages.api, name)
-            setattr(self, name, curry(api_fn, request))
+            setattr(self, name, partial(api_fn, request))
 
 
 class _MessageDescriptor(object):
@@ -121,7 +127,7 @@ class FormValidMessageMixin(MessageMixin):
                 'object.'.format(self.__class__.__name__)
             )
 
-        return force_text(self.form_valid_message)
+        return force_string(self.form_valid_message)
 
     def form_valid(self, form):
         """
@@ -166,7 +172,7 @@ class FormInvalidMessageMixin(MessageMixin):
                 '{0}.form_invalid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__))
 
-        return force_text(self.form_invalid_message)
+        return force_string(self.form_invalid_message)
 
     def form_invalid(self, form):
         response = super(FormInvalidMessageMixin, self).form_invalid(form)

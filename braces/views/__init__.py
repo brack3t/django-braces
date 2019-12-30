@@ -26,7 +26,6 @@ from ._forms import (
     MessageMixin,
     SuccessURLRedirectListMixin,
     UserFormKwargsMixin,
-    _MessageAPIWrapper
 )
 from ._other import (
     AllVerbsMixin,

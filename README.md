@@ -1,4 +1,5 @@
 # django-braces
+
 Mixins for Django's class-based views.
 
 [![Latest Travis CI status](https://travis-ci.org/brack3t/django-braces.svg)](https://travis-ci.org/brack3t/django-braces)
@@ -25,10 +26,13 @@ Add yourself to `CONTRIBUTORS.txt` if you want.
 
 All development dependencies are available in `requirements.txt` file.
 
-To run the test suite, execute the following in your shell (Django install is required):
-`py.test tests/ --cov=braces --cov-report=html`
+To run the test suite, please install `tox` and as many Python interpreters as you'd
+like to test against. Currently we test against 2.7, 3.6, 3.7, and 3.8. We recommend
+using `asdf` to install various Python versions.
 
-Or test with `tox` if you have `tox` installed.
+Once `tox` and Python(s) are installed, you can execute the entire suite by running
+just the `tox` command.
+
 
 ## Change Log
 
@@ -36,4 +40,7 @@ Or test with `tox` if you have `tox` installed.
 
 ## Supported Django Versions
 
-Our policy is that `django-braces` officially supports the current version of Django and one version each direction (e.g. 1.6.x is current, so 1.5.x, 1.6.x, and 1.7.x are all supported). There won't be any restraints on using other versions of Django, though, but it will be a "buyer beware" situation.
+Our policy is that `django-braces` officially supports, and is tested on, all versions
+that Django [officially supports](https://www.djangoproject.com/download/#supported-versions).
+You are free to use `django-braces` with any version of Django you wish (so long as it has
+class-based views) but no support will be promised.

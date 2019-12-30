@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-import pytest
 import datetime
+
+import pytest
 
 from django import test
 from django.test.utils import override_settings
@@ -15,7 +16,7 @@ try:
 except ImportError:
     from django.core.urlresolvers import reverse_lazy
 
-from .compat import force_text
+from .compat import force_string
 from .factories import GroupFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
@@ -26,6 +27,7 @@ from .views import (PermissionRequiredView, MultiplePermissionsRequiredView,
                     UserPassesTestLoginRequiredView)
 
 
+@pytest.mark.django_db
 class _TestAccessBasicsMixin(TestViewHelper):
     """
     A set of basic tests for access mixins.
@@ -52,7 +54,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_redirects_to_login(self):
         """
@@ -114,7 +116,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
 
         resp = self.dispatch_view(req, raise_exception=func)
         assert resp.status_code == 200
-        assert force_text(resp.content) == 'CUSTOM'
+        assert force_string(resp.content) == 'CUSTOM'
 
     def test_raise_func_false(self):
         """
@@ -220,6 +222,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
                 redirect_unauthenticated_users=False)
 
 
+@pytest.mark.django_db
 class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
     """
     Tests for LoginRequiredMixin.
@@ -241,7 +244,7 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         assert resp.status_code == 200
-        assert force_text(resp.content) == 'OK'
+        assert force_string(resp.content) == 'OK'
 
     def test_anonymous_redirects(self):
         resp = self.dispatch_view(
@@ -251,6 +254,7 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         assert resp['Location'] == '/accounts/login/?next=/login_required/'
 
 
+@pytest.mark.django_db
 class TestChainedLoginRequiredMixin(TestViewHelper, test.TestCase):
     """
     Tests for LoginRequiredMixin combined with another AccessMixin.
@@ -308,6 +312,7 @@ class TestChainedLoginRequiredMixin(TestViewHelper, test.TestCase):
         self.assert_redirect_to_login(resp)
 
 
+@pytest.mark.django_db
 class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
     """
     Tests for AnonymousRequiredMixin.
@@ -322,14 +327,14 @@ class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
         """
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
         # Test with reverse_lazy
         resp = self.dispatch_view(
             self.build_request(),
             login_url=reverse_lazy(self.view_url))
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_authenticated(self):
         """
@@ -359,6 +364,7 @@ class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
         self.assertEqual(404, resp.status_code)
 
 
+@pytest.mark.django_db
 class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     """
     Tests for PermissionRequiredMixin.
@@ -381,6 +387,7 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
             self.dispatch_view(self.build_request(), permission_required=None)
 
 
+@pytest.mark.django_db
 class TestMultiplePermissionsRequiredMixin(
         _TestAccessBasicsMixin, test.TestCase):
     view_class = MultiplePermissionsRequiredView
@@ -463,7 +470,7 @@ class TestMultiplePermissionsRequiredMixin(
         req = self.build_request(user=user)
 
         resp = self.dispatch_view(req, permissions=permissions)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
         user = UserFactory(permissions=['auth.add_user'])
         with self.assertRaises(PermissionDenied):
@@ -480,7 +487,7 @@ class TestMultiplePermissionsRequiredMixin(
         req = self.build_request(user=user)
 
         resp = self.dispatch_view(req, permissions=permissions)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
         user = UserFactory(permissions=[])
         with self.assertRaises(PermissionDenied):
@@ -489,6 +496,7 @@ class TestMultiplePermissionsRequiredMixin(
                 permissions=permissions)
 
 
+@pytest.mark.django_db
 class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = SuperuserRequiredView
     view_url = '/superuser_required/'
@@ -500,6 +508,7 @@ class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         return UserFactory()
 
 
+@pytest.mark.django_db
 class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = StaffuserRequiredView
     view_url = '/staffuser_required/'
@@ -511,6 +520,7 @@ class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         return UserFactory()
 
 
+@pytest.mark.django_db
 class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = GroupRequiredView
     view_url = '/group_required/'
@@ -536,7 +546,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_with_group_list(self):
         group_list = ['test_group', 'editors']
@@ -548,7 +558,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
         self.view_class.group_required = 'test_group'
         self.assertEqual('test_group', self.view_class.group_required)
 
@@ -557,7 +567,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_improperly_configured(self):
         view = self.view_class()
@@ -582,11 +592,12 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
         self.view_class.group_required = 'test_group'
         self.assertEqual('test_group', self.view_class.group_required)
 
 
+@pytest.mark.django_db
 class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
     view_class = UserPassesTestView
     view_url = '/user_passes_test/'
@@ -607,7 +618,7 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
         resp = self.client.get(self.view_url)
 
         self.assertEqual(200, resp.status_code)
-        self.assertEqual('OK', force_text(resp.content))
+        self.assertEqual('OK', force_string(resp.content))
 
     def test_with_user_not_pass(self):
         user = self.build_authorized_user(is_superuser=True)
@@ -629,6 +640,7 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
                 raise_exception=True)
 
 
+@pytest.mark.django_db
 class TestSSLRequiredMixin(test.TestCase):
     view_class = SSLRequiredView
     view_url = '/sslrequired/'
@@ -660,6 +672,7 @@ class TestSSLRequiredMixin(test.TestCase):
         self.assertEqual('https', resp.request.get('wsgi.url_scheme'))
 
 
+@pytest.mark.django_db
 class TestRecentLoginRequiredMixin(test.TestCase):
     """
     Tests for RecentLoginRequiredMixin.
@@ -676,7 +689,7 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.get(self.recent_view_url)
         assert resp.status_code == 200
-        assert force_text(resp.content) == 'OK'
+        assert force_string(resp.content) == 'OK'
 
     def test_outdated_login(self):
         self.view_class.max_last_login_delta = 0

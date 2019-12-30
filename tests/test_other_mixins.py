@@ -13,9 +13,9 @@ from django import test
 from django.test.utils import override_settings
 from django.views.generic import View
 
-from braces.views import (SetHeadlineMixin, MessageMixin, _MessageAPIWrapper,
-                          FormValidMessageMixin, FormInvalidMessageMixin)
-from .compat import force_text
+from braces.views import (SetHeadlineMixin, MessageMixin, FormValidMessageMixin,
+                          FormInvalidMessageMixin)
+from .compat import force_string
 from .factories import UserFactory
 from .helpers import TestViewHelper
 from .models import Article, CanonicalArticle
@@ -53,7 +53,7 @@ class TestUserFormKwargsMixin(test.TestCase):
         user = UserFactory()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.post('/form_with_user_kwarg/', {'field1': 'foo'})
-        assert force_text(resp.content) == "username: %s" % user.username
+        assert force_string(resp.content) == "username: %s" % user.username
 
     def test_get_method(self):
         user = UserFactory()
@@ -144,7 +144,7 @@ class TestCsrfExemptMixin(test.TestCase):
         """
         resp = self.client.post('/csrf_exempt/', {'field1': 'test'})
         self.assertEqual(200, resp.status_code)
-        self.assertEqual("OK", force_text(resp.content))
+        self.assertEqual("OK", force_string(resp.content))
 
 
 class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
@@ -192,9 +192,10 @@ class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
         qs.select_related = m
         m.reset_mock()
 
-        resp = self.dispatch_view(
-            self.build_request(),
-            view_class=ArticleListViewWithCustomQueryset)
+        with pytest.warns(UserWarning):
+            resp = self.dispatch_view(
+                self.build_request(),
+                view_class=ArticleListViewWithCustomQueryset)
         self.assertEqual(200, resp.status_code)
         self.assertEqual(0, m.call_count)
 
@@ -244,9 +245,10 @@ class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
         qs.prefetch_related = m
         m.reset_mock()
 
-        resp = self.dispatch_view(
-            self.build_request(),
-            view_class=ArticleListViewWithCustomQueryset)
+        with pytest.warns(UserWarning):
+            resp = self.dispatch_view(
+                self.build_request(),
+                view_class=ArticleListViewWithCustomQueryset)
         self.assertEqual(200, resp.status_code)
         self.assertEqual(0, m.call_count)
 
@@ -711,7 +713,7 @@ class TestFormMessageMixins(test.TestCase):
     def test_form_valid_returns_message(self):
         mixin = FormValidMessageMixin()
         mixin.form_valid_message = 'Good øø'
-        self.assertEqual('Good øø', mixin.get_form_valid_message())
+        self.assertEqual(force_string('Good øø'), mixin.get_form_valid_message())
 
     def test_form_invalid_message_not_set(self):
         mixin = FormInvalidMessageMixin()
@@ -727,7 +729,7 @@ class TestFormMessageMixins(test.TestCase):
     def test_form_invalid_returns_message(self):
         mixin = FormInvalidMessageMixin()
         mixin.form_invalid_message = 'Bad øø'
-        self.assertEqual('Bad øø', mixin.get_form_invalid_message())
+        self.assertEqual(force_string('Bad øø'), mixin.get_form_invalid_message())
 
 
 class TestAllVerbsMixin(test.TestCase):

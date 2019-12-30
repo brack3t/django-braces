@@ -9,9 +9,13 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
                          Http404, HttpResponse, StreamingHttpResponse)
 from django.shortcuts import resolve_url
-from django.utils import six
-from django.utils.encoding import force_text
+try:
+    from django.utils.encoding import force_str as force_string
+except ImportError:
+    from django.utils.encoding import force_text as force_string
 from django.utils.timezone import now
+
+import six
 
 
 class AccessMixin(object):
@@ -34,7 +38,7 @@ class AccessMixin(object):
                 'Define {0}.login_url or settings.LOGIN_URL or override '
                 '{0}.get_login_url().'.format(self.__class__.__name__))
 
-        return force_text(login_url)
+        return force_string(login_url)
 
     def get_redirect_field_name(self):
         """

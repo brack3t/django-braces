@@ -1,6 +1,9 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect
-from django.utils.encoding import force_text
+try:
+    from django.utils.encoding import force_str as force_string
+except ImportError:
+    from django.utils.encoding import force_text as force_string
 try:
     from django.urls import resolve
 except ImportError:
@@ -28,7 +31,7 @@ class SetHeadlineMixin(object):
                 '{0} is missing a headline. '
                 'Define {0}.headline, or override '
                 '{0}.get_headline().'.format(self.__class__.__name__))
-        return force_text(self.headline)
+        return force_string(self.headline)
 
 
 class StaticContextMixin(object):
