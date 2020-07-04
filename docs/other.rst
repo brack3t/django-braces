@@ -431,11 +431,11 @@ If you're using bootstrap you could create a template like the following:
                 order_by_param,
                 ordering_param;
 
-            if (order_by === column_name) {
+            if (order_by_param === column_name) {
                 $el.addClass('current');
-                $el.addClass(ordering);
+                $el.addClass(ordering_param);
                 $el.append('<span class="caret"></span>');
-                if (ordering === 'asc') {
+                if (ordering_param === 'asc') {
                     $el.addClass('dropup');
                     next_order = 'desc';
                 }
