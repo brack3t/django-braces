@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 import mock
 import pytest
 
@@ -12,10 +9,10 @@ from django.http import HttpResponse
 from django import test
 from django.test.utils import override_settings
 from django.views.generic import View
+from django.utils.encoding import force_str
 
 from braces.views import (SetHeadlineMixin, MessageMixin, FormValidMessageMixin,
                           FormInvalidMessageMixin)
-from .compat import force_string
 from .factories import UserFactory
 from .helpers import TestViewHelper
 from .models import Article, CanonicalArticle
@@ -53,7 +50,7 @@ class TestUserFormKwargsMixin(test.TestCase):
         user = UserFactory()
         self.client.login(username=user.username, password='asdf1234')
         resp = self.client.post('/form_with_user_kwarg/', {'field1': 'foo'})
-        assert force_string(resp.content) == "username: %s" % user.username
+        assert force_str(resp.content) == "username: %s" % user.username
 
     def test_get_method(self):
         user = UserFactory()
@@ -144,7 +141,7 @@ class TestCsrfExemptMixin(test.TestCase):
         """
         resp = self.client.post('/csrf_exempt/', {'field1': 'test'})
         self.assertEqual(200, resp.status_code)
-        self.assertEqual("OK", force_string(resp.content))
+        self.assertEqual("OK", force_str(resp.content))
 
 
 class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
@@ -713,7 +710,7 @@ class TestFormMessageMixins(test.TestCase):
     def test_form_valid_returns_message(self):
         mixin = FormValidMessageMixin()
         mixin.form_valid_message = 'Good øø'
-        self.assertEqual(force_string('Good øø'), mixin.get_form_valid_message())
+        self.assertEqual(force_str('Good øø'), mixin.get_form_valid_message())
 
     def test_form_invalid_message_not_set(self):
         mixin = FormInvalidMessageMixin()
@@ -729,7 +726,7 @@ class TestFormMessageMixins(test.TestCase):
     def test_form_invalid_returns_message(self):
         mixin = FormInvalidMessageMixin()
         mixin.form_invalid_message = 'Bad øø'
-        self.assertEqual(force_string('Bad øø'), mixin.get_form_invalid_message())
+        self.assertEqual(force_str('Bad øø'), mixin.get_form_invalid_message())
 
 
 class TestAllVerbsMixin(test.TestCase):

@@ -3,18 +3,11 @@ from functools import partial
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.decorators import method_decorator
-try:
-    from django.utils.encoding import force_str as force_string
-except ImportError:
-    from django.utils.encoding import force_text as force_string
+from django.utils.encoding import force_str
 from django.utils.functional import Promise
 from django.views.decorators.csrf import csrf_exempt
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
+from django.urls import reverse
 
-import six
 
 
 class CsrfExemptMixin(object):
@@ -121,13 +114,13 @@ class FormValidMessageMixin(MessageMixin):
             )
 
         if not isinstance(self.form_valid_message,
-                          (six.string_types, six.text_type, Promise)):
+                          (str, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_valid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__)
             )
 
-        return force_string(self.form_valid_message)
+        return force_str(self.form_valid_message)
 
     def form_valid(self, form):
         """
@@ -167,12 +160,12 @@ class FormInvalidMessageMixin(MessageMixin):
                     self.__class__.__name__))
 
         if not isinstance(self.form_invalid_message,
-                          (six.string_types, six.text_type, Promise)):
+                          (str, Promise)):
             raise ImproperlyConfigured(
                 '{0}.form_invalid_message must be a str or unicode '
                 'object.'.format(self.__class__.__name__))
 
-        return force_string(self.form_invalid_message)
+        return force_str(self.form_invalid_message)
 
     def form_invalid(self, form):
         response = super(FormInvalidMessageMixin, self).form_invalid(form)
