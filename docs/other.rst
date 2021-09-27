@@ -646,3 +646,43 @@ If you need to set the headers dynamically, e.g depending on some request inform
             """
             for key, value in request.META.items():
                 yield "X-Request-{}".format(key), value
+
+
+If you need to set the cache.
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import CacheMixin
+
+
+    class EchoHeadersView(CacheMixin, TemplateView):
+        template_name = "some/template.html"
+
+
+If you need to set the cache control.
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import CacheControlMixin
+
+
+    class EchoHeadersView(CacheControlMixin, TemplateView):
+        template_name = "some/template.html"
+        cache_timeout = 60
+
+
+If you need to set the never cache.
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import NeverCacheMixin
+
+
+    class EchoHeadersView(NeverCacheMixin, TemplateView):
+        template_name = "some/template.html"

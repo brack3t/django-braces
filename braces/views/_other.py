@@ -1,5 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect
+from django.views.decorators.cache import cache_page, never_cache
 try:
     from django.utils.encoding import force_str as force_string
 except ImportError:
@@ -8,6 +9,34 @@ try:
     from django.urls import resolve
 except ImportError:
     from django.core.urlresolvers import resolve
+
+
+class NeverCacheMixin(object):
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        return super(NeverCacheMixin, self).dispatch(*args, **kwargs)
+
+
+class CacheMixin(object):
+    cache_timeout = 60
+
+    def get_cache_timeout(self):
+        return self.cache_timeout
+
+    def dispatch(self, *args, **kwargs):
+        return cache_page(self.get_cache_timeout())(super(CacheMixin, self).dispatch)(*args, **kwargs)
+
+
+class CacheControlMixin(object):
+    cache_timeout = 60
+
+    def get_cache_timeout(self):
+        return self.cache_timeout
+
+    def dispatch(self, *args, **kwargs):
+        response = super(CacheControlMixin, self).dispatch(*args, **kwargs)
+        patch_response_headers(response, self.get_cache_timeout())
+        return response
 
 
 class SetHeadlineMixin(object):
