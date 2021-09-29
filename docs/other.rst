@@ -647,6 +647,13 @@ If you need to set the headers dynamically, e.g depending on some request inform
             for key, value in request.META.items():
                 yield "X-Request-{}".format(key), value
 
+.. CacheMixin:
+
+CacheMixin
+-------------
+
+.. versionadded:: 1.11
+
 
 If you need to set the cache.
 
@@ -657,7 +664,7 @@ If you need to set the cache.
     from braces.views import CacheMixin
 
 
-    class EchoHeadersView(CacheMixin, TemplateView):
+    class EchoCacheView(CacheMixin, TemplateView):
         template_name = "some/template.html"
 
 
@@ -670,7 +677,7 @@ If you need to set the cache control.
     from braces.views import CacheControlMixin
 
 
-    class EchoHeadersView(CacheControlMixin, TemplateView):
+    class EchoCacheView(CacheControlMixin, TemplateView):
         template_name = "some/template.html"
         cache_timeout = 60
 
@@ -684,5 +691,26 @@ If you need to set the never cache.
     from braces.views import NeverCacheMixin
 
 
-    class EchoHeadersView(NeverCacheMixin, TemplateView):
+    class EchoCacheView(NeverCacheMixin, TemplateView):
+        template_name = "some/template.html"
+    
+
+.. TimezoneMixin:
+
+TimezoneMixin
+-------------
+
+.. versionadded:: 1.11
+
+
+If you need to set the timezone.
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import TimezoneeMixin
+
+
+    class TimezoneView(TimezoneeMixin, TemplateView):
         template_name = "some/template.html"
