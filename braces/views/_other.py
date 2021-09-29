@@ -1,5 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect
+from django.utils import timezone
 from django.views.decorators.cache import cache_page, never_cache
 try:
     from django.utils.encoding import force_str as force_string
@@ -9,8 +10,17 @@ try:
     from django.urls import resolve
 except ImportError:
     from django.core.urlresolvers import resolve
+import pytz
 
+class TimezoneMixin(object):
+    def process_request(self, request):
+        tzname = request.session.get('django_timezone')
+        if tzname:
+            timezone.activate(pytz.timezone(tzname))
+        else:
+            timezone.deactivate()
 
+    
 class NeverCacheMixin(object):
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):
