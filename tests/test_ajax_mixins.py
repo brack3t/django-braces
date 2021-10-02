@@ -7,7 +7,7 @@ from django import test
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
 
-from braces.views import AjaxResponseMixin
+from mixin.views import AjaxResponseMixin
 
 from .compat import force_string
 from .factories import ArticleFactory, UserFactory

@@ -1,12 +1,9 @@
-# django-braces
+# django-mixin
 
 Mixins for Django's class-based views.
 
-[![Latest Travis CI status](https://travis-ci.org/brack3t/django-braces.svg)](https://travis-ci.org/brack3t/django-braces)
-[![PyPI version](https://badge.fury.io/py/django-braces.svg)](http://badge.fury.io/py/django-braces)
-
 ## Documentation
-[Read The Docs](https://django-braces.readthedocs.io/en/latest/index.html)
+[Read The Docs](https://django-mixin.readthedocs.io/en/latest/index.html)
 
 ## Installation
 Install from PyPI with `pip`:
@@ -20,7 +17,7 @@ Install from PyPI with `pip`:
 
 ## Contributing
 
-See our [contribution guide](https://django-braces.readthedocs.io/en/latest/contributing.html)
+See our [contribution guide](https://django-mixin.readthedocs.io/en/latest/contributing.html)
 
 Add yourself to `CONTRIBUTORS.txt` if you want.
 
@@ -36,7 +33,7 @@ just the `tox` command.
 
 ## Change Log
 
-[Changelog on Read The Docs](https://django-braces.readthedocs.io/en/latest/changelog.html)
+[Changelog on Read The Docs](https://django-mixin.readthedocs.io/en/latest/changelog.html)
 
 ## Supported Django Versions
 

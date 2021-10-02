@@ -1,18 +1,18 @@
 from setuptools import setup
 
-import braces
+import mixin
 
 setup(
-    name="django-braces",
-    version=braces.__version__,
+    name="django-mixin",
+    version=mixin.__version__,
     description="Reusable, generic mixins for Django",
     long_description="Mixins to add easy functionality to Django class-based views, forms, and models.",
     keywords="django, views, forms, mixins",
-    author="Kenneth Love <kenneth@brack3t.com>, Chris Jones <chris@brack3t.com>",
-    author_email="devs@brack3t.com",
-    url="https://github.com/brack3t/django-braces/",
+    author="Kenneth Love <kenneth@brack3t.com>, Chris Jones <chris@brack3t.com>, Kalinin Dmitry <kalinin.mitko@gmail.com>",
+    author_email="kalinin.mitko@gmail.com",
+    url="https://github.com/null-none/django-mixin/",
     license="BSD",
-    packages=["braces"],
+    packages=["mixin"],
     zip_safe=False,
     include_package_data=True,
     classifiers=[

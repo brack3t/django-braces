@@ -2,6 +2,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.views.decorators.cache import cache_page, never_cache
+from django.core.paginator import (Paginator, EmptyPage, PageNotAnInteger)
 try:
     from django.utils.encoding import force_str as force_string
 except ImportError:
@@ -12,6 +13,43 @@ except ImportError:
     from django.core.urlresolvers import resolve
 import pytz
 
+
+class PaginatorMixin(object):
+    def __init__(self, queryset, numb_pages, request_page):
+        self.queryset       = queryset          #egg: models.Post.objects.all()
+        self.numb_pages     = numb_pages        #egg: int 10 `is number per page`
+        self.request_page   = request_page      #egg: request.GET.get('page')
+
+    def page_numbering(self):
+        paginator = Paginator(self.queryset, self.numb_pages)
+        try:
+            pagination = paginator.page(self.request_page)
+        except PageNotAnInteger:
+            pagination = paginator.page(1)
+        except EmptyPage:
+            pagination = paginator.page(paginator.num_pages)
+
+        index       = pagination.number - 1
+        limit       = 5 #limit for show range left and right of number pages
+        max_index   = len(paginator.page_range)
+        start_index = index - limit if index >= limit else 0
+        end_index   = index + limit if index <= max_index - limit else max_index
+
+        page_range  = list(paginator.page_range)[start_index:end_index]
+        return page_range
+
+    def queryset_paginated(self):
+        paginator = Paginator(self.queryset, self.numb_pages)
+        try:
+            queryset_paginated = paginator.page(self.request_page)
+        except PageNotAnInteger:
+            queryset_paginated = paginator.page(1)
+        except EmptyPage:
+            queryset_paginated = paginator.page(paginator.num_pages)
+
+        return queryset_paginated
+
+
 class TimezoneMixin(object):
     def process_request(self, request):
         tzname = request.session.get('django_timezone')
@@ -20,7 +58,7 @@ class TimezoneMixin(object):
         else:
             timezone.deactivate()
 
-    
+
 class NeverCacheMixin(object):
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):

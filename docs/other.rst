@@ -693,7 +693,7 @@ If you need to set the never cache.
 
     class EchoCacheView(NeverCacheMixin, TemplateView):
         template_name = "some/template.html"
-    
+
 
 .. TimezoneMixin:
 
@@ -714,3 +714,25 @@ If you need to set the timezone.
 
     class TimezoneView(TimezoneeMixin, TemplateView):
         template_name = "some/template.html"
+
+.. TimezoneMixin:
+
+PaginatorMixin
+-------------
+
+.. versionadded:: 1.11
+
+
+If you need to set the timezone.
+
+::
+
+    from django.views import TemplateView
+
+    from braces.views import PaginatorMixin
+
+
+    class PaginatorView(PaginatorMixin, TemplateView):
+        template_name = "some/template.html"
+        queryset = models.Post.objects.all()
+        numb_pages = 10

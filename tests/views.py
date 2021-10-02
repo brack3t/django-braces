@@ -11,7 +11,7 @@ except ImportError:
 from django.views.generic import (View, UpdateView, FormView, TemplateView,
                                   ListView, DetailView, CreateView)
 
-from braces import views
+from mixin import views
 
 from .models import Article, CanonicalArticle
 from .forms import ArticleForm, FormWithUserKwarg
