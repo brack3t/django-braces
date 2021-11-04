@@ -2,17 +2,19 @@
 
 Mixins for Django's class-based views.
 
-[![Latest Travis CI status](https://travis-ci.org/brack3t/django-braces.svg)](https://travis-ci.org/brack3t/django-braces)
 [![PyPI version](https://badge.fury.io/py/django-braces.svg)](http://badge.fury.io/py/django-braces)
 
 ## Documentation
+
 [Read The Docs](https://django-braces.readthedocs.io/en/latest/index.html)
 
 ## Installation
+
 Install from PyPI with `pip`:
 `pip install django-braces`
 
 ## Building the Docs
+
 1. Install docs requirements: `pip install -r requirements-docs.txt`.
 2. `cd docs`.
 3. `make html`.
@@ -32,7 +34,6 @@ using `asdf` to install various Python versions.
 
 Once `tox` and Python(s) are installed, you can execute the entire suite by running
 just the `tox` command.
-
 
 ## Change Log
 
