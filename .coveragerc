@@ -2,10 +2,14 @@
 [run]
 branch = true
 
+[paths]
+source =
+    braces/
+
 [report]
 omit =
     *site-packages*
     *tests*
-    *.tox*
     *conftest*
 show_missing = True
+fail_under = 100

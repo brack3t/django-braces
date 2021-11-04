@@ -20,14 +20,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Install Django
-        run: |
           pip install Django~=${{ matrix.django }}.0
       - name: Run Tests
-        env:
-          TOX_ENV: py${{ matrix.python-version }}-django${{ matrix.django }}
         run: |
-          pytest --cov=braces --nomigrations > pytest-coverage.txt
+          pytest > pytest-coverage.txt
           coverage report --fail-under=96
       - name: pytest-coverage-commentator
         uses: coroo/pytest-coverage-commentator@v1.0.2
