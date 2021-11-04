@@ -1,0 +1,35 @@
+name: django-braces
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, "3.10"]
+        django: [2.2, 3.2]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Install Django
+        run: |
+          pip install Django~=${{ matrix.django }}.0
+      - name: Run Tests
+        env:
+          TOX_ENV: py${{ matrix.python-version }}-django${{ matrix.django }}
+        run: |
+          pytest --cov=braces --nomigrations > pytest-coverage.txt
+          coverage report --fail-under=96
+      - name: pytest-coverage-commentator
+        uses: coroo/pytest-coverage-commentator@v1.0.2
+        with:
+          pytest-coverage: pytest-coverage.txt
