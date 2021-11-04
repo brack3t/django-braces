@@ -29,3 +29,7 @@ jobs:
         run: |
           pytest --cov=braces --nomigrations > pytest-coverage.txt
           coverage report --fail-under=96
+      - name: pytest-coverage-commentator
+        uses: coroo/pytest-coverage-commentator@v1.0.2
+        with:
+          pytest-coverage: pytest-coverage.txt
