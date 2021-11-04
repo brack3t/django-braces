@@ -1,0 +1,20 @@
+name: django-braces
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with: python-version ${{ matrix.python }}
+      - name: Install Tox and any other packages
+        run: pip install tox factory_boy mock pytest-django pytest-cov coverage
+      - name: Run Tox
+        run: tox -e py
