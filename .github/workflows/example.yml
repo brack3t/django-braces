@@ -24,4 +24,4 @@ jobs:
         env:
           TOX_ENV: py${{ matrix.python-version }}-django${{ matrix.django }}
         run: |
-          tox -e $TOX_ENV
+          pytest
