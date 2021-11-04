@@ -13,7 +13,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup Python
         uses: actions/setup-python@v2
-        with: python-version ${{ matrix.python }}
+        with:
+          python-version: ${{ matrix.python }}
       - name: Install Tox and any other packages
         run: pip install tox factory_boy mock pytest-django pytest-cov coverage
       - name: Run Tox
