@@ -27,5 +27,5 @@ jobs:
         env:
           TOX_ENV: py${{ matrix.python-version }}-django${{ matrix.django }}
         run: |
-          pytest --cov > pytest-coverage.txt
+          pytest --cov=braces --nomigrations > pytest-coverage.txt
           coverage report --fail-under=96
