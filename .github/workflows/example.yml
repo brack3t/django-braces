@@ -7,15 +7,21 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        django: ["2.2", "3.2"]
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Python
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-      - name: Install Tox and any other packages
-        run: pip install tox factory_boy mock pytest-django pytest-cov coverage
-      - name: Run Tox
-        run: tox -e py
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Tests
+        env:
+          TOX_ENV: py${{ matrix.python-version }}-django${{ matrix.django }}
+        run: |
+          tox -e $TOX_ENV
