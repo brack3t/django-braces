@@ -23,8 +23,7 @@ jobs:
           pip install Django~=${{ matrix.django }}.0
       - name: Run Tests
         run: |
-          pytest > pytest-coverage.txt &
-          coverage report --fail-under=96
+          pytest > pytest-coverage.txt
       - name: pytest-coverage-commentator
         uses: coroo/pytest-coverage-commentator@v1.0.2
         with:
