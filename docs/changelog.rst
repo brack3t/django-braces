@@ -4,6 +4,8 @@
 Changelog
 =========
 
+* :release:`1.15.0 <2021-11-05>`
+* :support:`-` Formatted project with black
 * :support:`-` Updated README
 * :feature:`265` Drop old Python and Django versions, bring in newer ones
 * :release:`1.14.0 <2019-12-30>`
