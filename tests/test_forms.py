@@ -25,4 +25,3 @@ class TestUserKwargModelFormMixin(test.TestCase):
         user = User(username='test')
         form = forms.FormWithUserKwarg(user=user)
         assert form.user is user
-        assert False is True
