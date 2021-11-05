@@ -4,6 +4,8 @@
 Changelog
 =========
 
+* :support:`-` Updated README
+* :feature:`265` Drop old Python and Django versions, bring in newer ones
 * :release:`1.14.0 <2019-12-30>`
 * :support:`260` Fixes the goshdang Travis tests.
 * :support:`250` Include documentation Makefile and conf.py in source distribution.

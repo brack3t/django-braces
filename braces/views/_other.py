@@ -9,6 +9,7 @@ class SetHeadlineMixin(object):
     Mixin allows you to set a static headline through a static property on the
     class or programmatically by overloading the get_headline method.
     """
+
     headline = None  # Default the headline to none
 
     def get_context_data(self, **kwargs):
@@ -19,12 +20,13 @@ class SetHeadlineMixin(object):
 
     def get_headline(self):
         if self.headline is None:  # If no headline was provided as a view
-                                   # attribute and this method wasn't
-                                   # overridden raise a configuration error.
+            # attribute and this method wasn't
+            # overridden raise a configuration error.
             raise ImproperlyConfigured(
-                '{0} is missing a headline. '
-                'Define {0}.headline, or override '
-                '{0}.get_headline().'.format(self.__class__.__name__))
+                "{0} is missing a headline. "
+                "Define {0}.headline, or override "
+                "{0}.get_headline().".format(self.__class__.__name__)
+            )
         return force_str(self.headline)
 
 
@@ -33,6 +35,7 @@ class StaticContextMixin(object):
     Mixin allows you to set static context through a static property on
     the class.
     """
+
     static_context = None
 
     def get_context_data(self, **kwargs):
@@ -42,17 +45,18 @@ class StaticContextMixin(object):
             kwargs.update(self.get_static_context())
         except (TypeError, ValueError):
             raise ImproperlyConfigured(
-                '{0}.static_context must be a dictionary or container '
-                'of two-tuples.'.format(self.__class__.__name__))
+                "{0}.static_context must be a dictionary or container "
+                "of two-tuples.".format(self.__class__.__name__)
+            )
         else:
             return kwargs
 
     def get_static_context(self):
         if self.static_context is None:
             raise ImproperlyConfigured(
-                '{0} is missing the static_context property. Define '
-                '{0}.static_context, or override '
-                '{0}.get_static_context()'.format(self.__class__.__name__)
+                "{0} is missing the static_context property. Define "
+                "{0}.static_context, or override "
+                "{0}.get_static_context()".format(self.__class__.__name__)
             )
         return self.static_context
 
@@ -65,6 +69,7 @@ class CanonicalSlugDetailMixin(object):
     argument does not equal the object's canonical slug, this mixin will
     redirect to the url containing the canonical slug.
     """
+
     def dispatch(self, request, *args, **kwargs):
         # Set up since we need to super() later instead of earlier.
         self.request = request
@@ -89,13 +94,16 @@ class CanonicalSlugDetailMixin(object):
         # If there's a discrepancy between the slug in the url and the
         # canonical slug, redirect to the canonical slug.
         if canonical_slug != slug:
-            params = {self.pk_url_kwarg: obj.pk,
-                      self.slug_url_kwarg: canonical_slug,
-                      'permanent': True}
+            params = {
+                self.pk_url_kwarg: obj.pk,
+                self.slug_url_kwarg: canonical_slug,
+                "permanent": True,
+            }
             return redirect(current_urlpattern, **params)
 
         return super(CanonicalSlugDetailMixin, self).dispatch(
-            request, *args, **kwargs)
+            request, *args, **kwargs
+        )
 
     def get_canonical_slug(self):
         """
@@ -114,13 +122,16 @@ class AllVerbsMixin(object):
     The name of the method should be specified using the class attribute
     ``all_handler``. The default value of this attribute is 'all'.
     """
-    all_handler = 'all'
+
+    all_handler = "all"
 
     def dispatch(self, request, *args, **kwargs):
         if not self.all_handler:
             raise ImproperlyConfigured(
-                '{0} requires the all_handler attribute to be set.'.format(
-                    self.__class__.__name__))
+                "{0} requires the all_handler attribute to be set.".format(
+                    self.__class__.__name__
+                )
+            )
 
         handler = getattr(self, self.all_handler, self.http_method_not_allowed)
         return handler(request, *args, **kwargs)
@@ -131,6 +142,7 @@ class HeaderMixin(object):
     Add arbitrary HTTP headers to a response by specifying them in the
     ``headers`` attribute or by overriding the ``get_headers()`` method.
     """
+
     headers = {}
 
     def get_headers(self, request):

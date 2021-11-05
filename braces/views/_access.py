@@ -6,8 +6,13 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login, logout_then_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import (HttpResponseRedirect, HttpResponsePermanentRedirect,
-                         Http404, HttpResponse, StreamingHttpResponse)
+from django.http import (
+    HttpResponseRedirect,
+    HttpResponsePermanentRedirect,
+    Http404,
+    HttpResponse,
+    StreamingHttpResponse,
+)
 from django.shortcuts import resolve_url
 from django.utils.encoding import force_str
 from django.utils.timezone import now
@@ -18,6 +23,7 @@ class AccessMixin(object):
     'Abstract' mixin that gives access mixins the same customizable
     functionality.
     """
+
     login_url = None
     raise_exception = False
     redirect_field_name = REDIRECT_FIELD_NAME  # Set by django.contrib.auth
@@ -30,8 +36,9 @@ class AccessMixin(object):
         login_url = self.login_url or settings.LOGIN_URL
         if not login_url:
             raise ImproperlyConfigured(
-                'Define {0}.login_url or settings.LOGIN_URL or override '
-                '{0}.get_login_url().'.format(self.__class__.__name__))
+                "Define {0}.login_url or settings.LOGIN_URL or override "
+                "{0}.get_login_url().".format(self.__class__.__name__)
+            )
 
         return force_str(login_url)
 
@@ -41,20 +48,25 @@ class AccessMixin(object):
         """
         if self.redirect_field_name is None:
             raise ImproperlyConfigured(
-                '{0} is missing the '
-                'redirect_field_name. Define {0}.redirect_field_name or '
-                'override {0}.get_redirect_field_name().'.format(
-                    self.__class__.__name__))
+                "{0} is missing the "
+                "redirect_field_name. Define {0}.redirect_field_name or "
+                "override {0}.get_redirect_field_name().".format(
+                    self.__class__.__name__
+                )
+            )
         return self.redirect_field_name
 
     def handle_no_permission(self, request):
         if self.raise_exception:
-            if (self.redirect_unauthenticated_users
-                    and not request.user.is_authenticated):
+            if (
+                self.redirect_unauthenticated_users
+                and not request.user.is_authenticated
+            ):
                 return self.no_permissions_fail(request)
             else:
-                if (inspect.isclass(self.raise_exception)
-                        and issubclass(self.raise_exception, Exception)):
+                if inspect.isclass(self.raise_exception) and issubclass(
+                    self.raise_exception, Exception
+                ):
                     raise self.raise_exception
                 if callable(self.raise_exception):
                     ret = self.raise_exception(request)
@@ -71,9 +83,11 @@ class AccessMixin(object):
 
         By default we redirect to login.
         """
-        return redirect_to_login(request.get_full_path(),
-                                 self.get_login_url(),
-                                 self.get_redirect_field_name())
+        return redirect_to_login(
+            request.get_full_path(),
+            self.get_login_url(),
+            self.get_redirect_field_name(),
+        )
 
 
 class LoginRequiredMixin(AccessMixin):
@@ -85,12 +99,14 @@ class LoginRequiredMixin(AccessMixin):
         combined with CsrfExemptMixin - which in that case should
         be the left-most mixin.
     """
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return self.handle_no_permission(request)
 
         return super(LoginRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+            request, *args, **kwargs
+        )
 
 
 class AnonymousRequiredMixin(object):
@@ -110,23 +126,27 @@ class AnonymousRequiredMixin(object):
             authenticated_redirect_url = "/accounts/profile/"
             ...
     """
+
     authenticated_redirect_url = settings.LOGIN_REDIRECT_URL
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return HttpResponseRedirect(self.get_authenticated_redirect_url())
         return super(AnonymousRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+            request, *args, **kwargs
+        )
 
     def get_authenticated_redirect_url(self):
-        """ Return the reversed authenticated redirect url. """
+        """Return the reversed authenticated redirect url."""
         if not self.authenticated_redirect_url:
             raise ImproperlyConfigured(
-                '{0} is missing an authenticated_redirect_url '
-                'url to redirect to. Define '
-                '{0}.authenticated_redirect_url or override '
-                '{0}.get_authenticated_redirect_url().'.format(
-                    self.__class__.__name__))
+                "{0} is missing an authenticated_redirect_url "
+                "url to redirect to. Define "
+                "{0}.authenticated_redirect_url or override "
+                "{0}.get_authenticated_redirect_url().".format(
+                    self.__class__.__name__
+                )
+            )
         return resolve_url(self.authenticated_redirect_url)
 
 
@@ -154,6 +174,7 @@ class PermissionRequiredMixin(AccessMixin):
             raise_exception = True
             ...
     """
+
     permission_required = None  # Default required perms to none
     object_level_permissions = False
 
@@ -168,7 +189,8 @@ class PermissionRequiredMixin(AccessMixin):
         if self.permission_required is None:
             raise ImproperlyConfigured(
                 '{0} requires the "permission_required" attribute to be '
-                'set.'.format(self.__class__.__name__))
+                "set.".format(self.__class__.__name__)
+            )
 
         return self.permission_required
 
@@ -179,13 +201,19 @@ class PermissionRequiredMixin(AccessMixin):
         perms = self.get_permission_required(request)
         has_permission = False
 
-        if self.object_level_permissions: 
-            if hasattr(self, 'object')  and self.object is not None: 
-                has_permission = request.user.has_perm(self.get_permission_required(request), self.object)
-            elif hasattr(self, 'get_object') and callable(self.get_object):
-                has_permission = request.user.has_perm(self.get_permission_required(request), self.get_object())
+        if self.object_level_permissions:
+            if hasattr(self, "object") and self.object is not None:
+                has_permission = request.user.has_perm(
+                    self.get_permission_required(request), self.object
+                )
+            elif hasattr(self, "get_object") and callable(self.get_object):
+                has_permission = request.user.has_perm(
+                    self.get_permission_required(request), self.get_object()
+                )
         else:
-            has_permission = request.user.has_perm(self.get_permission_required(request))
+            has_permission = request.user.has_perm(
+                self.get_permission_required(request)
+            )
         return has_permission
 
     def dispatch(self, request, *args, **kwargs):
@@ -199,7 +227,8 @@ class PermissionRequiredMixin(AccessMixin):
             return self.handle_no_permission(request)
 
         return super(PermissionRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+            request, *args, **kwargs
+        )
 
 
 class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
@@ -240,6 +269,7 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
             redirect_field_name = "hollaback"
             raise_exception = True
     """
+
     permissions = None  # Default required perms to none
 
     def get_permission_required(self, request=None):
@@ -248,8 +278,8 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
 
     def check_permissions(self, request):
         permissions = self.get_permission_required(request)
-        perms_all = permissions.get('all') or None
-        perms_any = permissions.get('any') or None
+        perms_all = permissions.get("all") or None
+        perms_any = permissions.get("any") or None
 
         self._check_permissions_keys_set(perms_all, perms_any)
         self._check_perms_keys("all", perms_all)
@@ -280,7 +310,8 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
         if self.permissions is None or not isinstance(self.permissions, dict):
             raise ImproperlyConfigured(
                 '{0} requires the "permissions" attribute to be set as a '
-                'dict.'.format(self.__class__.__name__))
+                "dict.".format(self.__class__.__name__)
+            )
 
     def _check_permissions_keys_set(self, perms_all=None, perms_any=None):
         """
@@ -292,7 +323,9 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
             raise ImproperlyConfigured(
                 '{0} requires the "permissions" attribute to be set to a '
                 'dict and the "any" or "all" key to be set.'.format(
-                    self.__class__.__name__))
+                    self.__class__.__name__
+                )
+            )
 
     def _check_perms_keys(self, key=None, perms=None):
         """
@@ -301,8 +334,9 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
         """
         if perms and not isinstance(perms, (list, tuple)):
             raise ImproperlyConfigured(
-                '{0} requires the permisions dict {1} value to be a '
-                'list or tuple.'.format(self.__class__.__name__, key))
+                "{0} requires the permisions dict {1} value to be a "
+                "list or tuple.".format(self.__class__.__name__, key)
+            )
 
 
 class GroupRequiredMixin(AccessMixin):
@@ -310,20 +344,20 @@ class GroupRequiredMixin(AccessMixin):
 
     def get_group_required(self):
         if self.group_required is None or (
-                not isinstance(self.group_required,
-                               (list, tuple, str))
+            not isinstance(self.group_required, (list, tuple, str))
         ):
 
             raise ImproperlyConfigured(
                 '{0} requires the "group_required" attribute to be set and be '
-                'one of the following types: string, unicode, list or '
-                'tuple'.format(self.__class__.__name__))
+                "one of the following types: string, unicode, list or "
+                "tuple".format(self.__class__.__name__)
+            )
         if not isinstance(self.group_required, (list, tuple)):
             self.group_required = (self.group_required,)
         return self.group_required
 
     def check_membership(self, groups):
-        """ Check required group(s) """
+        """Check required group(s)"""
         if self.request.user.is_superuser:
             return True
         user_groups = self.request.user.groups.values_list("name", flat=True)
@@ -339,7 +373,8 @@ class GroupRequiredMixin(AccessMixin):
             return self.handle_no_permission(request)
 
         return super(GroupRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+            request, *args, **kwargs
+        )
 
 
 class UserPassesTestMixin(AccessMixin):
@@ -357,9 +392,11 @@ class UserPassesTestMixin(AccessMixin):
 
     def test_func(self, user):
         raise NotImplementedError(
-            '{0} is missing implementation of the '
-            'test_func method. You should write one.'.format(
-                self.__class__.__name__))
+            "{0} is missing implementation of the "
+            "test_func method. You should write one.".format(
+                self.__class__.__name__
+            )
+        )
 
     def get_test_func(self):
         return getattr(self, "test_func")
@@ -371,31 +408,36 @@ class UserPassesTestMixin(AccessMixin):
             return self.handle_no_permission(request)
 
         return super(UserPassesTestMixin, self).dispatch(
-            request, *args, **kwargs)
+            request, *args, **kwargs
+        )
 
 
 class SuperuserRequiredMixin(AccessMixin):
     """
     Mixin allows you to require a user with `is_superuser` set to True.
     """
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return self.handle_no_permission(request)
 
         return super(SuperuserRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+            request, *args, **kwargs
+        )
 
 
 class StaffuserRequiredMixin(AccessMixin):
     """
     Mixin allows you to require a user with `is_staff` set to True.
     """
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_staff:
             return self.handle_no_permission(request)
 
         return super(StaffuserRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+            request, *args, **kwargs
+        )
 
 
 class SSLRequiredMixin(object):
@@ -403,37 +445,42 @@ class SSLRequiredMixin(object):
     Simple mixin that allows you to force a view to be accessed
     via https.
     """
+
     raise_exception = False  # Default whether to raise an exception to none
 
     def dispatch(self, request, *args, **kwargs):
-        if getattr(settings, 'DEBUG', False):
+        if getattr(settings, "DEBUG", False):
             return super(SSLRequiredMixin, self).dispatch(
-                request, *args, **kwargs)
+                request, *args, **kwargs
+            )
 
         if not request.is_secure():
             if self.raise_exception:
                 raise Http404
 
             return HttpResponsePermanentRedirect(
-                self._build_https_url(request))
+                self._build_https_url(request)
+            )
 
         return super(SSLRequiredMixin, self).dispatch(request, *args, **kwargs)
 
     def _build_https_url(self, request):
-        """ Get the full url, replace http with https """
+        """Get the full url, replace http with https"""
         url = request.build_absolute_uri(request.get_full_path())
-        return re.sub(r'^http', 'https', url)
+        return re.sub(r"^http", "https", url)
 
 
 class RecentLoginRequiredMixin(LoginRequiredMixin):
     """
     Mixin allows you to require a login to be within a number of seconds.
     """
+
     max_last_login_delta = 1800  # Defaults to 30 minutes
 
     def dispatch(self, request, *args, **kwargs):
         resp = super(RecentLoginRequiredMixin, self).dispatch(
-            request, *args, **kwargs)
+            request, *args, **kwargs
+        )
 
         if resp.status_code == 200:
             delta = datetime.timedelta(seconds=self.max_last_login_delta)

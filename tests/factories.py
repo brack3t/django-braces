@@ -11,14 +11,15 @@ def _get_perm(perm_name):
 
     Permission name is a string like 'auth.add_user'.
     """
-    app_label, codename = perm_name.split('.')
+    app_label, codename = perm_name.split(".")
     return Permission.objects.get(
-        content_type__app_label=app_label, codename=codename)
+        content_type__app_label=app_label, codename=codename
+    )
 
 
 class ArticleFactory(factory.django.DjangoModelFactory):
-    title = factory.Sequence(lambda n: 'Article number {0}'.format(n))
-    body = factory.Sequence(lambda n: 'Body of article {0}'.format(n))
+    title = factory.Sequence(lambda n: "Article number {0}".format(n))
+    body = factory.Sequence(lambda n: "Body of article {0}".format(n))
 
     class Meta:
         model = Article
@@ -26,7 +27,7 @@ class ArticleFactory(factory.django.DjangoModelFactory):
 
 
 class GroupFactory(factory.django.DjangoModelFactory):
-    name = factory.Sequence(lambda n: 'group{0}'.format(n))
+    name = factory.Sequence(lambda n: "group{0}".format(n))
 
     class Meta:
         model = Group
@@ -34,11 +35,11 @@ class GroupFactory(factory.django.DjangoModelFactory):
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    username = factory.Sequence(lambda n: 'user{0}'.format(n))
-    first_name = factory.Sequence(lambda n: 'John {0}'.format(n))
-    last_name = factory.Sequence(lambda n: 'Doe {0}'.format(n))
-    email = factory.Sequence(lambda n: 'user{0}@example.com'.format(n))
-    password = factory.PostGenerationMethodCall('set_password', 'asdf1234')
+    username = factory.Sequence(lambda n: "user{0}".format(n))
+    first_name = factory.Sequence(lambda n: "John {0}".format(n))
+    last_name = factory.Sequence(lambda n: "Doe {0}".format(n))
+    email = factory.Sequence(lambda n: "user{0}@example.com".format(n))
+    password = factory.PostGenerationMethodCall("set_password", "asdf1234")
 
     class Meta:
         model = User
