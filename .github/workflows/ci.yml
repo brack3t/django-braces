@@ -23,9 +23,4 @@ jobs:
           pip install Django~=${{ matrix.django }}.0
       - name: Run Tests
         run: |
-          pytest > pytest-coverage.txt
-          cat pytest-coverage.txt
-      - name: pytest-coverage-commentator
-        uses: coroo/pytest-coverage-commentator@v1.0.2
-        with:
-          pytest-coverage: pytest-coverage.txt
+          coverage run -m pytest
