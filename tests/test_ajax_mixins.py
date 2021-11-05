@@ -1,15 +1,13 @@
-from __future__ import absolute_import, unicode_literals
-
 import json
 import mock
 
 from django import test
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
+from django.utils.encoding import force_str
 
 from braces.views import AjaxResponseMixin
 
-from .compat import force_string
 from .factories import ArticleFactory, UserFactory
 from .helpers import TestViewHelper
 from .views import (SimpleJsonView, JsonRequestResponseView,
@@ -30,7 +28,7 @@ class TestAjaxResponseMixin(TestViewHelper, test.TestCase):
         for m in self.methods:
             fn = getattr(self.client, m)
             resp = fn('/ajax_response/', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-            assert force_string(resp.content) == 'AJAX_OK'
+            assert force_str(resp.content) == 'AJAX_OK'
 
     def test_not_xhr(self):
         """
@@ -40,7 +38,7 @@ class TestAjaxResponseMixin(TestViewHelper, test.TestCase):
         for m in self.methods:
             fn = getattr(self.client, m)
             resp = fn('/ajax_response/')
-            assert force_string(resp.content) == 'OK'
+            assert force_str(resp.content) == 'OK'
 
     def test_fallback_to_normal_methods(self):
         """
@@ -83,7 +81,7 @@ class TestJSONResponseMixin(TestViewHelper, test.TestCase):
         """
         resp = self.client.get(url)
         self.assert_json_response(resp)
-        content = force_string(resp.content)
+        content = force_str(resp.content)
         return content
 
     def test_simple_json(self):

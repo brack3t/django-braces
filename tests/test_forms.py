@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from django import test
 from django.contrib.auth.models import User
 
