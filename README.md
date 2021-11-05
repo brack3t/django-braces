@@ -2,6 +2,7 @@
 
 Mixins for Django's class-based views.
 
+![Build](https://github.com/brack3t/django-braces/actions/workflows/ci.yml/badge.svg?branch=main)
 [![PyPI version](https://badge.fury.io/py/django-braces.svg)](http://badge.fury.io/py/django-braces)
 
 ## Documentation
