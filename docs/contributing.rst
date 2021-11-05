@@ -43,11 +43,12 @@ Tests
 
 All code changes should come with test changes. We use
 `py.test <https://pypi.python.org/pypi/pytest>`_ instead of Python's
-``unittest``. This seems to only be really important when marking tests for
-skipping. 
+``unittest``. 
 
-We try to keep the project at 100% test coverage but know this isn't something
-we can achieve forever. So long as your tests cover your contribution 80% or
-better, we're happy to try and bump up that last bit, or just accept the code.
+We try to keep the project at high test coverage but know this isn't something
+we can achieve alone. Tests should be included with your pull requests and
+should cover 100% of your changes.
 
-We currently test Braces against late (usually latest) versions of Python 2.7, 3.4, 3.5, and 3.6. We also test against the latest released version of Django from 1.11 to 2.0.
+We test ``django-braces`` against currently supported versions of Python and
+LTS versions of Django. All pull requests are run through a matrix of these
+Python and Django versions. Locally, use a recent Python and Django.

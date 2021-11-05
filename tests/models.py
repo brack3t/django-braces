@@ -3,10 +3,7 @@ from django.db import models
 
 class Article(models.Model):
     author = models.ForeignKey(
-        'auth.User',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE
+        "auth.User", null=True, blank=True, on_delete=models.CASCADE
     )
     title = models.CharField(max_length=30)
     body = models.TextField()
@@ -15,10 +12,7 @@ class Article(models.Model):
 
 class CanonicalArticle(models.Model):
     author = models.ForeignKey(
-        'auth.User',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE
+        "auth.User", null=True, blank=True, on_delete=models.CASCADE
     )
     title = models.CharField(max_length=30)
     body = models.TextField()
