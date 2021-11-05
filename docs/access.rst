@@ -337,7 +337,7 @@ SSLRequiredMixin
 
 Simple view mixin that requires the incoming request to be secure by checking
 Django's `request.is_secure()` method. By default the mixin will return a
-permanent (301) redirect to the https verison of the current url. Optionally
+permanent (301) redirect to the https version of the current url. Optionally
 you can set `raise_exception=True` and a 404 will be raised.
 
 Standard Django Usage

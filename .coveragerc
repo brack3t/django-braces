@@ -1,15 +1,16 @@
 # django-braces coverage config file
 [run]
 branch = true
-
-[paths]
-source =
-    braces/
+source = braces
 
 [report]
+exclude_lines =
+    if self.debug:
+    pragma: no cover
+    raise NotImplementedError
+    if __name__ == .__main__.:
+ignore_errors = True
 omit =
-    *site-packages*
-    *tests*
-    *conftest*
+    tests/
 show_missing = True
-fail_under = 100
+fail_under = 97
