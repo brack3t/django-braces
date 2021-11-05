@@ -23,4 +23,4 @@ jobs:
           pip install Django~=${{ matrix.django }}.0
       - name: Run Tests
         run: |
-          coverage run -m pytest --cov=braces
+          coverage run --rcfile=.coveragerc -m pytest --cov=braces
