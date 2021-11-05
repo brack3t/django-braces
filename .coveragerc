@@ -12,4 +12,4 @@ omit =
     *tests*
     *conftest*
 show_missing = True
-fail_under = 95
+fail_under = 97
