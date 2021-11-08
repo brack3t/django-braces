@@ -5,7 +5,6 @@
 *.egg-info
 /docs/_build/
 /.coverage
-/.coverage.xml
 /htmlcov
 /.tox
 /.cache
@@ -13,3 +12,8 @@ dist/
 .idea
 build/
 venv/
+.pytest_cache/
+.tool-versions
+pytest-coverage.txt
+coverage.xml
+.vscode/

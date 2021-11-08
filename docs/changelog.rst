@@ -4,6 +4,31 @@
 Changelog
 =========
 
+* :release:`1.15.0 <2021-11-05>`
+* :support:`-` Formatted project with black
+* :support:`-` Updated README
+* :feature:`265` Drop old Python and Django versions, bring in newer ones
+* :release:`1.14.0 <2019-12-30>`
+* :support:`260` Fixes the goshdang Travis tests.
+* :support:`250` Include documentation Makefile and conf.py in source distribution.
+* :support:`246` README more accurately explains the supported Django versions.
+* :release:`1.13.0 <2018-04-06>`
+* :support:`243` Adds support for Python 3.7 and Django 2.1.
+* :support:`244` Documentation link fix.
+* :support:`236` Refines the Django and Python versions tested against.
+* :support:`241` Fixes a documentation typo, "altenate" should be "alternate".
+* :release:`1.12.0 <2018-04-06>`
+* :support:`237` Updates for Django 2.0.
+* :support:`232` Updates for Django 1.11.
+* :support:`227` Use SVG in README instead of PNG.
+* :support:`221` Renamed a duplicative method name.
+* :support:`220` Adds a warning for cases where ``prefetch_related`` or ``select_related`` are empty in their respective mixins.
+* :release:`1.11.0 <2017-02-01>`
+* :bug:`215 major` Imports for 1.11 and 2.x ``reverse`` and ``reverse_lazy`` functions.
+* :support:`248` Include some files necessary for testing in the source distribution.
+* :feature:`228` Adds an ``object_level_permissions`` attribute to the ``PermissionRequiredMixin`` to allow for object-level permission checks instead of just view-level checks.
+* :bug:`224 major` Allows ``OPTIONS`` requests to be body-less.
+* :bug:`218 major` ``AccessMixin.handle_no_permission` now accepts a ``request`` parameter.
 * :feature:`198` New :ref:`OrderableListMixin` allows to switch the default ordering setting from `asc` to `desc`.
 * :support:`215` Imports updated for Django 2.0.
 * :feature:`204` New :ref:`HeaderMixin` that allows custom headers to be set on a view.
@@ -11,7 +36,7 @@ Changelog
 * :bug:`212 major` Small changes for Django 1.10 compatibility.
 * :bug:`211 major` ReadTheDocs links updated.
 * :bug:`209 major` Django documentation link updated.
-* :release:`1.9.0 <2016-5-31>`
+* :release:`1.9.0 <2016-05-31>`
 * :bug:`208 major` Fixed errors from combining certain access mixins.
 * :bug:`196 major` Refactor how users without permissions are handled.
 * :bug:`181 major` Fixed redirect loops based on user permissions.
@@ -21,7 +46,7 @@ Changelog
 * :support:`202` Fixed typo in ``PermissionsRequiredMixin`` and ``MultiplePermissionsRequiredMixin``.
 * :support:`201` Fixed typo in ``SuccessURLRedirectListMixin``.
 * :support:`192` Added example for ``OrderableListView``.
-* :release:`1.8.1 <2015-7-12>`
+* :release:`1.8.1 <2015-07-12>`
 * :bug:`176` Only check time delta for authenticated users in :ref:`RecentLoginRequiredMixin`.
 * :bug:`-` Changed :ref:`JsonRequestResponseMixin` docs to not use `ugettext_lazy`.
 * :bug:`-` Updated tests to include Python 3.2.

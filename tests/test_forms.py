@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from django import test
 from django.contrib.auth.models import User
 
@@ -10,6 +8,7 @@ class TestUserKwargModelFormMixin(test.TestCase):
     """
     Tests for UserKwargModelFormMixin.
     """
+
     def test_without_user_kwarg(self):
         """
         It should be possible to create form without 'user' kwarg.
@@ -24,6 +23,6 @@ class TestUserKwargModelFormMixin(test.TestCase):
         Form's 'user' attribute should be set to value passed as 'user'
         argument.
         """
-        user = User(username='test')
+        user = User(username="test")
         form = forms.FormWithUserKwarg(user=user)
         assert form.user is user

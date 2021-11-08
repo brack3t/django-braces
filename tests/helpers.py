@@ -7,6 +7,7 @@ class TestViewHelper(object):
     """
     Helper class for unit-testing class based views.
     """
+
     view_class = None
     request_factory_class = test.RequestFactory
 
@@ -14,7 +15,7 @@ class TestViewHelper(object):
         super(TestViewHelper, self).setUp()
         self.factory = self.request_factory_class()
 
-    def build_request(self, method='GET', path='/test/', user=None, **kwargs):
+    def build_request(self, method="GET", path="/test/", user=None, **kwargs):
         """
         Creates a request using request factory.
         """
@@ -26,8 +27,9 @@ class TestViewHelper(object):
         req.user = user
         return req
 
-    def build_view(self, request, args=None, kwargs=None, view_class=None,
-                   **viewkwargs):
+    def build_view(
+        self, request, args=None, kwargs=None, view_class=None, **viewkwargs
+    ):
         """
         Creates a `view_class` view instance.
         """
@@ -39,10 +41,12 @@ class TestViewHelper(object):
             view_class = self.view_class
 
         return view_class(
-            request=request, args=args, kwargs=kwargs, **viewkwargs)
+            request=request, args=args, kwargs=kwargs, **viewkwargs
+        )
 
-    def dispatch_view(self, request, args=None, kwargs=None, view_class=None,
-                      **viewkwargs):
+    def dispatch_view(
+        self, request, args=None, kwargs=None, view_class=None, **viewkwargs
+    ):
         """
         Creates and dispatches `view_class` view.
         """
@@ -55,6 +59,7 @@ class SetJSONEncoder(DjangoJSONEncoder):
     A custom JSONEncoder extending `DjangoJSONEncoder` to handle serialization
     of `set`.
     """
+
     def default(self, obj):
         if isinstance(obj, set):
             return list(obj)
