@@ -205,9 +205,7 @@ class CacheControlMixin(object):
     def as_view(cls, *args, **kwargs):
         view_func = super(CacheControlMixin, cls).as_view(*args, **kwargs)
         options = cls.get_cachecontrol_options()
-        if options:
-            return cache_control(**options)(view_func)
-        return view_func
+        return cache_control(**options)(view_func)
 
 
 class NeverCacheMixin(object):

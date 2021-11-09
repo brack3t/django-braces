@@ -1,4 +1,3 @@
-from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.views import LoginView
 from django.urls import include, re_path
 from . import views
@@ -116,15 +115,13 @@ urlpatterns = [
     re_path(r"^recent_login/$", views.RecentLoginRequiredView.as_view()),
     re_path(r"^outdated_login/$", views.RecentLoginRequiredView.as_view()),
     # HeaderMixin tests
-    url(r'^headers/attribute/$', views.AttributeHeaderView.as_view()),
-    url(r'^headers/method/$', views.MethodHeaderView.as_view()),
-    url(r'^headers/existing/$', views.ExistingHeaderView.as_view()),
+    re_path(r'^headers/attribute/$', views.AttributeHeaderView.as_view()),
+    re_path(r'^headers/method/$', views.MethodHeaderView.as_view()),
+    re_path(r'^headers/existing/$', views.ExistingHeaderView.as_view()),
     # CacheControlMixin tests
-    url(r'^cachecontrol/public/$', views.CacheControlPublicView.as_view()),
+    re_path(r'^cachecontrol/public/$', views.CacheControlPublicView.as_view()),
     # NeverCacheMixin tests
-    url(r'^nevercache/$', views.NeverCacheView.as_view()),
-    re_path(r"^headers/method/$", views.MethodHeaderView.as_view()),
-    re_path(r"^headers/existing/$", views.ExistingHeaderView.as_view()),
+    re_path(r'^nevercache/$', views.NeverCacheView.as_view()),
 ]
 
 urlpatterns += [
