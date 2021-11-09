@@ -1,4 +1,4 @@
-class UserKwargModelFormMixin(object):
+class UserKwargModelFormMixin:
     """
     Generic model form mixin for popping user out of the kwargs and
     attaching it to the instance.
@@ -9,6 +9,6 @@ class UserKwargModelFormMixin(object):
     """
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop("user", None)  # Pop the user off the
-        # passed in kwargs.
+        """Remove the user from **kwargs and assign it on the object"""
+        self.user = kwargs.pop("user", None)
         super(UserKwargModelFormMixin, self).__init__(*args, **kwargs)
