@@ -416,4 +416,17 @@ class AuxiliaryHeaderView(View):
 
 
 class ExistingHeaderView(views.HeaderMixin, AuxiliaryHeaderView):
-    headers = {"X-DJANGO-BRACES-EXISTING": "other value"}
+    headers = {
+        'X-DJANGO-BRACES-EXISTING': 'other value'
+    }
+
+
+class CacheControlPublicView(views.CacheControlMixin, OkView):
+    cachecontrol_public = True
+    cachecontrol_max_age = 60
+
+
+class NeverCacheView(views.NeverCacheMixin, OkView):
+    """
+    View that will never be cached upstream.
+    """

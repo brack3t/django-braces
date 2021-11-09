@@ -31,6 +31,7 @@ Direct Contributors
 * Mike Bryant
 * Fabio C. Barrionuevo da Luz
 * Sam Spencer
+* Ben Wilber
 * Mfon Eti-mfon
 
 Other Contributors

@@ -31,6 +31,8 @@ from ._other import (
     SetHeadlineMixin,
     StaticContextMixin,
     HeaderMixin,
+    CacheControlMixin,
+    NeverCacheMixin
 )
 from ._queries import (
     OrderableListMixin,
@@ -42,6 +44,7 @@ __all__ = [
     "AjaxResponseMixin",
     "AllVerbsMixin",
     "AnonymousRequiredMixin",
+    "CacheControlMixin",
     "CanonicalSlugDetailMixin",
     "CsrfExemptMixin",
     "FormInvalidMessageMixin",
@@ -55,6 +58,7 @@ __all__ = [
     "LoginRequiredMixin",
     "MessageMixin",
     "MultiplePermissionsRequiredMixin",
+    "NeverCacheMixin",
     "OrderableListMixin",
     "PermissionRequiredMixin",
     "PrefetchRelatedMixin",
