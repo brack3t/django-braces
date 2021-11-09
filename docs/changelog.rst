@@ -4,6 +4,7 @@
 Changelog
 =========
 
+* :feature:`245` Cache-related headers
 * :release:`1.15.0 <2021-11-05>`
 * :support:`-` Formatted project with black
 * :support:`-` Updated README
