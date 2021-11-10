@@ -562,7 +562,7 @@ class TestModelCanonicalSlugDetailView(test.TestCase):
 class MessageMixinTests(test.TestCase):
     def setUp(self):
         self.rf = test.RequestFactory()
-        self.middleware = MessageMiddleware()
+        self.middleware = MessageMiddleware("")
 
     def get_request(self, *args, **kwargs):
         request = self.rf.get("/")
