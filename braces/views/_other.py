@@ -1,78 +1,70 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect
 from django.views.decorators.cache import cache_control, never_cache
-try:
-    from django.urls import resolve
-except ImportError:
-    from django.core.urlresolvers import resolve
+from django.urls import resolve
 from django.utils.encoding import force_str
 from django.urls import resolve
 
 
-class SetHeadlineMixin(object):
+class SetHeadlineMixin:
     """
-    Mixin allows you to set a static headline through a static property on the
-    class or programmatically by overloading the get_headline method.
+    Define a `headline` context item as a view attribute
     """
 
     headline = None  # Default the headline to none
 
     def get_context_data(self, **kwargs):
-        kwargs = super(SetHeadlineMixin, self).get_context_data(**kwargs)
-        # Update the existing context dict with the provided headline.
+        kwargs = super().get_context_data(**kwargs)
         kwargs.update({"headline": self.get_headline()})
         return kwargs
 
     def get_headline(self):
-        if self.headline is None:  # If no headline was provided as a view
-            # attribute and this method wasn't
-            # overridden raise a configuration error.
+        if self.headline is None:
+            class_name = self.__class__.__name__
             raise ImproperlyConfigured(
-                "{0} is missing a headline. "
-                "Define {0}.headline, or override "
-                "{0}.get_headline().".format(self.__class__.__name__)
+                f"{class_name} is missing the headline attribute. "
+                f"Define {class_name}.headline, or override {class_name}.get_headline()."
             )
         return force_str(self.headline)
 
 
-class StaticContextMixin(object):
+class StaticContextMixin:
     """
-    Mixin allows you to set static context through a static property on
-    the class.
+    Set static context items via an attribute on the view.
     """
 
     static_context = None
 
     def get_context_data(self, **kwargs):
-        kwargs = super(StaticContextMixin, self).get_context_data(**kwargs)
+        kwargs = super().get_context_data(**kwargs)
 
         try:
             kwargs.update(self.get_static_context())
         except (TypeError, ValueError):
             raise ImproperlyConfigured(
-                "{0}.static_context must be a dictionary or container "
-                "of two-tuples.".format(self.__class__.__name__)
+                f"{self.__class__.__name__}.static_context must be a "
+                "dictionary or a series of two-tuples."
             )
         else:
             return kwargs
 
     def get_static_context(self):
         if self.static_context is None:
+            class_name = self.__class__.__name__
             raise ImproperlyConfigured(
-                "{0} is missing the static_context property. Define "
-                "{0}.static_context, or override "
-                "{0}.get_static_context()".format(self.__class__.__name__)
+                f"{class_name} is missing the static_context attribute. Define "
+                f"{class_name}.static_context, or override {class_name}.get_static_context()"
             )
         return self.static_context
 
 
-class CanonicalSlugDetailMixin(object):
+class CanonicalSlugDetailMixin:
     """
-    A mixin that enforces a canonical slug in the url.
+    Enforce a canonical slug in the URL.
 
-    If a urlpattern takes a object's pk and slug as arguments and the slug url
+    If a URL takes a object's pk and slug as arguments and the slug URL
     argument does not equal the object's canonical slug, this mixin will
-    redirect to the url containing the canonical slug.
+    redirect to the URL containing the canonical slug.
     """
 
     def dispatch(self, request, *args, **kwargs):
@@ -106,9 +98,7 @@ class CanonicalSlugDetailMixin(object):
             }
             return redirect(current_urlpattern, **params)
 
-        return super(CanonicalSlugDetailMixin, self).dispatch(
-            request, *args, **kwargs
-        )
+        return super().dispatch(request, *args, **kwargs)
 
     def get_canonical_slug(self):
         """
@@ -121,11 +111,11 @@ class CanonicalSlugDetailMixin(object):
         return self.get_object().slug
 
 
-class AllVerbsMixin(object):
+class AllVerbsMixin:
     """Call a single method for all HTTP verbs.
 
     The name of the method should be specified using the class attribute
-    ``all_handler``. The default value of this attribute is 'all'.
+    `all_handler`. The default value of this attribute is 'all'.
     """
 
     all_handler = "all"
@@ -133,18 +123,16 @@ class AllVerbsMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if not self.all_handler:
             raise ImproperlyConfigured(
-                "{0} requires the all_handler attribute to be set.".format(
-                    self.__class__.__name__
-                )
+                f"{self.__class__.__name__} requires the all_handler attribute to be set."
             )
 
         handler = getattr(self, self.all_handler, self.http_method_not_allowed)
         return handler(request, *args, **kwargs)
 
 
-class HeaderMixin(object):
+class HeaderMixin:
     """
-    Add arbitrary HTTP headers to a response by specifying them in the
+    Add extra HTTP headers to a response by specifying them in the
     ``headers`` attribute or by overriding the ``get_headers()`` method.
     """
 
@@ -159,14 +147,14 @@ class HeaderMixin(object):
         retrieved.  It is mandatory that the returned value supports the
         ``.items()`` method.
         """
-        response = super(HeaderMixin, self).dispatch(request, *args, **kwargs)
+        response = super().dispatch(request, *args, **kwargs)
         for key, value in self.get_headers(request).items():
             if key not in response:
                 response[key] = value
         return response
 
 
-class CacheControlMixin(object):
+class CacheControlMixin:
     """
     Mixin that allows setting Cache-Control options.
 
@@ -193,27 +181,28 @@ class CacheControlMixin(object):
         opts = (
             'public', 'private', 'no_cache', 'no_transform',
             'must_revalidate', 'proxy_revalidate', 'max_age',
-            's_maxage')
+            's_maxage'
+        )
         options = {}
         for opt in opts:
-            value = getattr(cls, 'cachecontrol_{}'.format(opt), None)
+            value = getattr(cls, f'cachecontrol_{opt}', None)
             if value is not None:
                 options[opt] = value
         return options
 
     @classmethod
     def as_view(cls, *args, **kwargs):
-        view_func = super(CacheControlMixin, cls).as_view(*args, **kwargs)
+        view_func = super().as_view(*args, **kwargs)
         options = cls.get_cachecontrol_options()
         return cache_control(**options)(view_func)
 
 
-class NeverCacheMixin(object):
+class NeverCacheMixin:
     """
     Mixin that applies Django's `never_cache` view decorator to prevent
     upstream HTTP-based caching.
     """
     @classmethod
     def as_view(cls, *args, **kwargs):
-        view_func = super(NeverCacheMixin, cls).as_view(*args, **kwargs)
+        view_func = super().as_view(*args, **kwargs)
         return never_cache(view_func)
