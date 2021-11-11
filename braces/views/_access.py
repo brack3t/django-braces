@@ -129,9 +129,7 @@ class AnonymousRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return HttpResponseRedirect(self.get_authenticated_redirect_url())
-        return super().dispatch(
-            request, *args, **kwargs
-        )
+        return super().dispatch(request, *args, **kwargs)
 
     def get_authenticated_redirect_url(self):
         """Return the reversed authenticated redirect url."""
