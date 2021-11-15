@@ -2,7 +2,7 @@ import json
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 
 
 class JSONResponseMixin:
@@ -15,7 +15,7 @@ class JSONResponseMixin:
 
     content_type = None
     json_dumps_kwargs = None
-    json_encoder_class = DjangoJSONEncoder
+    json_encoder_class = None
 
     def get_content_type(self):
         if self.content_type is not None and not isinstance(
@@ -33,27 +33,37 @@ class JSONResponseMixin:
         dumps_kwargs.setdefault("ensure_ascii", False)
         return dumps_kwargs
 
+    def get_json_encoder_class(self):
+        if self.json_encoder_class is None:
+            self.json_encoder_class = DjangoJSONEncoder
+        return self.json_encoder_class
+
     def render_json_response(self, context_dict, status=200):
         """
         Limited serialization for shipping plain data.
         Do not use for models or other complex objects.
         """
-        json_context = json.dumps(
-            context_dict,
-            cls=self.json_encoder_class,
-            **self.get_json_dumps_kwargs()
-        ).encode("utf-8")
-        return HttpResponse(
-            json_context, content_type=self.get_content_type(), status=status
+        response = JsonResponse(
+            data=context_dict,
+            safe=False,
+            encoder=self.get_json_encoder_class(),
+            json_dumps_params=self.get_json_dumps_kwargs(),
+            content_type=self.get_content_type(),
+            status=status
         )
+        return response
 
     def render_json_object_response(self, objects, **kwargs):
         """
         Serializes objects using Django's builtin JSON serializer. Additional
         kwargs can be used the same way for django.core.serializers.serialize.
         """
-        json_data = serializers.serialize("json", objects, **kwargs)
-        return HttpResponse(json_data, content_type=self.get_content_type())
+        try:
+            response = self.render_json_response(objects, **kwargs)
+        except TypeError:
+            json_data = serializers.serialize("json", objects, **kwargs)
+            response = HttpResponse(json_data, content_type=self.get_content_type())
+        return response
 
 
 class AjaxResponseMixin:
@@ -123,7 +133,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
             error_dict = self.error_response_dict
         json_context = json.dumps(
             error_dict,
-            cls=self.json_encoder_class,
+            cls=self.get_json_encoder_class(),
             **self.get_json_dumps_kwargs()
         ).encode("utf-8")
         return HttpResponseBadRequest(
