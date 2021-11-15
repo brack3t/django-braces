@@ -2,7 +2,7 @@
 django-braces mixins library
 ----------------------------
 
-Several mixins for making Django's generic class-based views more useful.
+Mixins to make Django's generic class-based views simpler.
 
 :copyright: (c) 2013 by Kenneth Love and Chris Jones
 :license: BSD 3-clause. See LICENSE for more details

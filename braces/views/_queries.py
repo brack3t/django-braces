@@ -3,10 +3,9 @@ import warnings
 from django.core.exceptions import ImproperlyConfigured
 
 
-class SelectRelatedMixin(object):
+class SelectRelatedMixin:
     """
-    Mixin allows you to provide a tuple or list of related models to
-    perform a select_related on.
+    Automatically apply `select_related` for a list of relations.
     """
 
     select_related = None  # Default related fields to none
@@ -15,20 +14,19 @@ class SelectRelatedMixin(object):
         if self.select_related is None:
             # If no fields were provided, raise a configuration error
             raise ImproperlyConfigured(
-                "{0} is missing the select_related property. This must be "
-                "a tuple or list.".format(self.__class__.__name__)
+                f"{self.__class__.__name__} is missing the select_related attribute."
             )
 
         if not isinstance(self.select_related, (tuple, list)):
             # If the select_related argument is *not* a tuple or list,
             # raise a configuration error.
             raise ImproperlyConfigured(
-                "{0}'s select_related property must be a tuple or "
-                "list.".format(self.__class__.__name__)
+                f"{self.__class__.__name__}'s select_related property must be "
+                "a tuple or list."
             )
 
         # Get the current queryset of the view
-        queryset = super(SelectRelatedMixin, self).get_queryset()
+        queryset = super().get_queryset()
 
         if not self.select_related:
             warnings.warn("The select_related attribute is empty")
@@ -37,10 +35,9 @@ class SelectRelatedMixin(object):
         return queryset.select_related(*self.select_related)
 
 
-class PrefetchRelatedMixin(object):
+class PrefetchRelatedMixin:
     """
-    Mixin allows you to provide a tuple or list of related models to
-    perform a prefetch_related on.
+    Automatically apply `prefetch_related` for a list of relations.
     """
 
     prefetch_related = None  # Default prefetch fields to none
@@ -49,20 +46,18 @@ class PrefetchRelatedMixin(object):
         if self.prefetch_related is None:
             # If no fields were provided, raise a configuration error
             raise ImproperlyConfigured(
-                "{0} is missing the prefetch_related property. This must be "
-                "a tuple or list.".format(self.__class__.__name__)
+                f"{self.__class__.__name__} is missing the prefetch_related attribute."
             )
 
         if not isinstance(self.prefetch_related, (tuple, list)):
             # If the prefetch_related argument is *not* a tuple or list,
             # raise a configuration error.
             raise ImproperlyConfigured(
-                "{0}'s prefetch_related property must be a tuple or "
-                "list.".format(self.__class__.__name__)
+                f"{self.__class__.__name__}'s prefetch_related property must be a tuple or list."
             )
 
         # Get the current queryset of the view
-        queryset = super(PrefetchRelatedMixin, self).get_queryset()
+        queryset = super().get_queryset()
 
         if not self.prefetch_related:
             warnings.warn("The prefetch_related attribute is empty")
@@ -71,9 +66,9 @@ class PrefetchRelatedMixin(object):
         return queryset.prefetch_related(*self.prefetch_related)
 
 
-class OrderableListMixin(object):
+class OrderableListMixin:
     """
-    Mixin allows your users to order records using GET parameters
+    Order the queryset based on GET parameters.
     """
 
     orderable_columns = None
@@ -89,7 +84,7 @@ class OrderableListMixin(object):
             * ``order_by`` - name of the field
             * ``ordering`` - order of ordering, either ``asc`` or ``desc``
         """
-        context = super(OrderableListMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["order_by"] = self.order_by
         context["ordering"] = self.ordering
         return context
@@ -97,18 +92,14 @@ class OrderableListMixin(object):
     def get_orderable_columns(self):
         if not self.orderable_columns:
             raise ImproperlyConfigured(
-                "{0} needs the ordering columns defined.".format(
-                    self.__class__.__name__
-                )
+                f"{self.__class__.__name__} needs the ordering columns defined."
             )
         return self.orderable_columns
 
     def get_orderable_columns_default(self):
         if not self.orderable_columns_default:
             raise ImproperlyConfigured(
-                "{0} needs the default ordering column defined.".format(
-                    self.__class__.__name__
-                )
+                f"{self.__class__.__name__} needs the default ordering column defined."
             )
         return self.orderable_columns_default
 
@@ -118,9 +109,7 @@ class OrderableListMixin(object):
         else:
             if self.ordering_default not in ["asc", "desc"]:
                 raise ImproperlyConfigured(
-                    "{0} only allows asc or desc as ordering option".format(
-                        self.__class__.__name__
-                    )
+                    f"{self.__class__.__name__} only allows asc or desc as ordering option"
                 )
             return self.ordering_default
 
@@ -141,11 +130,10 @@ class OrderableListMixin(object):
         self.order_by = order_by
         self.ordering = self.get_ordering_default()
 
-        if (
-            order_by
-            and self.request.GET.get("ordering", self.ordering) == "desc"
-        ):
-            order_by = "-" + order_by
+        if all([order_by,
+            self.request.GET.get("ordering", self.ordering) == "desc"
+        ]):
+            order_by = f"-{order_by}"
         self.ordering = self.request.GET.get("ordering", self.ordering)
 
         return queryset.order_by(order_by)
@@ -154,5 +142,5 @@ class OrderableListMixin(object):
         """
         Returns ordered ``QuerySet``
         """
-        unordered_queryset = super(OrderableListMixin, self).get_queryset()
+        unordered_queryset = super().get_queryset()
         return self.get_ordered_queryset(unordered_queryset)

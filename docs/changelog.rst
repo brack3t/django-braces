@@ -4,6 +4,7 @@
 Changelog
 =========
 
+* :support:`277` Updated the codebase to be more modern Python/Django
 * :feature:`245` Cache-related headers
 * :release:`1.15.0 <2021-11-05>`
 * :support:`-` Formatted project with black

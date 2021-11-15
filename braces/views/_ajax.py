@@ -5,10 +5,12 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseBadRequest
 
 
-class JSONResponseMixin(object):
+class JSONResponseMixin:
     """
-    A mixin that allows you to easily serialize simple data such as a dict or
-    Django models.
+    Basic serialized responses.
+
+    For anything more complicated than basic Python types or Django
+    models, please use something like django-rest-framework.
     """
 
     content_type = None
@@ -19,24 +21,22 @@ class JSONResponseMixin(object):
         if self.content_type is not None and not isinstance(
             self.content_type, str
         ):
+            class_name = self.__class__.__name__
             raise ImproperlyConfigured(
-                "{0} is missing a content type. Define {0}.content_type, "
-                "or override {0}.get_content_type().".format(
-                    self.__class__.__name__
-                )
+                f"{class_name} is missing a content type. Define {class_name}"
+                ".content_type or override {class_name}.get_content_type()."
             )
         return self.content_type or "application/json"
 
     def get_json_dumps_kwargs(self):
-        if self.json_dumps_kwargs is None:
-            self.json_dumps_kwargs = {}
-        self.json_dumps_kwargs.setdefault("ensure_ascii", False)
-        return self.json_dumps_kwargs
+        dumps_kwargs = getattr(self, "json_dumps_kwargs", None) or {}
+        dumps_kwargs.setdefault("ensure_ascii", False)
+        return dumps_kwargs
 
     def render_json_response(self, context_dict, status=200):
         """
-        Limited serialization for shipping plain data. Do not use for models
-        or other complex or custom objects.
+        Limited serialization for shipping plain data.
+        Do not use for models or other complex objects.
         """
         json_context = json.dumps(
             context_dict,
@@ -56,7 +56,7 @@ class JSONResponseMixin(object):
         return HttpResponse(json_data, content_type=self.get_content_type())
 
 
-class AjaxResponseMixin(object):
+class AjaxResponseMixin:
     """
     Mixin allows you to define alternative methods for ajax requests. Similar
     to the normal get, post, and put methods, you can use get_ajax, post_ajax,
@@ -64,12 +64,13 @@ class AjaxResponseMixin(object):
     """
 
     def dispatch(self, request, *args, **kwargs):
-        request_method = request.method.lower()
-
-        if request.is_ajax() and request_method in self.http_method_names:
+        if all([
+            request.headers.get("x-requested-with") == "XMLHttpRequest",
+            request.method.lower() in self.http_method_names
+        ]):
             handler = getattr(
                 self,
-                "{0}_ajax".format(request_method),
+                f"{request.method.lower()}_ajax",
                 self.http_method_not_allowed,
             )
             self.request = request
@@ -77,9 +78,7 @@ class AjaxResponseMixin(object):
             self.kwargs = kwargs
             return handler(request, *args, **kwargs)
 
-        return super(AjaxResponseMixin, self).dispatch(
-            request, *args, **kwargs
-        )
+        return super().dispatch(request, *args, **kwargs)
 
     def get_ajax(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
@@ -96,9 +95,11 @@ class AjaxResponseMixin(object):
 
 class JsonRequestResponseMixin(JSONResponseMixin):
     """
-    Extends JSONResponseMixin.  Attempts to parse request as JSON.  If request
-    is properly formatted, the json is saved to self.request_json as a Python
-    object.  request_json will be None for imparsible requests.
+    Attempt to parse the request body as JSON.
+
+    If successful, self.request_json will contain the deserialized object.
+    Otherwise, self.request_json will be None.
+
     Set the attribute require_json to True to return a 400 "Bad Request" error
     for requests that don't contain JSON.
 
@@ -132,7 +133,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
     def get_request_json(self):
         try:
             return json.loads(self.request.body.decode("utf-8"))
-        except ValueError:
+        except (json.JSONDecodeError, ValueError):
             return None
 
     def dispatch(self, request, *args, **kwargs):
@@ -149,9 +150,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
             ]
         ):
             return self.render_bad_request_response()
-        return super(JsonRequestResponseMixin, self).dispatch(
-            request, *args, **kwargs
-        )
+        return super().dispatch(request, *args, **kwargs)
 
 
 class JSONRequestResponseMixin(JsonRequestResponseMixin):
