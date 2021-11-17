@@ -68,13 +68,15 @@ class CanonicalSlugDetailMixin:
     """
 
     def dispatch(self, request, *args, **kwargs):
-        # Set up since we need to super() later instead of earlier.
+        """
+        Redirect to the appropriate URL if necessary.
+        Otherwise, trigger HTTP-method-appropriate handler.
+        """
         self.request = request
         self.args = args
         self.kwargs = kwargs
 
-        # Get the current object, url slug, and
-        # urlpattern name (namespace aware).
+        # Get the current object, url slug, and url name.
         obj = self.get_object()
         slug = self.kwargs.get(self.slug_url_kwarg, None)
         match = resolve(request.path_info)
@@ -82,14 +84,13 @@ class CanonicalSlugDetailMixin:
         url_parts.append(match.url_name)
         current_urlpattern = ":".join(url_parts)
 
-        # Figure out what the slug is supposed to be.
+        # Find the canonical slug for the object
         if hasattr(obj, "get_canonical_slug"):
             canonical_slug = obj.get_canonical_slug()
         else:
             canonical_slug = self.get_canonical_slug()
 
-        # If there's a discrepancy between the slug in the url and the
-        # canonical slug, redirect to the canonical slug.
+        # Redirect if current slug is not the canonical one
         if canonical_slug != slug:
             params = {
                 self.pk_url_kwarg: obj.pk,
@@ -102,17 +103,14 @@ class CanonicalSlugDetailMixin:
 
     def get_canonical_slug(self):
         """
-        Override this method to customize what slug should be considered
-        canonical.
-
-        Alternatively, define the get_canonical_slug method on this view's
-        object class. In that case, this method will never be called.
+        Provide a method to return the correct slug for this object.
         """
         return self.get_object().slug
 
 
 class AllVerbsMixin:
-    """Call a single method for all HTTP verbs.
+    """
+    Call a single method for all HTTP verbs.
 
     The name of the method should be specified using the class attribute
     `all_handler`. The default value of this attribute is 'all'.
@@ -192,6 +190,7 @@ class CacheControlMixin:
 
     @classmethod
     def as_view(cls, *args, **kwargs):
+        """Wrap the view with appropriate cache controls"""
         view_func = super().as_view(*args, **kwargs)
         options = cls.get_cachecontrol_options()
         return cache_control(**options)(view_func)
@@ -204,5 +203,8 @@ class NeverCacheMixin:
     """
     @classmethod
     def as_view(cls, *args, **kwargs):
+        """
+        Wrap the view with the `never_cache` decorator.
+        """
         view_func = super().as_view(*args, **kwargs)
         return never_cache(view_func)
