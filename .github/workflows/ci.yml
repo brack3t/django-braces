@@ -34,3 +34,7 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           verbose: true
+      - name: Python Interrogate Check
+        uses: JackMcKew/python-interrogate-check@main
+        with:
+          path: 'braces'
