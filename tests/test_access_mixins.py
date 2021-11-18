@@ -546,7 +546,7 @@ class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         return UserFactory(is_superuser=True, is_staff=True)
 
     def build_unauthorized_user(self):
-        """Make a non-superusers"""
+        """Make a non-superuser"""
         return UserFactory()
 
 

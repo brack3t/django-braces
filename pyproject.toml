@@ -7,3 +7,22 @@ line-length = 79
 
 [tool.pytest.ini_options]
 addopts = "--cov --nomigrations"
+
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = false
+ignore-magic = false
+ignore-semiprivate = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-module = true
+ignore-nested-functions = false
+ignore-nested-classes = true
+fail-under = 75
+exclude = ["setup.py", "conftest.py", "docs", "build"]
+ignore-regex = ["^get$", "^mock_.*"]
+# possible values: 0 (minimal output), 1 (-v), 2 (-vv)
+verbose = 1
+quiet = false
+color = true
+omit-covered-files = true
