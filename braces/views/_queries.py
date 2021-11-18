@@ -92,7 +92,7 @@ class OrderableListMixin:
         return context
 
     def get_orderable_columns(self):
-        """Check the orderable columns are set and return them"""
+        """Check that the orderable columns are set and return them"""
         if not self.orderable_columns:
             raise ImproperlyConfigured(
                 f"{self.__class__.__name__} needs the ordering columns defined."

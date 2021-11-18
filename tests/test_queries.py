@@ -218,7 +218,7 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         """
         OrderableListMixin.get_orderable_columns() should return
         View.orderable_columns attribute by default or raise
-        ImproperlyConfigured exception in the attribute is None
+        ImproperlyConfigured exception if the attribute is None
         """
         view = self.view_class()
         self.assertEqual(view.get_orderable_columns(), view.orderable_columns)
@@ -231,7 +231,7 @@ class TestOrderableListMixin(TestViewHelper, test.TestCase):
         """
         OrderableListMixin.get_orderable_columns_default() should return
         View.orderable_columns_default attribute by default or raise
-        ImproperlyConfigured exception in the attribute is None
+        ImproperlyConfigured exception if the attribute is None
         """
         view = self.view_class()
         self.assertEqual(

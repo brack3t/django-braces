@@ -546,7 +546,7 @@ class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         return UserFactory(is_superuser=True, is_staff=True)
 
     def build_unauthorized_user(self):
-        """Make a non-superusers"""
+        """Make a non-superuser"""
         return UserFactory()
 
 
@@ -744,7 +744,7 @@ class TestSSLRequiredMixin(test.TestCase):
 
 @pytest.mark.django_db
 class TestRecentLoginRequiredMixin(test.TestCase):
-    """ Scenarios requiring a recent login """
+    """ Scenarios requiring a recent login"""
 
     view_class = RecentLoginRequiredView
     recent_view_url = "/recent_login/"

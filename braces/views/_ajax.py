@@ -18,7 +18,7 @@ class JSONResponseMixin:
     json_encoder_class = None
 
     def get_content_type(self):
-        """Get the appropriate content type for the respone"""
+        """Get the appropriate content type for the response"""
         if self.content_type is not None and not isinstance(
             self.content_type, str
         ):
