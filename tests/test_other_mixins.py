@@ -588,6 +588,10 @@ class TestHeaderMixin(test.TestCase):
         response = self.client.get('/headers/existing/')
         self.assertEqual(response['X-DJANGO-BRACES-EXISTING'], 'value')
 
+    def test_template(self):
+        response = self.client.get('/headers/template/')
+        self.assertEqual(response['X-DJANGO-BRACES-1'], '1')
+
 class TestCacheControlMixin(test.TestCase):
     """Scenarios around controlling cache"""
     def test_cachecontrol_public(self):

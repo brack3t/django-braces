@@ -118,6 +118,7 @@ urlpatterns = [
     re_path(r'^headers/attribute/$', views.AttributeHeaderView.as_view()),
     re_path(r'^headers/method/$', views.MethodHeaderView.as_view()),
     re_path(r'^headers/existing/$', views.ExistingHeaderView.as_view()),
+    re_path(r'^headers/template/$', views.HeadersWithTemplate.as_view()),
     # CacheControlMixin tests
     re_path(r'^cachecontrol/public/$', views.CacheControlPublicView.as_view()),
     # NeverCacheMixin tests
