@@ -60,6 +60,7 @@ class TestSelectRelatedMixin(TestViewHelper, test.TestCase):
 
 
 class TestPrefetchRelatedMixin(TestViewHelper, test.TestCase):
+    """Scenarios related to adding prefetch_related to queries"""
     view_class = AuthorDetailView
 
     def test_missing_prefetch_related(self):
