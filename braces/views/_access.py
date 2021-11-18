@@ -58,6 +58,7 @@ class AccessMixin:
         return self.redirect_field_name
 
     def handle_no_permission(self, request):
+        """What should happen if the user doesn't have permission?"""
         if self.raise_exception:
             if (
                 self.redirect_unauthenticated_users
@@ -102,6 +103,7 @@ class LoginRequiredMixin(AccessMixin):
     """
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the appropriate method after checking authentication"""
         if not request.user.is_authenticated:
             return self.handle_no_permission(request)
 
@@ -127,6 +129,7 @@ class AnonymousRequiredMixin(AccessMixin):
     authenticated_redirect_url = settings.LOGIN_REDIRECT_URL
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the appropriate handler after guaranteeing anonymity"""
         if request.user.is_authenticated:
             return HttpResponseRedirect(self.get_authenticated_redirect_url())
         return super().dispatch(request, *args, **kwargs)
@@ -263,10 +266,12 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
     permissions = None  # Default required perms to none
 
     def get_permission_required(self, request=None):
+        """Get which permission is required"""
         self._check_permissions_attr()
         return self.permissions
 
     def check_permissions(self, request):
+        """Get the permissions, both all and any."""
         permissions = self.get_permission_required(request)
         perms_all = permissions.get("all")
         perms_any = permissions.get("any")
@@ -327,6 +332,7 @@ class GroupRequiredMixin(AccessMixin):
     group_required = None
 
     def get_group_required(self):
+        """Get which group's membership is required"""
         if any([
             self.group_required is None,
             not isinstance(self.group_required, (list, tuple, str))
@@ -350,6 +356,7 @@ class GroupRequiredMixin(AccessMixin):
         return set(groups).intersection(set(user_groups))
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the appropriate handler if the user is a group member"""
         self.request = request
         in_group = False
         if request.user.is_authenticated:
@@ -374,15 +381,18 @@ class UserPassesTestMixin(AccessMixin):
     """
 
     def test_func(self, user):
+        """The function to test the user with"""
         raise NotImplementedError(
             f"{self._class_name} is missing implementation of the "
             "`test_func` method. A function to test the user is required."
         )
 
     def get_test_func(self):
+        """Get the test function"""
         return getattr(self, "test_func")
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the appropriate handler if the users passes the test"""
         user_test_result = self.get_test_func()(request.user)
 
         if not user_test_result:
@@ -397,6 +407,7 @@ class SuperuserRequiredMixin(AccessMixin):
     """
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the appropriate handler if the user is a superuser"""
         if not request.user.is_superuser:
             return self.handle_no_permission(request)
 
@@ -409,6 +420,7 @@ class StaffuserRequiredMixin(AccessMixin):
     """
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the appropriate handler if the user is a staff member"""
         if not request.user.is_staff:
             return self.handle_no_permission(request)
 
@@ -423,6 +435,7 @@ class SSLRequiredMixin:
     raise_exception = False
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the appropriate handler if the connection is secure"""
         if getattr(settings, "DEBUG", False):
             # Don't enforce the check during development
             return super().dispatch(request, *args, **kwargs)
@@ -453,6 +466,7 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
     max_last_login_delta = 1800  # Defaults to 30 minutes
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the appropriate method if the user's login is recent"""
         resp = super().dispatch(request, *args, **kwargs)
 
         if resp.status_code == 200:

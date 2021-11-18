@@ -26,15 +26,19 @@ class OkView(View):
     """
 
     def get(self, request):
+        """Everything is going to be OK"""
         return HttpResponse("OK")
 
     def post(self, request):
+        """Get it?"""
         return self.get(request)
 
     def put(self, request):
+        """Get it?"""
         return self.get(request)
 
     def delete(self, request):
+        """Get it?"""
         return self.get(request)
 
 
@@ -67,15 +71,19 @@ class AjaxResponseView(views.AjaxResponseMixin, OkView):
     """
 
     def get_ajax(self, request):
+        """Everything will eventually be OK"""
         return HttpResponse("AJAX_OK")
 
     def post_ajax(self, request):
+        """Get it?"""
         return self.get_ajax(request)
 
     def put_ajax(self, request):
+        """Get it?"""
         return self.get_ajax(request)
 
     def delete_ajax(self, request):
+        """Get it?"""
         return self.get_ajax(request)
 
 
@@ -85,6 +93,7 @@ class SimpleJsonView(views.JSONResponseMixin, View):
     """
 
     def get(self, request):
+        """Send back some JSON"""
         object = {"username": request.user.username}
         return self.render_json_response(object)
 
@@ -98,6 +107,7 @@ class CustomJsonEncoderView(views.JSONResponseMixin, View):
     json_encoder_class = SetJSONEncoder
 
     def get(self, request):
+        """Send back some JSON"""
         object = {"numbers": set([1, 2, 3])}
         return self.render_json_response(object)
 
@@ -109,6 +119,7 @@ class SimpleJsonBadRequestView(views.JSONResponseMixin, View):
     """
 
     def get(self, request):
+        """Send back some JSON"""
         object = {"username": request.user.username}
         return self.render_json_response(object, status=400)
 
@@ -120,6 +131,7 @@ class ArticleListJsonView(views.JSONResponseMixin, View):
     """
 
     def get(self, request):
+        """Send back some JSON"""
         queryset = Article.objects.all()
         return self.render_json_object_response(queryset, fields=("title",))
 
@@ -130,6 +142,7 @@ class JsonRequestResponseView(views.JsonRequestResponseMixin, View):
     """
 
     def post(self, request):
+        """Send back some JSON"""
         return self.render_json_response(self.request_json)
 
 
@@ -142,6 +155,7 @@ class JsonBadRequestView(views.JsonRequestResponseMixin, View):
     require_json = True
 
     def post(self, request, *args, **kwargs):
+        """Send back some JSON"""
         return self.render_json_response(self.request_json)
 
 
@@ -152,6 +166,7 @@ class JsonCustomBadRequestView(views.JsonRequestResponseMixin, View):
     """
 
     def post(self, request, *args, **kwargs):
+        """Handle the POST request"""
         if not self.request_json:
             return self.render_bad_request_response({"error": "you messed up"})
         return self.render_json_response(self.request_json)
@@ -229,7 +244,8 @@ class FormWithUserKwargView(views.UserFormKwargsMixin, FormView):
     template_name = "form.html"
 
     def form_valid(self, form):
-        return HttpResponse("username: %s" % form.user.username)
+        """A simple response to watch for"""
+        return HttpResponse(f"username: {form.user.username}")
 
 
 class HeadlineView(views.SetHeadlineMixin, TemplateView):
@@ -265,6 +281,7 @@ class DynamicHeadlineView(views.SetHeadlineMixin, TemplateView):
     template_name = "blank.html"
 
     def get_headline(self):
+        """Return the headline passed in via kwargs"""
         return self.kwargs["s"]
 
 
@@ -286,24 +303,26 @@ class MultiplePermissionsRequiredView(
 
 
 class SuperuserRequiredView(views.SuperuserRequiredMixin, OkView):
-    pass
+    """Require a superuser"""
 
 
 class StaffuserRequiredView(views.StaffuserRequiredMixin, OkView):
-    pass
+    """Require a user marked as `is_staff`"""
 
 
 class CsrfExemptView(views.CsrfExemptMixin, OkView):
-    pass
+    """Ignore CSRF"""
 
 
 class AuthorDetailView(views.PrefetchRelatedMixin, ListView):
+    """A basic detail view to test prefetching"""
     model = User
     prefetch_related = ["article_set"]
     template_name = "blank.html"
 
 
 class OrderableListView(views.OrderableListMixin, ListView):
+    """A basic list view to test ordering the output"""
     model = Article
     orderable_columns = (
         "id",
@@ -313,23 +332,23 @@ class OrderableListView(views.OrderableListMixin, ListView):
 
 
 class CanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailView):
+    """A basic detail view to test a canonical slug"""
     model = Article
     template_name = "blank.html"
 
 
-class OverriddenCanonicalSlugDetailView(
-    views.CanonicalSlugDetailMixin, DetailView
-):
+class OverriddenCanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailView):
+    """A basic detail view to test an overridden slug"""
     model = Article
     template_name = "blank.html"
 
     def get_canonical_slug(self):
+        """Give back a different, encoded slug. My slug secrets are safe"""
         return codecs.encode(self.get_object().slug, "rot_13")
 
 
-class CanonicalSlugDetailCustomUrlKwargsView(
-    views.CanonicalSlugDetailMixin, DetailView
-):
+class CanonicalSlugDetailCustomUrlKwargsView(views.CanonicalSlugDetailMixin, DetailView):
+    """A basic detail view to test a slug with custom URL stuff"""
     model = Article
     template_name = "blank.html"
     pk_url_kwarg = "my_pk"
@@ -337,11 +356,13 @@ class CanonicalSlugDetailCustomUrlKwargsView(
 
 
 class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailView):
+    """A basic detail view to test a model with a canonical slug"""
     model = CanonicalArticle
     template_name = "blank.html"
 
 
 class FormMessagesView(views.FormMessagesMixin, CreateView):
+    """A basic form view to test valid/invalid messages"""
     form_class = ArticleForm
     form_invalid_message = _("Invalid")
     form_valid_message = _("Valid")
@@ -351,10 +372,12 @@ class FormMessagesView(views.FormMessagesMixin, CreateView):
 
 
 class GroupRequiredView(views.GroupRequiredMixin, OkView):
+    """Is everything OK in this group?"""
     group_required = "test_group"
 
 
 class UserPassesTestView(views.UserPassesTestMixin, OkView):
+    """Did I pass a test?"""
     def test_func(self, user):
         return (
             user.is_staff
@@ -366,6 +389,7 @@ class UserPassesTestView(views.UserPassesTestMixin, OkView):
 class UserPassesTestLoginRequiredView(
     views.LoginRequiredMixin, views.UserPassesTestMixin, OkView
 ):
+    """Am I logged in _and_ passing a test?"""
     def test_func(self, user):
         return (
             user.is_staff
@@ -375,15 +399,18 @@ class UserPassesTestLoginRequiredView(
 
 
 class UserPassesTestNotImplementedView(views.UserPassesTestMixin, OkView):
+    """The test went missing?"""
     pass
 
 
 class AllVerbsView(views.AllVerbsMixin, View):
+    """I know, like, all the verbs"""
     def all(self, request, *args, **kwargs):
         return HttpResponse("All verbs return this!")
 
 
 class SSLRequiredView(views.SSLRequiredMixin, OkView):
+    """Speak friend and enter"""
     pass
 
 
@@ -394,6 +421,7 @@ class RecentLoginRequiredView(views.RecentLoginRequiredMixin, OkView):
 
 
 class AttributeHeaderView(views.HeaderMixin, OkView):
+    """Set headers in an attribute w/o a template render class"""
     headers = {
         "X-DJANGO-BRACES-1": 1,
         "X-DJANGO-BRACES-2": 2,
@@ -401,6 +429,7 @@ class AttributeHeaderView(views.HeaderMixin, OkView):
 
 
 class MethodHeaderView(views.HeaderMixin, OkView):
+    """Set headers in a method w/o a template render class"""
     def get_headers(self, request):
         return {
             "X-DJANGO-BRACES-1": 1,
@@ -409,6 +438,7 @@ class MethodHeaderView(views.HeaderMixin, OkView):
 
 
 class AuxiliaryHeaderView(View):
+    """A view with a header already set"""
     def dispatch(self, request, *args, **kwargs):
         response = HttpResponse("OK with headers")
         response["X-DJANGO-BRACES-EXISTING"] = "value"
@@ -416,12 +446,14 @@ class AuxiliaryHeaderView(View):
 
 
 class ExistingHeaderView(views.HeaderMixin, AuxiliaryHeaderView):
+    """A view trying to override a parent's header"""
     headers = {
         'X-DJANGO-BRACES-EXISTING': 'other value'
     }
 
 
 class CacheControlPublicView(views.CacheControlMixin, OkView):
+    """A public-cached page with a 60 second timeout"""
     cachecontrol_public = True
     cachecontrol_max_age = 60
 

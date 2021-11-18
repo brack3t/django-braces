@@ -235,24 +235,25 @@ class _TestAccessBasicsMixin(TestViewHelper):
 
 @pytest.mark.django_db
 class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
-    """
-    Tests for LoginRequiredMixin.
-    """
+    """Scenarios around requiring an authenticated session"""
 
     view_class = LoginRequiredView
     view_url = "/login_required/"
 
     def test_anonymous(self):
+        """Anonymous users should be redirected"""
         resp = self.client.get(self.view_url)
         self.assertRedirects(resp, "/accounts/login/?next=/login_required/")
 
     def test_anonymous_raises_exception(self):
+        """Anonymous users should raise an exception"""
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(
                 self.build_request(path=self.view_url), raise_exception=True
             )
 
     def test_authenticated(self):
+        """Authenticated users should get 'OK'"""
         user = UserFactory()
         self.client.login(username=user.username, password="asdf1234")
         resp = self.client.get(self.view_url)
@@ -260,6 +261,7 @@ class TestLoginRequiredMixin(TestViewHelper, test.TestCase):
         assert force_str(resp.content) == "OK"
 
     def test_anonymous_redirects(self):
+        """Anonymous users are redirected with a 302"""
         resp = self.dispatch_view(
             self.build_request(path=self.view_url),
             raise_exception=True,
@@ -361,7 +363,7 @@ class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
     def test_authenticated(self):
         """
         Check that the authenticated user has been successfully directed
-        to the approparite view.
+        to the appropriate view.
         """
         user = UserFactory()
         self.client.login(username=user.username, password="asdf1234")
@@ -372,6 +374,7 @@ class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
         self.assertRedirects(resp, "/authenticated_view/")
 
     def test_no_url(self):
+        """View should raise an exception if no URL is provided"""
         self.view_class.authenticated_redirect_url = None
         user = UserFactory()
         self.client.login(username=user.username, password="asdf1234")
@@ -379,6 +382,7 @@ class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
             self.client.get(self.view_url)
 
     def test_bad_url(self):
+        """Redirection can be misconfigured"""
         self.view_class.authenticated_redirect_url = "/epicfailurl/"
         user = UserFactory()
         self.client.login(username=user.username, password="asdf1234")
@@ -388,17 +392,17 @@ class TestAnonymousRequiredMixin(TestViewHelper, test.TestCase):
 
 @pytest.mark.django_db
 class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
-    """
-    Tests for PermissionRequiredMixin.
-    """
+    """Scenarios around requiring a permission"""
 
     view_class = PermissionRequiredView
     view_url = "/permission_required/"
 
     def build_authorized_user(self):
+        """Create a user with permissions"""
         return UserFactory(permissions=["auth.add_user"])
 
     def build_unauthorized_user(self):
+        """Create a user without permissions"""
         return UserFactory()
 
     def test_invalid_permission(self):
@@ -414,10 +418,12 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
 class TestMultiplePermissionsRequiredMixin(
     _TestAccessBasicsMixin, test.TestCase
 ):
+    """Scenarios around requiring multiple permissions"""
     view_class = MultiplePermissionsRequiredView
     view_url = "/multiple_permissions_required/"
 
     def build_authorized_user(self):
+        """Get a user with permissions"""
         return UserFactory(
             permissions=[
                 "tests.add_article",
@@ -427,6 +433,7 @@ class TestMultiplePermissionsRequiredMixin(
         )
 
     def build_unauthorized_user(self):
+        """Get a user without the important permissions"""
         return UserFactory(permissions=["tests.add_article"])
 
     def test_redirects_to_login(self):
@@ -530,49 +537,61 @@ class TestMultiplePermissionsRequiredMixin(
 
 @pytest.mark.django_db
 class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
+    """Scenarios requiring a superuser"""
     view_class = SuperuserRequiredView
     view_url = "/superuser_required/"
 
     def build_authorized_user(self):
+        """Make a superuser"""
         return UserFactory(is_superuser=True, is_staff=True)
 
     def build_unauthorized_user(self):
+        """Make a non-superuser"""
         return UserFactory()
 
 
 @pytest.mark.django_db
 class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
+    """Scenarios requiring a staff user"""
     view_class = StaffuserRequiredView
     view_url = "/staffuser_required/"
 
     def build_authorized_user(self):
+        """Hire a user"""
         return UserFactory(is_staff=True)
 
     def build_unauthorized_user(self):
+        """Get a customer"""
         return UserFactory()
 
 
 @pytest.mark.django_db
 class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
+    """Scenarios requiring membership in a certain group"""
+
     view_class = GroupRequiredView
     view_url = "/group_required/"
 
     def build_authorized_user(self):
+        """Get a user with the right group"""
         user = UserFactory()
         group = GroupFactory(name="test_group")
         user.groups.add(group)
         return user
 
     def build_superuser(self):
+        """Get a superuser"""
         user = UserFactory()
         user.is_superuser = True
         user.save()
         return user
 
     def build_unauthorized_user(self):
+        """Just a normal users, not super and no groups"""
         return UserFactory()
 
     def test_with_string(self):
+        """A group name as a string should restrict access"""
         self.assertEqual("test_group", self.view_class.group_required)
         user = self.build_authorized_user()
         self.client.login(username=user.username, password="asdf1234")
@@ -581,6 +600,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.assertEqual("OK", force_str(resp.content))
 
     def test_with_group_list(self):
+        """A list of group names should restrict access"""
         group_list = ["test_group", "editors"]
         # the test client will instantiate a new view on request, so we have to
         # modify the class variable (and restore it when the test finished)
@@ -595,6 +615,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.assertEqual("test_group", self.view_class.group_required)
 
     def test_superuser_allowed(self):
+        """Superusers should always be allowed, regardless of group rules"""
         user = self.build_superuser()
         self.client.login(username=user.username, password="asdf1234")
         resp = self.client.get(self.view_url)
@@ -602,6 +623,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         self.assertEqual("OK", force_str(resp.content))
 
     def test_improperly_configured(self):
+        """No group(s) specified should raise ImproperlyConfigured"""
         view = self.view_class()
         view.group_required = None
         with self.assertRaises(ImproperlyConfigured):
@@ -612,6 +634,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
             view.get_group_required()
 
     def test_with_unicode(self):
+        """Unicode in group names should restrict access"""
         self.view_class.group_required = "niño"
         self.assertEqual("niño", self.view_class.group_required)
 
@@ -631,6 +654,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
 
 @pytest.mark.django_db
 class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
+    """Scenarios requiring a user to pass a test"""
     view_class = UserPassesTestView
     view_url = "/user_passes_test/"
     view_not_implemented_class = UserPassesTestNotImplementedView
@@ -638,14 +662,17 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
 
     # for testing with passing and not passsing func_test
     def build_authorized_user(self, is_superuser=False):
+        """Get a test-passing user"""
         return UserFactory(
             is_superuser=is_superuser, is_staff=True, email="user@mydomain.com"
         )
 
     def build_unauthorized_user(self):
+        """Get a blank user"""
         return UserFactory()
 
     def test_with_user_pass(self):
+        """Valid username and password should pass the test"""
         user = self.build_authorized_user()
         self.client.login(username=user.username, password="asdf1234")
         resp = self.client.get(self.view_url)
@@ -654,6 +681,7 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
         self.assertEqual("OK", force_str(resp.content))
 
     def test_with_user_not_pass(self):
+        """A failing user should be redirected"""
         user = self.build_authorized_user(is_superuser=True)
         self.client.login(username=user.username, password="asdf1234")
         resp = self.client.get(self.view_url)
@@ -661,12 +689,14 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
         self.assertRedirects(resp, "/accounts/login/?next=/user_passes_test/")
 
     def test_with_user_raise_exception(self):
+        """PermissionDenied should be raised"""
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(
                 self.build_request(path=self.view_url), raise_exception=True
             )
 
     def test_not_implemented(self):
+        """NotImplemented should be raised"""
         view = self.view_not_implemented_class()
         with self.assertRaises(NotImplementedError):
             view.dispatch(
@@ -677,11 +707,13 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
 
 @pytest.mark.django_db
 class TestSSLRequiredMixin(test.TestCase):
+    """Scenarios around requiring SSL"""
     view_class = SSLRequiredView
     view_url = "/sslrequired/"
 
     def test_ssl_redirection(self):
-        self.view_url = "https://testserver" + self.view_url
+        """Should redirect if not SSL"""
+        self.view_url = f"https://testserver{self.view_url}"
         self.view_class.raise_exception = False
         resp = self.client.get(self.view_url)
         self.assertRedirects(resp, self.view_url, status_code=301)
@@ -690,17 +722,20 @@ class TestSSLRequiredMixin(test.TestCase):
         self.assertEqual("https", resp.request.get("wsgi.url_scheme"))
 
     def test_raises_exception(self):
+        """Should return 404"""
         self.view_class.raise_exception = True
         resp = self.client.get(self.view_url)
         self.assertEqual(404, resp.status_code)
 
     @override_settings(DEBUG=True)
     def test_debug_bypasses_redirect(self):
+        """Debug mode should not require SSL"""
         self.view_class.raise_exception = False
         resp = self.client.get(self.view_url)
         self.assertEqual(200, resp.status_code)
 
     def test_https_does_not_redirect(self):
+        """SSL requests should not redirect"""
         self.view_class.raise_exception = False
         resp = self.client.get(self.view_url, secure=True)
         self.assertEqual(200, resp.status_code)
@@ -709,15 +744,14 @@ class TestSSLRequiredMixin(test.TestCase):
 
 @pytest.mark.django_db
 class TestRecentLoginRequiredMixin(test.TestCase):
-    """
-    Tests for RecentLoginRequiredMixin.
-    """
+    """ Scenarios requiring a recent login"""
 
     view_class = RecentLoginRequiredView
     recent_view_url = "/recent_login/"
     outdated_view_url = "/outdated_login/"
 
     def test_recent_login(self):
+        """A recent login should get a 200"""
         self.view_class.max_last_login_delta = 1800
         last_login = datetime.datetime.now()
         last_login = make_aware(last_login, get_current_timezone())
@@ -728,6 +762,7 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         assert force_str(resp.content) == "OK"
 
     def test_outdated_login(self):
+        """An outdated login should get a 302"""
         self.view_class.max_last_login_delta = 0
         last_login = datetime.datetime.now() - datetime.timedelta(hours=2)
         last_login = make_aware(last_login, get_current_timezone())
@@ -737,8 +772,8 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         assert resp.status_code == 302
 
     def test_not_logged_in(self):
+        """Anonymous requests should be handled appropriately"""
         last_login = datetime.datetime.now()
         last_login = make_aware(last_login, get_current_timezone())
-        user = UserFactory(last_login=last_login)
         resp = self.client.get(self.recent_view_url)
         assert resp.status_code != 200

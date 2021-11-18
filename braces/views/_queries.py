@@ -11,6 +11,7 @@ class SelectRelatedMixin:
     select_related = None  # Default related fields to none
 
     def get_queryset(self):
+        """Apply select_related, with appropriate fields, to the queryset"""
         if self.select_related is None:
             # If no fields were provided, raise a configuration error
             raise ImproperlyConfigured(
@@ -43,6 +44,7 @@ class PrefetchRelatedMixin:
     prefetch_related = None  # Default prefetch fields to none
 
     def get_queryset(self):
+        """Apply prefetch_related, with appropriate fields, to the queryset"""
         if self.prefetch_related is None:
             # If no fields were provided, raise a configuration error
             raise ImproperlyConfigured(
@@ -90,6 +92,7 @@ class OrderableListMixin:
         return context
 
     def get_orderable_columns(self):
+        """Check that the orderable columns are set and return them"""
         if not self.orderable_columns:
             raise ImproperlyConfigured(
                 f"{self.__class__.__name__} needs the ordering columns defined."
@@ -97,6 +100,7 @@ class OrderableListMixin:
         return self.orderable_columns
 
     def get_orderable_columns_default(self):
+        """Which column(s) should be sorted by, by default?"""
         if not self.orderable_columns_default:
             raise ImproperlyConfigured(
                 f"{self.__class__.__name__} needs the default ordering column defined."
@@ -104,6 +108,7 @@ class OrderableListMixin:
         return self.orderable_columns_default
 
     def get_ordering_default(self):
+        """Which direction should things be sorted?"""
         if not self.ordering_default:
             return "asc"
         else:

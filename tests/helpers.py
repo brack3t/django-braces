@@ -3,7 +3,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.serializers.json import DjangoJSONEncoder
 
 
-class TestViewHelper(object):
+class TestViewHelper:
     """
     Helper class for unit-testing class based views.
     """
@@ -12,7 +12,7 @@ class TestViewHelper(object):
     request_factory_class = test.RequestFactory
 
     def setUp(self):
-        super(TestViewHelper, self).setUp()
+        super().setUp()
         self.factory = self.request_factory_class()
 
     def build_request(self, method="GET", path="/test/", user=None, **kwargs):
@@ -61,6 +61,7 @@ class SetJSONEncoder(DjangoJSONEncoder):
     """
 
     def default(self, obj):
+        """Control default methods of encoding data"""
         if isinstance(obj, set):
             return list(obj)
         return super(DjangoJSONEncoder, self).default(obj)

@@ -18,8 +18,9 @@ def _get_perm(perm_name):
 
 
 class ArticleFactory(factory.django.DjangoModelFactory):
-    title = factory.Sequence(lambda n: "Article number {0}".format(n))
-    body = factory.Sequence(lambda n: "Body of article {0}".format(n))
+    """Generates Articles"""
+    title = factory.Sequence(lambda n: f"Article number {n}")
+    body = factory.Sequence(lambda n: "Body of article {n}")
 
     class Meta:
         model = Article
@@ -27,7 +28,8 @@ class ArticleFactory(factory.django.DjangoModelFactory):
 
 
 class GroupFactory(factory.django.DjangoModelFactory):
-    name = factory.Sequence(lambda n: "group{0}".format(n))
+    """Artificial divides as a service"""
+    name = factory.Sequence(lambda n: f"group{n}")
 
     class Meta:
         model = Group
@@ -35,10 +37,11 @@ class GroupFactory(factory.django.DjangoModelFactory):
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    username = factory.Sequence(lambda n: "user{0}".format(n))
-    first_name = factory.Sequence(lambda n: "John {0}".format(n))
-    last_name = factory.Sequence(lambda n: "Doe {0}".format(n))
-    email = factory.Sequence(lambda n: "user{0}@example.com".format(n))
+    """The people who make it all possible"""
+    username = factory.Sequence(lambda n: f"user{n}")
+    first_name = factory.Sequence(lambda n: f"John {n}")
+    last_name = factory.Sequence(lambda n: f"Doe {n}")
+    email = factory.Sequence(lambda n: f"user{n}@example.com")
     password = factory.PostGenerationMethodCall("set_password", "asdf1234")
 
     class Meta:
@@ -47,6 +50,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def permissions(self, create, extracted, **kwargs):
+        """Give the user some permissions"""
         if create and extracted:
             # We have a saved object and a list of permission names
             self.user_permissions.add(*[_get_perm(pn) for pn in extracted])

@@ -6,6 +6,7 @@ NAME = "braces"
 
 
 def _add_default(m):
+    """Add on a default"""
     attr_name, attr_value = m.groups()
     return ((attr_name, attr_value.strip("\"'")),)
 

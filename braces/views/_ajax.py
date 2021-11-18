@@ -18,6 +18,7 @@ class JSONResponseMixin:
     json_encoder_class = None
 
     def get_content_type(self):
+        """Get the appropriate content type for the response"""
         if self.content_type is not None and not isinstance(
             self.content_type, str
         ):
@@ -29,11 +30,13 @@ class JSONResponseMixin:
         return self.content_type or "application/json"
 
     def get_json_dumps_kwargs(self):
+        """Get kwargs for custom JSON compilation"""
         dumps_kwargs = getattr(self, "json_dumps_kwargs", None) or {}
         dumps_kwargs.setdefault("ensure_ascii", False)
         return dumps_kwargs
 
     def get_json_encoder_class(self):
+        """Get the encoder class to use"""
         if self.json_encoder_class is None:
             self.json_encoder_class = DjangoJSONEncoder
         return self.json_encoder_class
@@ -74,6 +77,7 @@ class AjaxResponseMixin:
     """
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the appropriate handler method"""
         if all([
             request.headers.get("x-requested-with") == "XMLHttpRequest",
             request.method.lower() in self.http_method_names
@@ -91,15 +95,19 @@ class AjaxResponseMixin:
         return super().dispatch(request, *args, **kwargs)
 
     def get_ajax(self, request, *args, **kwargs):
+        """Handle a GET request made with AJAX"""
         return self.get(request, *args, **kwargs)
 
     def post_ajax(self, request, *args, **kwargs):
+        """Handle a POST request made with AJAX"""
         return self.post(request, *args, **kwargs)
 
     def put_ajax(self, request, *args, **kwargs):
+        """Handle a PUT request made with AJAX"""
         return self.get(request, *args, **kwargs)
 
     def delete_ajax(self, request, *args, **kwargs):
+        """Handle a DELETE request made with AJAX"""
         return self.get(request, *args, **kwargs)
 
 
@@ -129,6 +137,7 @@ class JsonRequestResponseMixin(JSONResponseMixin):
     error_response_dict = {"errors": ["Improperly formatted request"]}
 
     def render_bad_request_response(self, error_dict=None):
+        """Generate errors for bad content"""
         if error_dict is None:
             error_dict = self.error_response_dict
         json_context = json.dumps(
@@ -141,12 +150,14 @@ class JsonRequestResponseMixin(JSONResponseMixin):
         )
 
     def get_request_json(self):
+        """Get the JSON included in the body"""
         try:
             return json.loads(self.request.body.decode("utf-8"))
         except (json.JSONDecodeError, ValueError):
             return None
 
     def dispatch(self, request, *args, **kwargs):
+        """Trigger the appropriate method"""
         self.request = request
         self.args = args
         self.kwargs = kwargs
@@ -164,4 +175,4 @@ class JsonRequestResponseMixin(JSONResponseMixin):
 
 
 class JSONRequestResponseMixin(JsonRequestResponseMixin):
-    pass
+    """Convenience alias"""
