@@ -14,11 +14,13 @@ class SetHeadlineMixin:
     headline = None  # Default the headline to none
 
     def get_context_data(self, **kwargs):
+        """Add the headline to the context"""
         kwargs = super().get_context_data(**kwargs)
         kwargs.update({"headline": self.get_headline()})
         return kwargs
 
     def get_headline(self):
+        """Fetch the headline from the instance"""
         if self.headline is None:
             class_name = self.__class__.__name__
             raise ImproperlyConfigured(
@@ -36,6 +38,7 @@ class StaticContextMixin:
     static_context = None
 
     def get_context_data(self, **kwargs):
+        """Update the context to include the static content"""
         kwargs = super().get_context_data(**kwargs)
 
         try:
@@ -49,6 +52,7 @@ class StaticContextMixin:
             return kwargs
 
     def get_static_context(self):
+        """Fetch the static content from the view"""
         if self.static_context is None:
             class_name = self.__class__.__name__
             raise ImproperlyConfigured(
@@ -119,6 +123,7 @@ class AllVerbsMixin:
     all_handler = "all"
 
     def dispatch(self, request, *args, **kwargs):
+        """Call the all handler"""
         if not self.all_handler:
             raise ImproperlyConfigured(
                 f"{self.__class__.__name__} requires the all_handler attribute to be set."
@@ -176,6 +181,7 @@ class CacheControlMixin:
 
     @classmethod
     def get_cachecontrol_options(cls):
+        """Compile a dictionary of selected cache options"""
         opts = (
             'public', 'private', 'no_cache', 'no_transform',
             'must_revalidate', 'proxy_revalidate', 'max_age',
