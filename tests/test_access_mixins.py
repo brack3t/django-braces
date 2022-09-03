@@ -660,7 +660,7 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
     view_not_implemented_class = UserPassesTestNotImplementedView
     view_not_implemented_url = "/user_passes_test_not_implemented/"
 
-    # for testing with passing and not passsing func_test
+    # for testing with passing and not passing func_test
     def build_authorized_user(self, is_superuser=False):
         """Get a test-passing user"""
         return UserFactory(
