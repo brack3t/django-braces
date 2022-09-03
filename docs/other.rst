@@ -585,7 +585,7 @@ AllVerbsMixin
 
 .. versionadded:: 1.4
 
-This mixin allows you to specify a single method that will responsed to all HTTP verbs, making a class-based view behave much like a function-based view.
+This mixin allows you to specify a single method that will respond to all HTTP verbs, making a class-based view behave much like a function-based view.
 
 ::
 
