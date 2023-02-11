@@ -11,4 +11,4 @@ class UserKwargModelFormMixin:
     def __init__(self, *args, **kwargs):
         """Remove the user from **kwargs and assign it on the object"""
         self.user = kwargs.pop("user", None)
-        super(UserKwargModelFormMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
