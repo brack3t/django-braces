@@ -1,3 +1,4 @@
+import copy
 from importlib import import_module
 import pytest
 from django.conf import settings
@@ -14,142 +15,104 @@ from unittest import mock
 
 
 class TestRequestPassesTest:
+    class TestView(mixins.RequestPassesTest, View):
+        request_test = 'test_method'
+        def get(self, request):
+            return HttpResponse('OK')
+
     def test_success(self):
-        class TestView(mixins.RequestPassesTest, View):
-            request_test = 'test_method'
-            def test_method(self):
-                return True
-            def get(self, request):
-                return HttpResponse('OK')
-        response = TestView.as_view()(RequestFactory().get('/'))
+        view_class = copy.copy(self.TestView)
+        view_class.test_method = lambda x: True
+        response = view_class.as_view()(RequestFactory().get('/'))
         assert response.status_code == 200
 
+    def test_failure(self):
+        view_class = copy.copy(self.TestView)
+        view_class.test_method = lambda x: False
+
+        with pytest.raises(PermissionDenied):
+            view_class.as_view()(RequestFactory().get('/'))
+
     def test_non_callable(self):
-        class TestView(mixins.RequestPassesTest, View):
-            request_test = 'test_method'
-            test_method = 'not callable'
-            def get(self, request):
-                return HttpResponse('OK')
+        view_class = copy.copy(self.TestView)
+        view_class.request_test = 'not_callable'
+
         with pytest.raises(ImproperlyConfigured):
-            TestView.as_view()(RequestFactory().get('/'))
+            view_class.as_view()(RequestFactory().get('/'))
 
     def test_missing_method(self):
-        class TestView(mixins.RequestPassesTest, View):
-            request_test = 'test_method'
-            def get(self, request):
-                return HttpResponse('OK')
         with pytest.raises(ImproperlyConfigured):
-            TestView.as_view()(RequestFactory().get('/'))
+            self.TestView.as_view()(RequestFactory().get('/'))
 
     def test_none(self):
-        class TestView(mixins.RequestPassesTest, View):
-            request_test = None
-            def get(self, request):
-                return HttpResponse('OK')
-        with pytest.raises(ImproperlyConfigured):
-            TestView.as_view()(RequestFactory().get('/'))
+        view_class = copy.copy(self.TestView)
+        view_class.request_test = None
 
-    def test_failure(self):
-        class TestView(mixins.RequestPassesTest, View):
-            request_test = 'test_method'
-            def test_method(self):
-                return False
-            def get(self, request):
-                return HttpResponse('OK')
-        with pytest.raises(PermissionDenied):
-            TestView.as_view()(RequestFactory().get('/'))
+        with pytest.raises(ImproperlyConfigured):
+            view_class.as_view()(RequestFactory().get('/'))
+
+
+@pytest.fixture
+def redirect_view():
+    class TestView(mixins._Redirect, View):
+        def get(self, request):
+            return HttpResponse('OK')
+
+    return TestView
 
 
 class Test_Redirect:
-    def test_get_login_url(self):
-        class TestView(mixins._Redirect, View):
-            login_url = 'test'
-            def get(self, request):
-                return HttpResponse('OK')
-        assert TestView().get_login_url() == 'test'
+    def test_get_login_url(self, redirect_view):
+        redirect_view.login_url = 'test'
+        assert redirect_view().get_login_url() == 'test'
 
-    def test_get_login_url_default(self):
-        class TestView(mixins._Redirect, View):
-            def get(self, request):
-                return HttpResponse('OK')
-        assert TestView().get_login_url() == settings.LOGIN_URL
+    def test_get_login_url_default(self, redirect_view):
+        assert redirect_view().get_login_url() == settings.LOGIN_URL
 
-    def test_get_login_url_missing(self, settings):
-        class TestView(mixins._Redirect, View):
-            login_url = None
-            def get(self, request):
-                return HttpResponse('OK')
+    def test_get_login_url_missing(self, settings, redirect_view):
         del settings.LOGIN_URL
+        redirect_view.login_url = None
+
         with pytest.raises(ImproperlyConfigured):
-            TestView().get_login_url()
+            redirect_view().get_login_url()
 
-    def test_get_redirect_field_name(self):
-        class TestView(mixins._Redirect, View):
-            redirect_field_name = 'test'
-            def get(self, request):
-                return HttpResponse('OK')
-        assert TestView().get_redirect_field_name() == 'test'
+    def test_get_redirect_field_name(self, redirect_view):
+        redirect_view.redirect_field_name = 'test'
+        assert redirect_view().get_redirect_field_name() == 'test'
 
-    def test_get_redirect_field_name_default(self):
-        class TestView(mixins._Redirect, View):
-            def get(self, request):
-                return HttpResponse('OK')
-        assert TestView().get_redirect_field_name() == REDIRECT_FIELD_NAME
-
-    def test_get_redirect_field_name_missing(self):
-        class TestView(mixins._Redirect, View):
-            redirect_field_name = None
-            def get(self, request):
-                return HttpResponse('OK')
-        with pytest.raises(ImproperlyConfigured):
-            TestView().get_redirect_field_name()
+    def test_get_redirect_field_name_default(self, redirect_view):
+        assert redirect_view().get_redirect_field_name() == REDIRECT_FIELD_NAME
 
     @mock.patch('braces.mixins._Redirect.redirect')
-    def test_test_failure(self, mock_redirect):
-        class TestView(mixins._Redirect, View):
-            raise_exception = False
-            def get(self, request):
-                return HttpResponse('OK')
+    def test_test_failure(self, mock_redirect, redirect_view):
+        redirect_view.raise_exception = False
 
-        TestView().handle_test_failure()
+        redirect_view().handle_test_failure()
         mock_redirect.assert_called
 
     @mock.patch('braces.mixins._Redirect.redirect')
-    def test_test_anonymous(self, mock_redirect):
-        class TestView(mixins._Redirect, View):
-            raise_exception = False
-            redirect_unauthenticated_users = True
-            def get(self, request):
-                return HttpResponse('OK')
-
-        TestView().handle_test_failure()
+    def test_test_anonymous(self, mock_redirect, redirect_view):
+        redirect_view.raise_exception = False
+        redirect_view.redirect_unauthenticated_users = True
+        redirect_view().handle_test_failure()
         mock_redirect.called
 
     @mock.patch('braces.mixins._Redirect.redirect')
-    def test_test_exception(self, mock_redirect):
-        class TestView(mixins._Redirect, View):
-            raise_exception = ImproperlyConfigured
-            def get(self, request):
-                return HttpResponse('OK')
+    def test_test_exception(self, mock_redirect, redirect_view):
+        redirect_view.raise_exception = ImproperlyConfigured
 
         with pytest.raises(ImproperlyConfigured):
-            TestView.as_view()(RequestFactory().get('/'))
+            redirect_view.as_view()(RequestFactory().get('/'))
         mock_redirect.assert_called_once
 
     @mock.patch('braces.mixins._Redirect.redirect')
-    def test_test_callable(self, mock_redirect):
-        class TestView(mixins._Redirect, View):
-            raise_exception = "fail"
-
-            def get(self, request):
-                return HttpResponse('OK')
-            def test_method(self):
-                return False
-            def fail(self):
-                raise ImproperlyConfigured
+    def test_test_callable(self, mock_redirect, redirect_view):
+        redirect_view.raise_exception = "fail"
+        redirect_view.fail = lambda x: ImproperlyConfigured
+        redirect_view.test_method = lambda x: False
 
         with pytest.raises(ImproperlyConfigured):
-            TestView.as_view()(RequestFactory().get('/'))
+            redirect_view.as_view()(RequestFactory().get('/'))
         mock_redirect.assert_called_once
 
 
@@ -229,24 +192,18 @@ class TestGroupRequired:
         assert response.status_code == 302
 
     def test_no_group_required(self):
-        class TestView(mixins.GroupRequiredMixin, View):
-            group_required = None
-            def get(self, request):
-                return HttpResponse('OK')
-
+        view_class = copy.copy(self.TestView)
+        view_class.group_required = None
         request = RequestFactory().get('/')
         request.user = self.user
         self.user.groups.clear()
         with pytest.raises(ImproperlyConfigured):
-            TestView.as_view()(request)
+            view_class.as_view()(request)
 
     def test_group_string(self):
-        class TestView(mixins.GroupRequiredMixin, View):
-            group_required = 'test'
-            def get(self, request):
-                return HttpResponse('OK')
-
-        assert TestView().get_group_required() == ['test']
+        view_class = copy.copy(self.TestView)
+        view_class.group_required = 'test'
+        assert self.TestView().get_group_required() == ['test']
 
 
 class TestAnonymousRequired:
@@ -338,13 +295,12 @@ class TestPermissionRequired:
         assert response.status_code == 302
 
     def test_optional_permissions(self):
-        class TestView(self.TestView):
-            permission_required = {"any": 'tests.add_article'}
-
+        view_class = copy.copy(self.TestView)
+        view_class.permission_required = {"any": 'tests.add_article'}
         request = RequestFactory().get('/')
         request.user = self.user
         self.user.user_permissions.remove(self.permission)
-        response = TestView.as_view()(request)
+        response = view_class.as_view()(request)
         assert response.status_code == 200
 
 
