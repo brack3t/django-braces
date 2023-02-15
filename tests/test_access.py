@@ -54,7 +54,7 @@ class TestRequestPassesTest:
 
 @pytest.fixture
 def redirect_view():
-    class TestView(mixins._Redirect, View):
+    class TestView(mixins.Redirect, View):
         def get(self, request):
             return HttpResponse('OK')
 

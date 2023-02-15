@@ -45,7 +45,7 @@ class RequestPassesTest:
         raise PermissionDenied
 
 
-class _Redirect(RequestPassesTest):
+class Redirect(RequestPassesTest):
     login_url: str = None
     redirect_field_name: str = REDIRECT_FIELD_NAME
     raise_exception: bool = False
@@ -115,7 +115,7 @@ class _Redirect(RequestPassesTest):
         )
 
 
-class SuperuserRequiredMixin(_Redirect):
+class SuperuserRequiredMixin(Redirect):
     """Require the user to be authenticated and a superuser"""
     request_test = "test_superuser"
 
@@ -126,7 +126,7 @@ class SuperuserRequiredMixin(_Redirect):
         return False
 
 
-class StaffUserRequiredMixin(_Redirect):
+class StaffUserRequiredMixin(Redirect):
     """Require the user to be authenticated and a staff user"""
     request_test = "test_staffuser"
 
@@ -137,7 +137,7 @@ class StaffUserRequiredMixin(_Redirect):
         return False
 
 
-class GroupRequiredMixin(_Redirect):
+class GroupRequiredMixin(Redirect):
     """Requires the user to be authenticated and a member of at least one of the specified group"""
     group_required: Union[str, list[str]] = None
     request_test = "check_groups"
@@ -167,7 +167,7 @@ class GroupRequiredMixin(_Redirect):
         return False
 
 
-class AnonymousRequiredMixin(_Redirect):
+class AnonymousRequiredMixin(Redirect):
     """Require the user to be anonymous"""
     request_test = "test_anonymous"
     redirect_unauthenticated_users = False
@@ -179,7 +179,7 @@ class AnonymousRequiredMixin(_Redirect):
         return True
 
 
-class LoginRequiredMixin(_Redirect):
+class LoginRequiredMixin(Redirect):
     """Require the user to be authenticated"""
     request_test = "test_authenticated"
 
@@ -205,7 +205,7 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
         return logout_then_login(self.request, self.get_login_url())
 
 
-class PermissionRequiredMixin(_Redirect):
+class PermissionRequiredMixin(Redirect):
     permission_required: Union[str, Dict[str, list[str]]] = None
     request_test = "check_permissions"
 
@@ -234,7 +234,7 @@ class PermissionRequiredMixin(_Redirect):
         return any((perms_all, any(perms_any)))
 
 
-class SSLRequiredMixin(_Redirect):
+class SSLRequiredMixin(Redirect):
     """Require the user to be using SSL"""
     request_test = "test_ssl"
     redirect_to_ssl = True
