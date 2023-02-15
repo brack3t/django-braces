@@ -42,3 +42,35 @@ class TestSelectRelated:
         assert view.get_queryset().query.select_related == {
             "author": {}, "coauthor": {}
         }
+
+
+class TestPrefetchRelated:
+    class View(mixins.PrefetchRelatedMixin, SingleObjectMixin):
+        model = Article
+        prefetch_related = ['foo', 'bar']
+
+    def test_prefetch_related(self):
+        assert self.View().get_prefetch_related() == ['foo', 'bar']
+
+    def test_prefetch_related_string(self):
+        view = self.View()
+        view.prefetch_related = "foo"
+        assert view.get_prefetch_related() == ["foo"]
+
+    def test_prefetch_related_empty(self):
+        view = self.View()
+        view.prefetch_related = None
+
+        with pytest.raises(ImproperlyConfigured):
+            view.get_prefetch_related()
+
+        view.prefetch_related = ""
+        with pytest.warns(UserWarning):
+            view.get_prefetch_related()
+
+    @pytest.mark.django_db
+    def test_prefetch_related_keeps_existing_prefetch_related(self):
+        view = self.View()
+        view.prefetch_related = "author"
+        view.queryset = Article.objects.prefetch_related("coauthor")
+        assert view.get_queryset()._prefetch_related_lookups == ("coauthor", "author")
