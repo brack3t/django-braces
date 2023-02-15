@@ -3,6 +3,7 @@ from unittest import mock
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.list import MultipleObjectMixin
 
 from braces import mixins
 from .models import Article
@@ -74,3 +75,12 @@ class TestPrefetchRelated:
         view.prefetch_related = "author"
         view.queryset = Article.objects.prefetch_related("coauthor")
         assert view.get_queryset()._prefetch_related_lookups == ("coauthor", "author")
+
+
+class TestOrderableList:
+    class View(mixins.OrderableListMixin, MultipleObjectMixin):
+        model = Article
+        orderable_columns = ("foo", "bar")
+
+    def test_orderable_columns(self):
+        assert self.View().get_orderable_columns() == ("foo", "bar")

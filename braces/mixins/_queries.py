@@ -46,3 +46,25 @@ class PrefetchRelatedMixin:
         queryset = super().get_queryset()
         prefetch_related = self.get_prefetch_related()
         return queryset.prefetch_related(*prefetch_related)
+
+
+class OrderableListMixin:
+    ordering: str | Iterable[str] = None
+
+    def get_ordering(self) -> list[str]:
+        if getattr(self, "ordering", None) is None:
+            raise ImproperlyConfigured(
+                f"{self.__class__.__name__} is missing the ordering attribute."
+            )
+        if not self.ordering:
+            warnings.warn("The ordering attribute is empty")
+
+        if not isinstance(self.ordering, (tuple, list)):
+            self.ordering = [self.ordering]
+
+        return self.ordering
+
+    def get_queryset(self) -> "QuerySet":
+        queryset = super().get_queryset()
+        ordering = self.get_ordering()
+        return queryset.order_by(*ordering)
