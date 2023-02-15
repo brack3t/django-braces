@@ -8,6 +8,9 @@ class Article(models.Model):
     author = models.ForeignKey(
         "auth.User", null=True, blank=True, on_delete=models.CASCADE
     )
+    coauthor = models.ForeignKey(
+        "auth.User", null=True, blank=True, on_delete=models.CASCADE
+    )
     title = models.CharField(max_length=30)
     body = models.TextField()
     slug = models.SlugField(blank=True)
