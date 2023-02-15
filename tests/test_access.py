@@ -83,21 +83,21 @@ class Test_Redirect:
     def test_get_redirect_field_name_default(self, redirect_view):
         assert redirect_view().get_redirect_field_name() == REDIRECT_FIELD_NAME
 
-    @mock.patch('braces.mixins._Redirect.redirect')
+    @mock.patch('braces.mixins.Redirect.redirect')
     def test_test_failure(self, mock_redirect, redirect_view):
         redirect_view.raise_exception = False
 
         redirect_view().handle_test_failure()
         mock_redirect.assert_called
 
-    @mock.patch('braces.mixins._Redirect.redirect')
+    @mock.patch('braces.mixins.Redirect.redirect')
     def test_test_anonymous(self, mock_redirect, redirect_view):
         redirect_view.raise_exception = False
         redirect_view.redirect_unauthenticated_users = True
         redirect_view().handle_test_failure()
         mock_redirect.called
 
-    @mock.patch('braces.mixins._Redirect.redirect')
+    @mock.patch('braces.mixins.Redirect.redirect')
     def test_test_exception(self, mock_redirect, redirect_view):
         redirect_view.raise_exception = ImproperlyConfigured
 
@@ -105,7 +105,7 @@ class Test_Redirect:
             redirect_view.as_view()(RequestFactory().get('/'))
         mock_redirect.assert_called_once
 
-    @mock.patch('braces.mixins._Redirect.redirect')
+    @mock.patch('braces.mixins.Redirect.redirect')
     def test_test_callable(self, mock_redirect, redirect_view):
         redirect_view.raise_exception = "fail"
         redirect_view.fail = lambda x: ImproperlyConfigured
