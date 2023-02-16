@@ -1,5 +1,3 @@
-from unittest import mock
-
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.detail import SingleObjectMixin
@@ -80,7 +78,14 @@ class TestPrefetchRelated:
 class TestOrderableList:
     class View(mixins.OrderableListMixin, MultipleObjectMixin):
         model = Article
-        orderable_columns = ("foo", "bar")
+        orderable_fields = ("foo", "bar")
 
-    def test_orderable_columns(self):
-        assert self.View().get_orderable_columns() == ("foo", "bar")
+    def test_orderable_aliases(self):
+        view = self.View()
+        view.orderable_columns = "name"
+        view.orderable_columns_default = "age"
+        view.ordering_default = "desc"
+
+        assert view.get_orderable_fields() == "name"
+        assert view.get_orderable_field_default() == "age"
+        assert view.get_orderable_direction_default() == "desc"

@@ -1,13 +1,13 @@
-from typing import Iterable
+from typing import Iterable, Union, List
 import warnings
 
 from django.core.exceptions import ImproperlyConfigured
 
 
 class SelectRelatedMixin:
-    select_related: str | Iterable[str] = None
+    select_related: Union[str, Iterable[str]] = None
 
-    def get_select_related(self) -> list[str]:
+    def get_select_related(self) -> List[str]:
         if getattr(self, "select_related", None) is None:
             raise ImproperlyConfigured(
                 f"{self.__class__.__name__} is missing the select_related attribute."
@@ -27,9 +27,9 @@ class SelectRelatedMixin:
 
 
 class PrefetchRelatedMixin:
-    prefetch_related: str | Iterable[str] = None
+    prefetch_related: Union[str, Iterable[str]] = None
 
-    def get_prefetch_related(self) -> list[str]:
+    def get_prefetch_related(self) -> List[str]:
         if getattr(self, "prefetch_related", None) is None:
             raise ImproperlyConfigured(
                 f"{self.__class__.__name__} is missing the prefetch_related attribute."
@@ -49,22 +49,63 @@ class PrefetchRelatedMixin:
 
 
 class OrderableListMixin:
-    ordering: str | Iterable[str] = None
+    orderable_fields: List[str] = None
+    orderable_field_default: str = None
+    orderable_direction_default: str = "asc"
 
-    def get_ordering(self) -> list[str]:
-        if getattr(self, "ordering", None) is None:
+    def __init__(self, *args, **kwargs):
+        if getattr(self, "orderable_columns", None):
+            self.orderable_fields = self.orderable_columns
+        if getattr(self, "orderable_columns_default", None):
+            self.orderable_field_default = self.orderable_columns_default
+        if getattr(self, "ordering_default", None):
+            self.orderable_direction_default = self.ordering_default
+        super().__init__(*args, **kwargs)
+
+    def get_orderable_fields(self) -> List[str]:
+        if not self.orderable_fields:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__} is missing the ordering attribute."
+                f"{self.__class__.__name__} needs the ordering columns defined."
             )
-        if not self.ordering:
-            warnings.warn("The ordering attribute is empty")
+        return self.orderable_fields
 
-        if not isinstance(self.ordering, (tuple, list)):
-            self.ordering = [self.ordering]
+    def get_orderable_field_default(self) -> str:
+        if not self.orderable_field_default:
+            raise ImproperlyConfigured(
+                f"{self.__class__.__name__} needs the default ordering column defined."
+            )
+        return self.orderable_field_default
 
-        return self.ordering
+    def get_orderable_direction_default(self) -> str:
+        direction = self.orderable_direction_default
+        if not direction or direction not in ["asc", "desc"]:
+            raise ImproperlyConfigured(
+                f"{self.__class__.__name__} only allows asc or desc as ordering option"
+            )
+        return direction
+
+    def get_order_from_request(self) -> Iterable[str]:
+        field = self.request.kwargs.get("order_by", "").lower()
+        direction = self.request.kwargs.get("order_dir", "").lower()
+
+        if not field:
+            field = self.get_orderable_fields_default()
+        if not direction:
+            direction = self.get_orderable_direction_default()
+        return field, direction
 
     def get_queryset(self) -> "QuerySet":
         queryset = super().get_queryset()
-        ordering = self.get_ordering()
-        return queryset.order_by(*ordering)
+
+        field, direction = self.get_order_from_request()
+        allowed_fields = self.get_orderable_fields()
+
+        if direction == "desc":
+            direction = "-"
+        else:
+            direction = ""
+
+        if field in allowed_fields:
+            return queryset.order_by(f"{direction}{field}")
+
+        return queryset
