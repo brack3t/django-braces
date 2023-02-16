@@ -15,26 +15,26 @@ from unittest import mock
 
 
 class TestRequestPassesTest:
-    class TestView(mixins.RequestPassesTest, View):
+    class _View(mixins.RequestPassesTest, View):
         request_test = 'test_method'
         def get(self, request):
             return HttpResponse('OK')
 
     def test_success(self):
-        view_class = copy.copy(self.TestView)
+        view_class = copy.copy(self._View)
         view_class.test_method = lambda x: True
         response = view_class.as_view()(RequestFactory().get('/'))
         assert response.status_code == 200
 
     def test_failure(self):
-        view_class = copy.copy(self.TestView)
+        view_class = copy.copy(self._View)
         view_class.test_method = lambda x: False
 
         with pytest.raises(PermissionDenied):
             view_class.as_view()(RequestFactory().get('/'))
 
     def test_non_callable(self):
-        view_class = copy.copy(self.TestView)
+        view_class = copy.copy(self._View)
         view_class.request_test = 'not_callable'
 
         with pytest.raises(ImproperlyConfigured):
@@ -42,10 +42,10 @@ class TestRequestPassesTest:
 
     def test_missing_method(self):
         with pytest.raises(ImproperlyConfigured):
-            self.TestView.as_view()(RequestFactory().get('/'))
+            self._View.as_view()(RequestFactory().get('/'))
 
     def test_none(self):
-        view_class = copy.copy(self.TestView)
+        view_class = copy.copy(self._View)
         view_class.request_test = None
 
         with pytest.raises(ImproperlyConfigured):
@@ -54,11 +54,11 @@ class TestRequestPassesTest:
 
 @pytest.fixture
 def redirect_view():
-    class TestView(mixins.Redirect, View):
+    class _View(mixins.Redirect, View):
         def get(self, request):
             return HttpResponse('OK')
 
-    return TestView
+    return _View
 
 
 class Test_Redirect:
@@ -118,31 +118,31 @@ class Test_Redirect:
 
 @pytest.mark.django_db
 class TestSuperuserRequired:
-    class TestView(mixins.SuperuserRequiredMixin, View):
+    class _View(mixins.SuperuserRequiredMixin, View):
         def get(self, request):
             return HttpResponse('OK')
 
     def test_success(self, admin_user):
         request = RequestFactory().get('/')
         request.user = admin_user
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 200
 
     def test_anonymous(self):
-        response = self.TestView.as_view()(RequestFactory().get('/'))
+        response = self._View.as_view()(RequestFactory().get('/'))
         assert response.status_code == 302
 
     def test_non_superuser(self):
         user = get_user_model().objects.create_user("test", "Test1234")
         request = RequestFactory().get('/')
         request.user = user
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 302
 
 
 @pytest.mark.django_db
 class TestStaffUserRequired:
-    class TestView(mixins.StaffUserRequiredMixin, View):
+    class _View(mixins.StaffUserRequiredMixin, View):
         def get(self, request):
             return HttpResponse('OK')
 
@@ -153,22 +153,22 @@ class TestStaffUserRequired:
         request = RequestFactory().get('/')
         self.user.is_staff = True
         request.user = self.user
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 200
 
     def test_anonymous(self):
-        response = self.TestView.as_view()(RequestFactory().get('/'))
+        response = self._View.as_view()(RequestFactory().get('/'))
         assert response.status_code == 302
 
     def test_non_staff(self):
         request = RequestFactory().get('/')
         request.user = self.user
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 302
 
 @pytest.mark.django_db
 class TestGroupRequired:
-    class TestView(mixins.GroupRequiredMixin, View):
+    class _View(mixins.GroupRequiredMixin, View):
         group_required = ['test', 'fake']
         def get(self, request):
             return HttpResponse('OK')
@@ -181,18 +181,18 @@ class TestGroupRequired:
     def test_success(self):
         request = RequestFactory().get('/')
         request.user = self.user
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 200
 
     def test_failure(self):
         request = RequestFactory().get('/')
         request.user = self.user
         self.user.groups.clear()
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 302
 
     def test_no_group_required(self):
-        view_class = copy.copy(self.TestView)
+        view_class = copy.copy(self._View)
         view_class.group_required = None
         request = RequestFactory().get('/')
         request.user = self.user
@@ -201,45 +201,45 @@ class TestGroupRequired:
             view_class.as_view()(request)
 
     def test_group_string(self):
-        view_class = copy.copy(self.TestView)
+        view_class = copy.copy(self._View)
         view_class.group_required = 'test'
-        assert self.TestView().get_group_required() == ['test']
+        assert self._View().get_group_required() == ['test']
 
 
 class TestAnonymousRequired:
-    class TestView(mixins.AnonymousRequiredMixin, View):
+    class _View(mixins.AnonymousRequiredMixin, View):
         def get(self, request):
             return HttpResponse('OK')
 
     def test_success(self):
-        response = self.TestView.as_view()(RequestFactory().get('/'))
+        response = self._View.as_view()(RequestFactory().get('/'))
         assert response.status_code == 200
 
     def test_authenticated(self, admin_user):
         request = RequestFactory().get('/')
         request.user = admin_user
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 302
 
 
 class TestLoginRequired:
-    class TestView(mixins.LoginRequiredMixin, View):
+    class _View(mixins.LoginRequiredMixin, View):
         def get(self, request):
             return HttpResponse('OK')
 
     def test_success(self, admin_user):
         request = RequestFactory().get('/')
         request.user = admin_user
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 200
 
     def test_anonymous(self):
-        response = self.TestView.as_view()(RequestFactory().get('/'))
+        response = self._View.as_view()(RequestFactory().get('/'))
         assert response.status_code == 302
 
 
 class TestRecentLoginRequired:
-    class TestView(mixins.RecentLoginRequiredMixin, View):
+    class _View(mixins.RecentLoginRequiredMixin, View):
         def get(self, request):
             return HttpResponse('OK')
 
@@ -251,7 +251,7 @@ class TestRecentLoginRequired:
         request = RequestFactory().get('/')
         request.user = admin_user
         request.user.last_login = now() - timedelta(minutes=10)
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 200
 
     def test_failure(self, admin_user):
@@ -259,13 +259,13 @@ class TestRecentLoginRequired:
         request.user = admin_user
         request.session = self.session
         request.user.last_login = now() - timedelta(days=10)
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 302
 
 
 @pytest.mark.django_db
 class TestPermissionRequired:
-    class TestView(mixins.PermissionRequiredMixin, View):
+    class _View(mixins.PermissionRequiredMixin, View):
         permission_required = 'tests.add_article'
         def get(self, request):
             return HttpResponse('OK')
@@ -280,22 +280,22 @@ class TestPermissionRequired:
     def test_success(self):
         request = RequestFactory().get('/')
         request.user = self.user
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 200
 
     def test_anonymous(self):
-        response = self.TestView.as_view()(RequestFactory().get('/'))
+        response = self._View.as_view()(RequestFactory().get('/'))
         assert response.status_code == 302
 
     def test_no_permission(self):
         request = RequestFactory().get('/')
         request.user = self.user
         self.user.user_permissions.remove(self.permission)
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 302
 
     def test_optional_permissions(self):
-        view_class = copy.copy(self.TestView)
+        view_class = copy.copy(self._View)
         view_class.permission_required = {"any": 'tests.add_article'}
         request = RequestFactory().get('/')
         request.user = self.user
@@ -305,18 +305,18 @@ class TestPermissionRequired:
 
 
 class TestSSLRequired:
-    class TestView(mixins.SSLRequiredMixin, View):
+    class _View(mixins.SSLRequiredMixin, View):
         def get(self, request):
             return HttpResponse('OK')
 
     def test_success(self):
         request = RequestFactory().get('/')
         request.is_secure = lambda: True
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 200
 
     def test_failure(self):
         request = RequestFactory().get('/')
         request.is_secure = lambda: False
-        response = self.TestView.as_view()(request)
+        response = self._View.as_view()(request)
         assert response.status_code == 301
