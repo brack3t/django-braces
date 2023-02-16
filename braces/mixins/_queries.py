@@ -54,25 +54,26 @@ class OrderableListMixin:
     orderable_direction_default: str = "asc"
 
     def __init__(self, *args, **kwargs):
-        if getattr(self, "orderable_columns", None):
-            self.orderable_fields = self.orderable_columns
-        if getattr(self, "orderable_columns_default", None):
-            self.orderable_field_default = self.orderable_columns_default
-        if getattr(self, "ordering_default", None):
-            self.orderable_direction_default = self.ordering_default
         super().__init__(*args, **kwargs)
+
+        if getattr(self, "orderable_columns", None) is not None:
+            self.orderable_fields = self.orderable_columns
+        if getattr(self, "orderable_columns_default", None) is not None:
+            self.orderable_field_default = self.orderable_columns_default
+        if getattr(self, "ordering_default", None) is not None:
+            self.orderable_direction_default = self.ordering_default
 
     def get_orderable_fields(self) -> List[str]:
         if not self.orderable_fields:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__} needs the ordering columns defined."
+                f"{self.__class__.__name__} needs the orderable fields defined."
             )
         return self.orderable_fields
 
     def get_orderable_field_default(self) -> str:
         if not self.orderable_field_default:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__} needs the default ordering column defined."
+                f"{self.__class__.__name__} needs the default orderable field defined."
             )
         return self.orderable_field_default
 
@@ -80,16 +81,17 @@ class OrderableListMixin:
         direction = self.orderable_direction_default
         if not direction or direction not in ["asc", "desc"]:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__} only allows asc or desc as ordering option"
+                f"{self.__class__.__name__} only allows asc or desc as orderable direction default"
             )
         return direction
 
     def get_order_from_request(self) -> Iterable[str]:
-        field = self.request.kwargs.get("order_by", "").lower()
-        direction = self.request.kwargs.get("order_dir", "").lower()
+        request_kwargs = self.request.GET.dict()
+        field = request_kwargs.get("order_by", "").lower()
+        direction = request_kwargs.get("order_dir", "").lower()
 
         if not field:
-            field = self.get_orderable_fields_default()
+            field = self.get_orderable_field_default()
         if not direction:
             direction = self.get_orderable_direction_default()
         return field, direction

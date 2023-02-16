@@ -78,14 +78,35 @@ class TestPrefetchRelated:
 class TestOrderableList:
     class View(mixins.OrderableListMixin, MultipleObjectMixin):
         model = Article
-        orderable_fields = ("foo", "bar")
+        orderable_fields = ("author", "title")
+        orderable_field_default = "author"
 
     def test_orderable_aliases(self):
-        view = self.View()
-        view.orderable_columns = "name"
-        view.orderable_columns_default = "age"
-        view.ordering_default = "desc"
+        """Test that the old aliases still work"""
+        class OldView(mixins.OrderableListMixin, MultipleObjectMixin):
+            model = Article
+            orderable_columns = "name"
+            orderable_columns_default = "age"
+            ordering_default = "desc"
 
-        assert view.get_orderable_fields() == "name"
-        assert view.get_orderable_field_default() == "age"
-        assert view.get_orderable_direction_default() == "desc"
+        assert OldView().get_orderable_fields() == "name"
+        assert OldView().get_orderable_field_default() == "age"
+        assert OldView().get_orderable_direction_default() == "desc"
+
+    def test_request_ordering(self, rf):
+        request = rf.get("/?order_by=foo&order_dir=desc")
+        view = self.View()
+        view.request = request
+        assert view.get_order_from_request() == ("foo", "desc")
+
+    def test_queryset_ordering(self, rf):
+        request = rf.get("/")
+        view = self.View()
+        view.request = request
+        assert view.get_queryset().query.order_by == ("author",)
+
+    def test_queryset_ordering_with_request(self, rf):
+        request = rf.get("/?order_dir=desc")
+        view = self.View()
+        view.request = request
+        assert view.get_queryset().query.order_by == ("-author",)
