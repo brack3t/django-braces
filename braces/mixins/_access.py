@@ -1,5 +1,5 @@
 import inspect
-from typing import Dict, Union
+from typing import Dict, Union, List
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import redirect_to_login, logout_then_login
@@ -138,10 +138,10 @@ class StaffUserRequiredMixin(Redirect):
 
 class GroupRequiredMixin(Redirect):
     """Requires the user to be authenticated and a member of at least one of the specified group"""
-    group_required: Union[str, list[str]] = None
+    group_required: Union[str, List[str]] = None
     request_test: str = "check_groups"
 
-    def get_group_required(self) -> list[str]:
+    def get_group_required(self) -> List[str]:
         """Returns the group required"""
         if self.group_required is None:
             raise ImproperlyConfigured(
@@ -205,10 +205,10 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
 
 
 class PermissionRequiredMixin(Redirect):
-    permission_required: Union[str, Dict[str, list[str]]] = None
+    permission_required: Union[str, Dict[str, List[str]]] = None
     request_test: str = "check_permissions"
 
-    def get_permission_required(self) -> Union[str, Dict[str, list[str]]]:
+    def get_permission_required(self) -> Union[str, Dict[str, List[str]]]:
         """Returns the permission required"""
         if self.permission_required is None:
             raise ImproperlyConfigured(
