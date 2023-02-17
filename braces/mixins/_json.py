@@ -48,6 +48,7 @@ class JSONResponseMixin:
             response = HttpResponse(json_data, content_type=self.get_content_type())
         return response
 
+
 # Aliases for backwards compatibility
 class JsonResponseMixin(JSONResponseMixin):
     ...
