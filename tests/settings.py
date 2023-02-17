@@ -1,4 +1,5 @@
 from django.conf.global_settings import *
+from django.contrib.messages import constants as message_constants
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -17,7 +18,7 @@ DATABASES = {
     "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
 }
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -26,7 +27,7 @@ MIDDLEWARE_CLASSES = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-MIDDLEWARE = MIDDLEWARE_CLASSES
+# MIDDLEWARE = MIDDLEWARE_CLASSES
 
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -65,3 +66,5 @@ TEMPLATES = [
     },
 ]
 AUTH_PASSWORD_VALIDATORS = []
+MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
+MESSAGE_LEVEL = message_constants.DEBUG
