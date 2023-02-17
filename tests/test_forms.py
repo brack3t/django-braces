@@ -1,28 +1,71 @@
-from django import test
-from django.contrib.auth.models import User
+import pytest
+from django import forms
+from django.views.generic import FormView
 
-from . import forms
+from braces import mixins
 
 
-class TestUserKwargModelFormMixin(test.TestCase):
-    """
-    Tests for UserKwargModelFormMixin.
-    """
 
-    def test_without_user_kwarg(self):
-        """
-        It should be possible to create form without 'user' kwarg.
+class TestUserFormMixin:
+    def test_invalid_class(self):
+        class InvalidForm(mixins.UserFormMixin):
+            pass
 
-        In that case 'user' attribute should be set to None.
-        """
-        form = forms.FormWithUserKwarg()
-        assert form.user is None
+        with pytest.raises(TypeError):
+            InvalidForm()
 
-    def test_with_user_kwarg(self):
-        """
-        Form's 'user' attribute should be set to value passed as 'user'
-        argument.
-        """
-        user = User(username="test")
-        form = forms.FormWithUserKwarg(user=user)
-        assert form.user is user
+    def test_form_has_user(self, admin_user):
+        form = TestFormWithUserMixin._Form(user=admin_user)
+        assert form.user == admin_user
+
+
+class TestFormWithUserMixin:
+    class _Form(mixins.UserFormMixin, forms.Form):
+        pass
+
+    class _View(mixins.FormWithUserMixin, FormView):
+        def get_form_class(self):
+            return TestFormWithUserMixin._Form
+
+    def test_user_to_form_kwargs(self, admin_user, rf):
+        request = rf.get("/")
+        request.user = admin_user
+        view = self._View()
+        view.setup(request)
+        assert view.get_form_kwargs()["user"] == admin_user
+
+    def test_user_to_form_wrapped_class(self, admin_user, rf):
+        class UserlessForm(forms.Form):
+            pass
+
+        request = rf.get("/")
+        request.user = admin_user
+        view = self._View()
+        view.form_class = UserlessForm
+        view.setup(request)
+        assert issubclass(view.get_form_class(), mixins.UserFormMixin)
+
+
+class TestCSRFExempt:
+    class _View(mixins.CSRFExemptMixin, FormView):
+        success_url = "/"
+        def get_form_class(self):
+            return TestCSRFExempt._Form
+
+    class _Form(forms.Form):
+        pass
+
+    def test_csrf_exempt(self, rf):
+        request = rf.post("/")
+        view = self._View()
+        view.setup(request)
+        assert view.dispatch(request).status_code == 302
+
+    def test_csrf_exempt_with_form(self, rf):
+        class MyForm(forms.Form):
+            pass
+
+        request = rf.post("/")
+        view = self._View()
+        view.setup(request)
+        assert view.dispatch(request).status_code == 302
