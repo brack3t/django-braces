@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-from typing import Any, Dict
+from __future__ import annotations
+from typing import Any, Dict, Type
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
@@ -32,7 +32,7 @@ class JSONResponseMixin(BasicView):
         dumps_kwargs.setdefault("ensure_ascii", False)
         return dumps_kwargs
 
-    def get_json_encoder_class(self) -> type:
+    def get_json_encoder_class(self) -> Type:
         """What JSON encoder class should be used?"""
         if self.json_encoder_class is None:
             self.json_encoder_class = DjangoJSONEncoder

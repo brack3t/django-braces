@@ -22,7 +22,7 @@ class UserFormMixin:
         super().__init__(*args, **kwargs)
 
 
-class FormWithUserMixin(FormView):
+class FormWithUserMixin:
     """Provides the view's form with the requesting user"""
 
     def get_form_kwargs(self):
@@ -37,9 +37,8 @@ class FormWithUserMixin(FormView):
         if issubclass(form_class, UserFormMixin):
             return form_class
         else:
-
             class FormWithUser(UserFormMixin, form_class):
-                pass
+                ...
 
             return FormWithUser
 
@@ -72,7 +71,7 @@ class CsrfExemptMixin(CSRFExemptMixin):
     pass
 
 
-class MultipleFormsMixin(FormView):
+class MultipleFormsMixin:
     """Provides a view with the ability to handle multiple Forms"""
 
     form_classes: Dict[str, forms.Form] = None
