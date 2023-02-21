@@ -16,7 +16,8 @@ class SelectRelatedMixin:
         """Get the fields to be select_related"""
         if getattr(self, "select_related", None) is None:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__} is missing the select_related attribute."
+                f"{self.__class__.__name__} is missing the select_related "
+                "attribute."
             )
         if not self.select_related:
             warnings.warn("The select_related attribute is empty")

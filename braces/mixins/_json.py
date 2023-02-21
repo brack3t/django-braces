@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import Any, Dict, Type
+
+from typing import Any, Type
+
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
@@ -9,7 +11,8 @@ from braces.stubs import BasicView
 
 class JSONResponseMixin(BasicView):
     """A mixin that can be used to render a JSON response.
-    NOTE: This is meant for light work. For heavy work, use a proper API framework.
+    NOTE: This is meant for light work. For heavy work, use a proper
+    API framework.
     """
 
     content_type: str = "application/json"
@@ -26,7 +29,7 @@ class JSONResponseMixin(BasicView):
             )
         return self.content_type
 
-    def get_json_dumps_kwargs(self) -> Dict[str, Any]:
+    def get_json_dumps_kwargs(self) -> dict[str, Any]:
         """What kwargs should be passed to json.dumps()?"""
         dumps_kwargs = getattr(self, "json_dumps_kwargs", None) or {}
         dumps_kwargs.setdefault("ensure_ascii", False)

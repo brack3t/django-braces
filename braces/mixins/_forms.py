@@ -1,4 +1,4 @@
-from typing import Dict, List
+from __future__ import annotations
 
 from django import forms
 from django.core.exceptions import ImproperlyConfigured
@@ -7,11 +7,12 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-from braces.stubs import FormView, ModelFormView
+from braces.stubs import ModelFormView
 
 
 class UserFormMixin:
-    """Mixin for Forms/ModelForms that will store the request.user as self.user"""
+    """Mixin for Forms/ModelForms that will store the request.user
+    as self.user"""
 
     def __init__(self: forms.Form, *args, **kwargs):
         if not issubclass(self.__class__, forms.Form):
@@ -37,31 +38,21 @@ class FormWithUserMixin:
         if issubclass(form_class, UserFormMixin):
             return form_class
         else:
+
             class FormWithUser(UserFormMixin, form_class):
                 ...
 
             return FormWithUser
 
 
-@method_decorator(csrf_exempt, name="dispatch")
 class CSRFExemptMixin:
     """Exempts the view from CSRF requirements"""
 
+    @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         """Dispatch the exempted request"""
 
         return super().dispatch(request, *args, **kwargs)
-
-    # @method_decorator(csrf_exempt)
-    # def dispatch(self, request, *args, **kwargs):
-    #     """Dispatch the exempted request"""
-
-    #     return super().dispatch(request, *args, **kwargs)
-
-    # def as_view(self, **initkwargs):
-    #     """Return the view function"""
-    #     view = super().as_view(**initkwargs)
-    #     return csrf_exempt(view)
 
 
 # Aliases
@@ -74,20 +65,20 @@ class CsrfExemptMixin(CSRFExemptMixin):
 class MultipleFormsMixin:
     """Provides a view with the ability to handle multiple Forms"""
 
-    form_classes: Dict[str, forms.Form] = None
-    initial: Dict[str, Dict] = {}
+    form_classes: dict[str, forms.Form] = None
+    initial: dict[str, dict] = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.get_form = self.get_forms
 
-    def get_context_data(self, **kwargs) -> Dict:
+    def get_context_data(self, **kwargs) -> dict:
         """Add the forms to the context"""
         context = super().get_context_data(**kwargs)
         context["forms"] = self.get_forms()
         return context
 
-    def get_form_classes(self) -> List:
+    def get_form_classes(self) -> list:
         """Get the form classes to use in this view"""
         if self.form_classes is None:
             name = self.__class__.__name__
@@ -102,14 +93,14 @@ class MultipleFormsMixin:
 
         return self.form_classes
 
-    def get_forms(self) -> Dict[str, forms.Form]:
+    def get_forms(self) -> dict[str, forms.Form]:
         """Instantiates the forms with their kwargs"""
         forms = {}
         for name, form_class in self.get_form_classes().items():
             forms[name] = form_class(**self.get_form_kwargs(name))
         return forms
 
-    def get_form_kwargs(self, name) -> Dict:
+    def get_form_kwargs(self, name) -> dict:
         """Add common kwargs to the form"""
         kwargs = {
             "prefix": name,  # all forms get a prefix
@@ -157,9 +148,9 @@ class MultipleFormsMixin:
 class MultipleModelFormsMixin(ModelFormView, MultipleFormsMixin):
     """Provides a view with the ability to handle multiple ModelForms"""
 
-    instances: Dict[str, models.Model] = None
+    instances: dict[str, models.Model] = None
 
-    def get_instances(self) -> Dict[str, models.Model]:
+    def get_instances(self) -> dict[str, models.Model]:
         """Which instances should be used for each form?"""
         if self.instances is None:
             name = self.__class__.__name__
@@ -174,7 +165,7 @@ class MultipleModelFormsMixin(ModelFormView, MultipleFormsMixin):
 
         return self.instances
 
-    def get_form_kwargs(self, name) -> Dict:
+    def get_form_kwargs(self, name) -> dict:
         """Add the instance to the form if needed"""
         assert self.instances
         kwargs = super().get_form_kwargs(name)

@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import inspect
 from datetime import timedelta
-from typing import Callable, Dict, List, Union
+from typing import Callable, Union
 
 from django import http
 from django.conf import settings
@@ -13,7 +15,8 @@ from braces.mixins._redirects import RedirectMixin
 
 
 class PassesTest:
-    """Requires a test, usually of the request, to pass before the view is dispatched."""
+    """Requires a test, usually of the request, to pass before the view
+    is dispatched."""
 
     request_test: Union[str, Callable] = None
 
@@ -28,24 +31,26 @@ class PassesTest:
 
     def get_test_method(self) -> Callable:
         """What method should be used to test the request?
-        Provide a callable object or a string that can be used to look up a callable
+        Provide a callable object or a string that can be used to
+        look up a callable
         """
         if self.request_test is None:
+            class_name = self.__class__.__name__
             raise ImproperlyConfigured(
-                "{0} is missing the request_test method. Define {0}.request_test or "
-                "override {0}.get_request_test().".format(
-                    self.__class__.__name__
-                )
+                f"{class_name} is missing the request_test method. "
+                f"Define {class_name}.request_test or override "
+                f"{class_name}.get_request_test()."
             )
 
         try:
             method = getattr(self, self.request_test)
         except AttributeError:
+            class_name = self.__class__.__name__
+
             raise ImproperlyConfigured(
-                "{0} is missing the request_test method. Define {0}.request_test or "
-                "override {0}.get_request_test().".format(
-                    self.__class__.__name__
-                )
+                f"{class_name} is missing the request_test method. "
+                f"Define {class_name}.request_test or "
+                f"override {class_name}.get_request_test()."
             )
         if not callable(method):
             raise ImproperlyConfigured(
@@ -166,12 +171,13 @@ class StaffUserRequiredMixin(RedirectOnFailure):
 
 
 class GroupRequiredMixin(RedirectOnFailure):
-    """Requires the user to be authenticated and a member of at least one of the specified group"""
+    """Requires the user to be authenticated and a member of at least
+    one of the specified group"""
 
-    group_required: Union[str, List[str]] = None
+    group_required: Union[str, list[str]] = None
     request_test: str = "check_groups"
 
-    def get_group_required(self) -> List[str]:
+    def get_group_required(self) -> list[str]:
         """Returns the group(s) required"""
         if self.group_required is None:
             raise ImproperlyConfigured(
@@ -186,7 +192,8 @@ class GroupRequiredMixin(RedirectOnFailure):
         return self.group_required
 
     def check_membership(self) -> bool:
-        """Check if the user is a member of at least one of the required groups"""
+        """Check if the user is a member of at least one of the
+        required groups"""
         return bool(
             set(self.get_group_required()).intersection(
                 [group.name for group in self.request.user.groups.all()]
@@ -194,7 +201,8 @@ class GroupRequiredMixin(RedirectOnFailure):
         )
 
     def check_groups(self) -> bool:
-        """The user must be authenticated and a member of the appropriate group(s)"""
+        """The user must be authenticated and a member of the
+        appropriate groups"""
         user = getattr(self.request, "user", None)
         if user is not None:
             return user.is_authenticated and self.check_membership()
@@ -255,10 +263,10 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
 class PermissionRequiredMixin(RedirectOnFailure):
     """Require a user to have specific permission(s)"""
 
-    permission_required: Union[str, Dict[str, List[str]]] = None
+    permission_required: Union[str, dict[str, list[str]]] = None
     request_test: str = "check_permissions"
 
-    def get_permission_required(self) -> Union[str, Dict[str, List[str]]]:
+    def get_permission_required(self) -> Union[str, dict[str, list[str]]]:
         """Returns the permission(s) required"""
         if self.permission_required is None:
             raise ImproperlyConfigured(

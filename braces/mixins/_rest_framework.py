@@ -28,8 +28,9 @@ class MultipleSerializersMixin:
         class_name = self.__class__.__name__
         if self.serializer_classes is None:
             raise ImproperlyConfigured(
-                f"{class_name} is missing the serializer_classes attribute. Define "
-                f"{class_name}.serializer_classes, or override {class_name}.get_serializer_class()"
+                f"{class_name} is missing the serializer_classes attribute. "
+                f"Define {class_name}.serializer_classes, or override "
+                f"{class_name}.get_serializer_class()"
             )
 
         if not isinstance(self.serializer_classes, (dict, list, tuple)):

@@ -11,8 +11,9 @@ class StaticContextMixin:
         class_name = self.__class__.__name__
         if self.static_context is None:
             raise ImproperlyConfigured(
-                f"{class_name} is missing the static_context attribute. Define "
-                f"{class_name}.static_context, or override {class_name}.get_static_context()"
+                f"{class_name} is missing the static_context attribute. "
+                f"Define {class_name}.static_context, or override "
+                f"{class_name}.get_static_context()"
             )
         if not isinstance(self.static_context, dict):
             raise ImproperlyConfigured(

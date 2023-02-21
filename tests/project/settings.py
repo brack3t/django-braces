@@ -29,12 +29,12 @@ MIDDLEWARE = [
 
 # MIDDLEWARE = MIDDLEWARE_CLASSES
 
-STATICFILES_FINDERS = (
+STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-)
+]
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -42,9 +42,11 @@ INSTALLED_APPS = (
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "tests.project",
-)
+]
 
-PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.MD5PasswordHasher",
+]
 
 TEMPLATES = [
     {

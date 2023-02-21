@@ -2,7 +2,8 @@
 django-braces
 -------------
 
-Mixins and view classes to make working with Django's generic class-based views simpler.
+Mixins and view classes to make working with Django's generic
+class-based views simpler.
 
 :copyright: (c) 2013 by Kenneth Love and Chris Jones
 :license: BSD 3-clause. See LICENSE for more details

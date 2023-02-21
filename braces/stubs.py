@@ -1,10 +1,10 @@
 from __future__ import annotations
+
 from typing import Any, Protocol, TypeVar
 
 from django.db import models
 from django.forms import BaseForm, BaseModelForm
 from django.http import HttpRequest, HttpResponse
-
 
 _FormT = TypeVar("_FormT", bound=BaseForm)
 _ModelFormT = TypeVar("_ModelFormT", bound=BaseModelForm)

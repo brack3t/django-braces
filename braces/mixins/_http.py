@@ -11,7 +11,8 @@ class AllVerbsMixin:
         """Run all requests through the all_verb_handler method."""
         if not self.all_verb_handler:
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__} requires the all_verb_handler attribute to be set."
+                f"{self.__class__.__name__} requires the all_verb_handler "
+                "attribute to be set."
             )
 
         handler = getattr(

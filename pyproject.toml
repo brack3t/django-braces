@@ -6,71 +6,71 @@ build-backend = "setuptools.build_meta"
 name = "django-braces"
 version = "2.0.0"
 authors = [
-    {name="Kenneth Love", email="kenneth@bracket.com"},
-    {name="Chris Jones", email="chris@bracket.com"},
+  { name = "Kenneth Love", email = "kenneth@bracket.com" },
+  { name = "Chris Jones", email = "chris@bracket.com" },
 ]
 description = "Reusable, generic mixins for Django"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Development Status :: 6 - Mature",
-    "Environment :: Web Environment",
-    "Framework :: Django",
-    "Framework :: Django :: 3.2",
-    "Framework :: Django :: 4.2",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
-    "Natural Language :: English",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Topic :: Software Development :: Libraries :: Python Modules",
+  "Development Status :: 5 - Production/Stable",
+  "Development Status :: 6 - Mature",
+  "Environment :: Web Environment",
+  "Framework :: Django",
+  "Framework :: Django :: 3.2",
+  "Framework :: Django :: 4.2",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Natural Language :: English",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = [
-    "Django>=3.2",
-]
-keywords = ["django", "view", "forms", "mixins"]
+dependencies = ["Django>=3.2"]
+keywords = ["django", "views", "forms", "mixins"]
 
 [project.urls]
 documentation = "https://django-braces.readthedocs.io/en/latest/"
 repo = "https://github.com/brack3t/django-braces"
 
 [project.optional-dependencies]
-documentation = [
-    "sphinx",
-    "releases",
-    "semantic-version",
-]
+documentation = ["sphinx", "releases", "semantic-version"]
 dev = [
-    "black",
-    "django",
-    "django-rest-framework",
-    "django-stubs[compatible-mypy]",
-    "djangorestframework-stubs[compatible-mypy]",
-    "flake8",
-    "future_typing",
-    "interrogate",
-    "isort",
+  "black",
+  "django",
+  "django-rest-framework",
+  "django-stubs[compatible-mypy]",
+  "djangorestframework-stubs[compatible-mypy]",
+  "flake8",
+  "interrogate",
+  "isort",
 ]
-testing = [
-    "pytest",
-    "pytest-cov",
-    "pytest-django",
-    "mypy",
-]
+testing = ["pytest", "pytest-cov", "pytest-django", "mypy"]
 
 [project.license]
 file = "LICENSE.txt"
 
 [tool.black]
-line-length = 79
+line-length = 88
 
 [tool.isort]
-profile = "black"
+combine_as_imports = true
+ensure_newline_before_comments = true
+extend_skip = [".gitignore", "pyproject.toml", ".md", ".txt", ".in", ".yml"]
+force_grid_wrap = 0
+include_trailing_comma = true
+known_third_party = ["django", "rest_framework"]
+line_length = 88
+multi_line_output = 5
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+skip_gitignore = true
+split_on_trailing_comma = true
+src_paths = ["braces", "tests"]
+use_parentheses = true
 
 [tool.flake8]
 extend-exclude = ["venv", "build", "dist", "docs"]
@@ -88,18 +88,26 @@ source = ["braces"]
 
 [tool.coverage.report]
 exclude_lines = [
-    "pragma: no cover",
-    "raise NotImplementedError",
-    "if TYPE_CHECKING:",
-    "if __name__ == .__main__.:",
-    "if settings.DEBUG:",
-    "if settings.TESTING:",
-    "if settings.PRODUCTION:",
-    "if settings.STAGING:",
-    "if settings.LOCAL:",
+  "pragma: no cover",
+  "raise NotImplementedError",
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "if settings.DEBUG:",
+  "if settings.TESTING:",
+  "if settings.PRODUCTION:",
+  "if settings.STAGING:",
+  "if settings.LOCAL:",
 ]
 ignore_errors = true
-omit = ["tests/*", "venv/*", "build/*", "dist/*", "docs/*", "setup.py", "conftest.py"]
+omit = [
+  "tests/*",
+  "venv/*",
+  "build/*",
+  "dist/*",
+  "docs/*",
+  "setup.py",
+  "conftest.py",
+]
 show_missing = true
 fail_under = 95
 
@@ -128,10 +136,7 @@ error_summary = true
 exclude = ["venv", "build", "dist", "docs", "tests"]
 implicit_optional = true
 pretty = true
-plugins = [
-    "mypy_django_plugin.main",
-    "mypy_drf_plugin.main",
-]
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 show_error_context = true
 show_column_numbers = true
 
