@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import warnings
-from typing import Iterable, List, Union
+from typing import Iterable, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import QuerySet
@@ -10,7 +12,7 @@ class SelectRelatedMixin:
 
     select_related: Union[str, Iterable[str]] = None
 
-    def get_select_related(self) -> List[str]:
+    def get_select_related(self) -> list[str]:
         """Get the fields to be select_related"""
         if getattr(self, "select_related", None) is None:
             raise ImproperlyConfigured(
@@ -36,7 +38,7 @@ class PrefetchRelatedMixin:
 
     prefetch_related: Union[str, Iterable[str]] = None
 
-    def get_prefetch_related(self) -> List[str]:
+    def get_prefetch_related(self) -> list[str]:
         """Get the fields to be prefetch_related"""
         if getattr(self, "prefetch_related", None) is None:
             raise ImproperlyConfigured(
@@ -60,7 +62,7 @@ class PrefetchRelatedMixin:
 class OrderableListMixin:
     """A mixin for adding query-string based ordering to the queryset."""
 
-    orderable_fields: List[str] = None
+    orderable_fields: list[str] = None
     orderable_field_default: str = None
     orderable_direction_default: str = "asc"
 
@@ -74,7 +76,7 @@ class OrderableListMixin:
         if getattr(self, "ordering_default", None) is not None:
             self.orderable_direction_default = self.ordering_default
 
-    def get_orderable_fields(self) -> List[str]:
+    def get_orderable_fields(self) -> list[str]:
         """Which fields can be used for ordering?"""
         if not self.orderable_fields:
             raise ImproperlyConfigured(
