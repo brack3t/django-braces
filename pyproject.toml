@@ -30,9 +30,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = ["Django>=3.2"]
 keywords = ["django", "views", "forms", "mixins"]
-
 [project.urls]
 documentation = "https://django-braces.readthedocs.io/en/latest/"
 repo = "https://github.com/brack3t/django-braces"
@@ -40,6 +38,7 @@ repo = "https://github.com/brack3t/django-braces"
 [project.optional-dependencies]
 documentation = ["sphinx", "releases", "semantic-version"]
 dev = [
+  "bandit[toml]",
   "black",
   "django",
   "django-rest-framework",
@@ -48,43 +47,16 @@ dev = [
   "flake8",
   "interrogate",
   "isort",
+  "mypy",
 ]
-testing = ["pytest", "pytest-cov", "pytest-django", "mypy"]
+testing = ["pytest", "pytest-cov", "pytest-django"]
 
 [project.license]
 file = "LICENSE.txt"
 
+# Tool configuration
 [tool.black]
 line-length = 88
-
-[tool.isort]
-combine_as_imports = true
-ensure_newline_before_comments = true
-extend_skip = [".gitignore", "pyproject.toml", ".md", ".txt", ".in", ".yml"]
-force_grid_wrap = 0
-include_trailing_comma = true
-known_third_party = ["django", "rest_framework"]
-line_length = 88
-multi_line_output = 5
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-skip_gitignore = true
-split_on_trailing_comma = true
-src_paths = ["braces", "tests"]
-use_parentheses = true
-
-[tool.flake8]
-extend-exclude = ["venv", "build", "dist", "docs"]
-extend-ignore = ["F403", "PLU002"]
-format = "pylint"
-hang-closing = true
-require-plugins = []
-
-[tool.pytest.ini_options]
-addopts = "--cov --nomigrations"
-
-[tool.coverage.run]
-branch = true
-source = ["braces"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -111,6 +83,20 @@ omit = [
 show_missing = true
 fail_under = 95
 
+[tool.coverage.run]
+branch = true
+source = ["braces"]
+
+[tool.django-stubs]
+django_settings_module = "tests.project.settings"
+
+[tool.flake8]
+extend-exclude = ["venv", "build", "dist", "docs"]
+extend-ignore = ["F403", "PLU002"]
+format = "pylint"
+hang-closing = true
+require-plugins = []
+
 [tool.interrogate]
 ignore-init-method = true
 ignore-init-module = false
@@ -130,6 +116,21 @@ quiet = false
 color = true
 omit-covered-files = true
 
+[tool.isort]
+combine_as_imports = true
+ensure_newline_before_comments = true
+extend_skip = [".gitignore", "pyproject.toml", ".md", ".txt", ".in", ".yml"]
+force_grid_wrap = 0
+include_trailing_comma = true
+known_third_party = ["django", "rest_framework"]
+line_length = 88
+multi_line_output = 5
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+skip_gitignore = true
+split_on_trailing_comma = true
+src_paths = ["braces", "tests"]
+use_parentheses = true
+
 [tool.mypy]
 color_output = true
 error_summary = true
@@ -140,11 +141,11 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 show_error_context = true
 show_column_numbers = true
 
-[tool.django-stubs]
-django_settings_module = "tests.project.settings"
+[tool.pytest.ini_options]
+addopts = "--cov --nomigrations"
+
 [tool.tbump]
-# Uncomment this if your project is hosted on GitHub:
-# github_url = "https://github.com/<user or organization>/<project>/"
+github_url = "https://github.com/brack3t/django-braces/"
 
 [tool.tbump.version]
 current = "2.0.0"
@@ -168,18 +169,8 @@ tag_template = "v{new_version}"
 # section containing the path of the file, relative to the
 # tbump.toml location.
 [[tool.tbump.file]]
-src = "..."
+src = "braces/__init__.py"
 
-# You can specify a list of commands to
-# run after the files have been patched
-# and before the git commit is made
-
-#  [[tool.tbump.before_commit]]
-#  name = "check changelog"
-#  cmd = "grep -q {new_version} Changelog.rst"
-
-# Or run some commands after the git tag and the branch
-# have been pushed:
-#  [[tool.tbump.after_push]]
-#  name = "publish"
-#  cmd = "./publish.sh"
+[[tool.tbump.before_commit]]
+name = "check changelog"
+cmd = "grep -q {new_version} docs/changelog.rst"
