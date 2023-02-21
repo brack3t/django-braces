@@ -7,6 +7,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django import http
 from django.utils.timezone import now
 from datetime import timedelta
+from braces.mixins._redirects import RedirectMixin
 
 
 class RequestPassesTest:
@@ -45,7 +46,7 @@ class RequestPassesTest:
         raise PermissionDenied
 
 
-class Redirect(RequestPassesTest):
+class RedirectOnFailure(RedirectMixin, RequestPassesTest):
     login_url: str = None
     redirect_field_name: str = REDIRECT_FIELD_NAME
     raise_exception: bool = False
@@ -114,7 +115,7 @@ class Redirect(RequestPassesTest):
         )
 
 
-class SuperuserRequiredMixin(Redirect):
+class SuperuserRequiredMixin(RedirectOnFailure):
     """Require the user to be authenticated and a superuser"""
     request_test: str = "test_superuser"
 
@@ -125,7 +126,7 @@ class SuperuserRequiredMixin(Redirect):
         return False
 
 
-class StaffUserRequiredMixin(Redirect):
+class StaffUserRequiredMixin(RedirectOnFailure):
     """Require the user to be authenticated and a staff user"""
     request_test: str = "test_staffuser"
 
@@ -136,7 +137,7 @@ class StaffUserRequiredMixin(Redirect):
         return False
 
 
-class GroupRequiredMixin(Redirect):
+class GroupRequiredMixin(RedirectOnFailure):
     """Requires the user to be authenticated and a member of at least one of the specified group"""
     group_required: Union[str, List[str]] = None
     request_test: str = "check_groups"
@@ -166,7 +167,7 @@ class GroupRequiredMixin(Redirect):
         return False
 
 
-class AnonymousRequiredMixin(Redirect):
+class AnonymousRequiredMixin(RedirectOnFailure):
     """Require the user to be anonymous"""
     request_test: str = "test_anonymous"
     redirect_unauthenticated_users: bool = False
@@ -178,7 +179,7 @@ class AnonymousRequiredMixin(Redirect):
         return True
 
 
-class LoginRequiredMixin(Redirect):
+class LoginRequiredMixin(RedirectOnFailure):
     """Require the user to be authenticated"""
     request_test: str = "test_authenticated"
 
@@ -204,7 +205,7 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
         return logout_then_login(self.request, self.get_login_url())
 
 
-class PermissionRequiredMixin(Redirect):
+class PermissionRequiredMixin(RedirectOnFailure):
     permission_required: Union[str, Dict[str, List[str]]] = None
     request_test: str = "check_permissions"
 
@@ -233,7 +234,7 @@ class PermissionRequiredMixin(Redirect):
         return any((perms_all, any(perms_any)))
 
 
-class SSLRequiredMixin(Redirect):
+class SSLRequiredMixin(RedirectOnFailure):
     """Require the user to be using SSL"""
     request_test: str = "test_ssl"
     redirect_to_ssl: bool = True

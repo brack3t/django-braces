@@ -1,6 +1,9 @@
 from django import forms
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+
+from braces import mixins
 
 
 class UserFormMixin:
@@ -42,3 +45,24 @@ class CSRFExemptMixin:
 # Aliases
 class CsrfExemptMixin(CSRFExemptMixin):
     pass
+
+
+class SuccessURLRedirectMixin(mixins.RedirectMixin):
+    success_url: str = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.redirect_url = self.success_url
+
+    def get_success_url(self) -> str:
+        if self.success_url is None:
+            name = self.__class__.__name__
+            raise ImproperlyConfigured(
+                f"{name} is missing a success_url. Define "
+                f"{name}.success_url, or override "
+                f"{name}.get_success_url()."
+            )
+        return self.success_url
+
+    def get_redirect_url(self) -> str:
+        return self.get_success_url()
