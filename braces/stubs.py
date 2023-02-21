@@ -1,4 +1,5 @@
-from typing import Any, Literal, Protocol, TypeVar
+from __future__ import annotations
+from typing import Any, Protocol, TypeVar
 
 from django.db import models
 from django.forms import BaseForm, BaseModelForm
