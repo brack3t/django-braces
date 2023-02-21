@@ -74,7 +74,7 @@ profile = "black"
 
 [tool.flake8]
 extend-exclude = ["venv", "build", "dist", "docs"]
-extend-ignore = ["F403",]
+extend-ignore = ["F403", "PLU002"]
 format = "pylint"
 hang-closing = true
 require-plugins = []

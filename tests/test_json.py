@@ -3,8 +3,6 @@ from django.views.generic import View
 
 from braces import mixins
 
-from .project.models import Article
-
 
 class TestJSONResponse:
     class _View(mixins.JSONResponseMixin, View):

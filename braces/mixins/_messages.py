@@ -7,6 +7,7 @@ from django.utils.functional import Promise
 
 class _MessageHelper:
     """An interface to the `django.contrib.messages` API."""
+
     API = set(
         [
             "add_message",
@@ -50,11 +51,13 @@ class _MessageDescriptor:
 
 class MessagesMixin:
     """A mixin that provides access to the messages API."""
+
     messages = _MessageDescriptor()
 
 
 class FormValidMessageMixin(MessagesMixin):
     """Automatically add a message when a form is valid."""
+
     form_valid_message: str = None
 
     def get_form_valid_message(self):
@@ -99,6 +102,7 @@ class FormValidMessageMixin(MessagesMixin):
 
 class FormInvalidMessageMixin(MessagesMixin):
     """Automatically add a message when a form is invalid."""
+
     form_invalid_message: str = None
 
     def get_form_invalid_message(self):
@@ -137,4 +141,5 @@ class FormInvalidMessageMixin(MessagesMixin):
 
 class FormMessagesMixin(FormValidMessageMixin, FormInvalidMessageMixin):
     """Attach messages for both valid and invalid forms."""
+
     ...
