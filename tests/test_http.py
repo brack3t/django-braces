@@ -19,6 +19,20 @@ class TestAllVerbs:
         assert response.status_code == 200
 
 
+class TestCacheControl:
+    def test_cache_control(self, rf):
+        class _View(mixins.CacheControlMixin, View):
+            cache_control_max_age = 120
+            cache_control_no_cache = True
+
+            def get(self, request):
+                return HttpResponse("OK")
+
+        response = _View.as_view()(rf.get("/"))
+        assert "max-age=120" in response["Cache-Control"]
+        assert "no-cache" in response["Cache-Control"]
+
+
 class TestHeader:
     def test_headers(self, rf):
         class _View(mixins.HeaderMixin, View):

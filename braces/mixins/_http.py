@@ -1,5 +1,5 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.views.decorators.cache import never_cache
+from django.views.decorators.cache import cache_control, never_cache
 
 class AllVerbsMixin:
     all_verb_handler: str = "all"
@@ -33,7 +33,29 @@ class HeaderMixin:
 
 
 class CacheControlMixin:
-    pass
+    cache_control_public: bool = None
+    cache_control_private: bool = None
+    cache_control_no_cache: bool = None
+    cache_control_no_store: bool = None
+    cache_control_no_transform: bool = None
+    cache_control_must_revalidate: bool = None
+    cache_control_proxy_revalidate: bool = None
+    cache_control_max_age: int = None
+    cache_control_s_maxage: int = None
+
+    @classmethod
+    def get_cache_control_options(cls) -> dict:
+        options = {}
+        for key, value in cls.__dict__.items():
+            if key.startswith("cache_control_") and value is not None:
+                options[key.replace("cache_control_", "")] = value
+        return options
+
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super().as_view(**initkwargs)
+        return cache_control(**cls.get_cache_control_options())(view)
+
 
 
 class NeverCacheMixin:
