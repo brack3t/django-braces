@@ -6,3 +6,4 @@ from ._messages import *
 from ._misc import *
 from ._queries import *
 from ._redirects import *
+from ._rest_framework import *
