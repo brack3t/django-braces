@@ -7,6 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
 from django.test import RequestFactory
 from django.views.generic import View
+from django.urls import path
 
 from braces import mixins
 
@@ -75,3 +76,56 @@ class Test_Redirect:
         with pytest.raises(ImproperlyConfigured):
             redirect_view.as_view()(RequestFactory().get('/'))
         mock_redirect.assert_called_once
+
+
+class TestCanonicalURL:
+    def test_get_canonical_url(self):
+        class _View(mixins.CanonicalRedirectMixin, View):
+            def get_canonical_url(self):
+                return 'test'
+
+        assert _View().get_canonical_url() == 'test'
+
+    def test_get_canonical_url_missing(self):
+        class _View(mixins.CanonicalRedirectMixin, View):
+            pass
+
+        with pytest.raises(NotImplementedError):
+            _View().get_canonical_url()
+
+    def test_get_canonical_url_missing(self):
+        class _View(mixins.CanonicalRedirectMixin, View):
+            pass
+
+        with pytest.raises(NotImplementedError):
+            _View().get_canonical_url()
+
+    def test_dispatch(self, rf):
+        class _View(mixins.CanonicalRedirectMixin, View):
+            canonical_redirect = True
+            slug_field = 'slug'
+            slug_url_kwarg = 'slug'
+
+            def get_canonical_url(self):
+                return 'test'
+
+            def get_object(self):
+                return mock.Mock(slug='test')
+
+        response = _View().dispatch(rf.get('/'))
+        assert response.url == 'test'
+
+    def test_non_canonical_url(self, rf):
+        class _View(mixins.CanonicalRedirectMixin, View):
+            canonical_redirect = True
+            slug_field = 'slug'
+            slug_url_kwarg = 'slug'
+
+            def get_canonical_url(self):
+                return 'test'
+
+            def get_object(self):
+                return mock.Mock(slug='fail')
+
+        redirect = _View().dispatch(rf.get('/?slug=fail'))
+        assert redirect.url == "test"
