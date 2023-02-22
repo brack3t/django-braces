@@ -1,11 +1,10 @@
 from django import forms
 
-from braces.forms import UserKwargModelFormMixin
-
+from braces import mixins
 from .models import Article
 
 
-class FormWithUserKwarg(UserKwargModelFormMixin, forms.Form):
+class FormWithUserKwarg(mixins.UserFormMixin, forms.Form):
     """This form will get a `user` kwarg"""
     field1 = forms.CharField()
 

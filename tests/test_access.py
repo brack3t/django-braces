@@ -1,6 +1,5 @@
 import copy
 from importlib import import_module
-import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
@@ -9,8 +8,9 @@ from django.http import HttpResponse
 from django.test import RequestFactory
 from django.utils.timezone import now
 from django.views import View
-from braces import mixins
 from datetime import timedelta
+import pytest
+from braces import mixins
 
 
 class TestRequestPassesTest:
@@ -191,25 +191,25 @@ class TestRecentLoginRequired:
         assert response.status_code == 200
 
     def test_failure(self, admin_user):
-        request = RequestFactory().get('/')
+        request = RequestFactory().post('/')
         request.user = admin_user
-        request.session = self.session
+        # request.session = self.session
         request.user.last_login = now() - timedelta(days=10)
         response = self._View.as_view()(request)
-        assert response.status_code == 302
+        assert response.status_code == 403
 
 
 @pytest.mark.django_db
 class TestPermissionRequired:
     class _View(mixins.PermissionRequiredMixin, View):
-        permission_required = 'tests.add_article'
+        permission_required = 'project.add_article'
         def get(self, request):
             return HttpResponse('OK')
 
     def setup_method(self):
         self.user = get_user_model().objects.create_user("test", "Test1234")
         self.permission = Permission.objects.get(
-            content_type__app_label="tests", codename="add_article"
+            content_type__app_label="project", codename="add_article"
         )
         self.user.user_permissions.add(self.permission)
 

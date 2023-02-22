@@ -4,7 +4,7 @@ from django import http
 from django.views.generic import View
 
 from braces import mixins
-from .models import Article
+from .project.models import Article
 
 
 class TestJSONResponse:
@@ -49,5 +49,5 @@ class TestJSONResponse:
         json_response = view.render_json_object_response([Article(title="bob")])
         print(json_response.content)
         assert json_response.content == (
-            b'[{"model": "tests.article", "pk": null, "fields": {"author": null, "coauthor": null, "title": "bob", "body": "", "slug": ""}}]'
+            b'[{"model": "project.article", "pk": null, "fields": {"author": null, "coauthor": null, "title": "bob", "body": "", "slug": ""}}]'
         )

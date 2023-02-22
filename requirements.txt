@@ -4,3 +4,4 @@ pytest-django
 pytest-cov
 coverage
 django
+django-rest-framework
