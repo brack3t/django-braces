@@ -10,10 +10,10 @@ from .project.models import Article
 class TestSelectRelated:
     class View(mixins.SelectRelatedMixin, SingleObjectMixin):
         model = Article
-        select_related = ['foo', 'bar']
+        select_related = ["foo", "bar"]
 
     def test_select_related(self):
-        assert self.View().get_select_related() == ['foo', 'bar']
+        assert self.View().get_select_related() == ["foo", "bar"]
 
     def test_select_related_empty(self):
         view = self.View()
@@ -37,19 +37,20 @@ class TestSelectRelated:
         """New select_related should not cancel existing select_related"""
         view = self.View()
         view.select_related = "author"
-        view.queryset = Article.objects.select_related('coauthor')
+        view.queryset = Article.objects.select_related("coauthor")
         assert view.get_queryset().query.select_related == {
-            "author": {}, "coauthor": {}
+            "author": {},
+            "coauthor": {},
         }
 
 
 class TestPrefetchRelated:
     class View(mixins.PrefetchRelatedMixin, SingleObjectMixin):
         model = Article
-        prefetch_related = ['foo', 'bar']
+        prefetch_related = ["foo", "bar"]
 
     def test_prefetch_related(self):
-        assert self.View().get_prefetch_related() == ['foo', 'bar']
+        assert self.View().get_prefetch_related() == ["foo", "bar"]
 
     def test_prefetch_related_string(self):
         view = self.View()
@@ -72,7 +73,10 @@ class TestPrefetchRelated:
         view = self.View()
         view.prefetch_related = "author"
         view.queryset = Article.objects.prefetch_related("coauthor")
-        assert view.get_queryset()._prefetch_related_lookups == ("coauthor", "author")
+        assert view.get_queryset()._prefetch_related_lookups == (
+            "coauthor",
+            "author",
+        )
 
 
 class TestOrderableList:
@@ -83,6 +87,7 @@ class TestOrderableList:
 
     def test_orderable_aliases(self):
         """Test that the old aliases still work"""
+
         class OldView(mixins.OrderableListMixin, MultipleObjectMixin):
             model = Article
             orderable_columns = "name"

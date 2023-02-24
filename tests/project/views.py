@@ -316,6 +316,7 @@ class CsrfExemptView(views.CsrfExemptMixin, OkView):
 
 class AuthorDetailView(views.PrefetchRelatedMixin, ListView):
     """A basic detail view to test prefetching"""
+
     model = User
     prefetch_related = ["article_set"]
     template_name = "blank.html"
@@ -323,6 +324,7 @@ class AuthorDetailView(views.PrefetchRelatedMixin, ListView):
 
 class OrderableListView(views.OrderableListMixin, ListView):
     """A basic list view to test ordering the output"""
+
     model = Article
     orderable_columns = (
         "id",
@@ -333,12 +335,16 @@ class OrderableListView(views.OrderableListMixin, ListView):
 
 class CanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailView):
     """A basic detail view to test a canonical slug"""
+
     model = Article
     template_name = "blank.html"
 
 
-class OverriddenCanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailView):
+class OverriddenCanonicalSlugDetailView(
+    views.CanonicalSlugDetailMixin, DetailView
+):
     """A basic detail view to test an overridden slug"""
+
     model = Article
     template_name = "blank.html"
 
@@ -347,8 +353,11 @@ class OverriddenCanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailVi
         return codecs.encode(self.get_object().slug, "rot_13")
 
 
-class CanonicalSlugDetailCustomUrlKwargsView(views.CanonicalSlugDetailMixin, DetailView):
+class CanonicalSlugDetailCustomUrlKwargsView(
+    views.CanonicalSlugDetailMixin, DetailView
+):
     """A basic detail view to test a slug with custom URL stuff"""
+
     model = Article
     template_name = "blank.html"
     pk_url_kwarg = "my_pk"
@@ -357,12 +366,14 @@ class CanonicalSlugDetailCustomUrlKwargsView(views.CanonicalSlugDetailMixin, Det
 
 class ModelCanonicalSlugDetailView(views.CanonicalSlugDetailMixin, DetailView):
     """A basic detail view to test a model with a canonical slug"""
+
     model = CanonicalArticle
     template_name = "blank.html"
 
 
 class FormMessagesView(views.FormMessagesMixin, CreateView):
     """A basic form view to test valid/invalid messages"""
+
     form_class = ArticleForm
     form_invalid_message = _("Invalid")
     form_valid_message = _("Valid")
@@ -373,11 +384,13 @@ class FormMessagesView(views.FormMessagesMixin, CreateView):
 
 class GroupRequiredView(views.GroupRequiredMixin, OkView):
     """Is everything OK in this group?"""
+
     group_required = "test_group"
 
 
 class UserPassesTestView(views.UserPassesTestMixin, OkView):
     """Did I pass a test?"""
+
     def test_func(self, user):
         return (
             user.is_staff
@@ -390,6 +403,7 @@ class UserPassesTestLoginRequiredView(
     views.LoginRequiredMixin, views.UserPassesTestMixin, OkView
 ):
     """Am I logged in _and_ passing a test?"""
+
     def test_func(self, user):
         return (
             user.is_staff
@@ -400,17 +414,20 @@ class UserPassesTestLoginRequiredView(
 
 class UserPassesTestNotImplementedView(views.UserPassesTestMixin, OkView):
     """The test went missing?"""
+
     pass
 
 
 class AllVerbsView(views.AllVerbsMixin, View):
     """I know, like, all the verbs"""
+
     def all(self, request, *args, **kwargs):
         return HttpResponse("All verbs return this!")
 
 
 class SSLRequiredView(views.SSLRequiredMixin, OkView):
     """Speak friend and enter"""
+
     pass
 
 
@@ -422,6 +439,7 @@ class RecentLoginRequiredView(views.RecentLoginRequiredMixin, OkView):
 
 class AttributeHeaderView(views.HeaderMixin, OkView):
     """Set headers in an attribute w/o a template render class"""
+
     headers = {
         "X-DJANGO-BRACES-1": 1,
         "X-DJANGO-BRACES-2": 2,
@@ -430,6 +448,7 @@ class AttributeHeaderView(views.HeaderMixin, OkView):
 
 class MethodHeaderView(views.HeaderMixin, OkView):
     """Set headers in a method w/o a template render class"""
+
     def get_headers(self, request):
         return {
             "X-DJANGO-BRACES-1": 1,
@@ -439,6 +458,7 @@ class MethodHeaderView(views.HeaderMixin, OkView):
 
 class AuxiliaryHeaderView(View):
     """A view with a header already set"""
+
     def dispatch(self, request, *args, **kwargs):
         response = HttpResponse("OK with headers")
         response["X-DJANGO-BRACES-EXISTING"] = "value"
@@ -447,13 +467,13 @@ class AuxiliaryHeaderView(View):
 
 class ExistingHeaderView(views.HeaderMixin, AuxiliaryHeaderView):
     """A view trying to override a parent's header"""
-    headers = {
-        'X-DJANGO-BRACES-EXISTING': 'other value'
-    }
+
+    headers = {"X-DJANGO-BRACES-EXISTING": "other value"}
 
 
 class CacheControlPublicView(views.CacheControlMixin, OkView):
     """A public-cached page with a 60 second timeout"""
+
     cachecontrol_public = True
     cachecontrol_max_age = 60
 

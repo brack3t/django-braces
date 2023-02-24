@@ -45,7 +45,9 @@ class JSONResponseMixin:
             response = self.render_json_response(objects, **kwargs)
         except TypeError:
             json_data = serializers.serialize("json", objects, **kwargs)
-            response = HttpResponse(json_data, content_type=self.get_content_type())
+            response = HttpResponse(
+                json_data, content_type=self.get_content_type()
+            )
         return response
 
 

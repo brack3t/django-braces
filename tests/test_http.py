@@ -12,7 +12,10 @@ class TestAllVerbs:
         def all(self, request):
             return HttpResponse("OK")
 
-    @pytest.mark.parametrize("verb", ["get", "post", "put", "patch", "delete", "head", "options", "trace"])
+    @pytest.mark.parametrize(
+        "verb",
+        ["get", "post", "put", "patch", "delete", "head", "options", "trace"],
+    )
     def test_verbs(self, verb, rf):
         request = getattr(rf, verb)("/")
         response = self._View.as_view()(request)
@@ -60,7 +63,7 @@ class TestHeader:
 
             def get(self, request):
                 response = HttpResponse("OK")
-                response.headers['Age'] = 120
+                response.headers["Age"] = 120
                 return response
 
         response = _View.as_view()(rf.get("/"))
@@ -75,4 +78,7 @@ class TestNeverCache:
 
     def test_never_cache(self, rf):
         response = self._View.as_view()(rf.get("/"))
-        assert response["Cache-Control"] == "max-age=0, no-cache, no-store, must-revalidate, private"
+        assert (
+            response["Cache-Control"]
+            == "max-age=0, no-cache, no-store, must-revalidate, private"
+        )

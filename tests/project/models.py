@@ -5,6 +5,7 @@ class Article(models.Model):
     """
     A small but useful model for testing most features
     """
+
     author = models.ForeignKey(
         "auth.User", null=True, blank=True, on_delete=models.CASCADE
     )
@@ -20,6 +21,7 @@ class CanonicalArticle(models.Model):
     """
     Model specifically for testing the canonical slug mixins
     """
+
     author = models.ForeignKey(
         "auth.User", null=True, blank=True, on_delete=models.CASCADE
     )

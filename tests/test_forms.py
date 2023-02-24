@@ -7,7 +7,6 @@ from braces import mixins
 from .project.models import Article, CanonicalArticle
 
 
-
 class TestUserFormMixin:
     def test_invalid_class(self):
         class InvalidForm(mixins.UserFormMixin):
@@ -51,6 +50,7 @@ class TestFormWithUserMixin:
 class TestCSRFExempt:
     class _View(mixins.CSRFExemptMixin, FormView):
         success_url = "/"
+
         def get_form_class(self):
             return TestCSRFExempt._Form
 
@@ -88,13 +88,12 @@ class TestSuccessURLRedirect:
 class TestMultipleFormsMixin:
     def setup_method(self):
         self.Form1 = type("Form1", (forms.Form,), {"name": forms.CharField()})
-        self.Form2 = type("Form2", (forms.Form,), {"age": forms.IntegerField()})
+        self.Form2 = type(
+            "Form2", (forms.Form,), {"age": forms.IntegerField()}
+        )
 
         class _View(mixins.MultipleFormsMixin, FormView):
-            form_classes = {
-                "my_form": self.Form1,
-                "my_form2": self.Form2
-            }
+            form_classes = {"my_form": self.Form1, "my_form2": self.Form2}
             template_name = "test.html"
 
         self._View = _View
@@ -107,7 +106,10 @@ class TestMultipleFormsMixin:
             InvalidForm().get_form_classes()
 
     def test_form_classes(self):
-        assert self._View().get_form_classes() == {"my_form": self.Form1, "my_form2": self.Form2}
+        assert self._View().get_form_classes() == {
+            "my_form": self.Form1,
+            "my_form2": self.Form2,
+        }
 
     def test_forms_in_context(self, rf):
         request = rf.get("/")
@@ -123,11 +125,15 @@ class TestMultipleFormsMixin:
         view.initial = {"my_form": {"name": "bar"}}
         view.setup(request)
         view.get(request)
-        assert view.get_context_data()["forms"]["my_form"].initial == {"name": "bar"}
+        assert view.get_context_data()["forms"]["my_form"].initial == {
+            "name": "bar"
+        }
         assert view.get_context_data()["forms"]["my_form2"].initial == {}
 
     def test_forms_valid(self, rf):
-        request = rf.post("/", data={"my_form-name": "foo", "my_form2-age": 42})
+        request = rf.post(
+            "/", data={"my_form-name": "foo", "my_form2-age": 42}
+        )
         view = self._View()
         view.setup(request)
         assert view.get_context_data()["forms"]["my_form"].is_valid()
@@ -156,11 +162,9 @@ class TestMultipleModelFormsMixin:
 
     def setup_method(self):
         article = Article.objects.create(title="foo")
+
         class _View(mixins.MultipleModelFormsMixin, FormView):
-            form_classes = {
-                "my_form": self._Form1,
-                "my_form2": self._Form2
-            }
+            form_classes = {"my_form": self._Form1, "my_form2": self._Form2}
             instances = {"my_form": article}
             template_name = "test.html"
 

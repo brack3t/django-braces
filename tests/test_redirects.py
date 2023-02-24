@@ -15,15 +15,15 @@ from braces import mixins
 def redirect_view():
     class _View(mixins.RedirectOnFailure, View):
         def get(self, request):
-            return HttpResponse('OK')
+            return HttpResponse("OK")
 
     return _View
 
 
 class Test_Redirect:
     def test_get_login_url(self, redirect_view):
-        redirect_view.login_url = 'test'
-        assert redirect_view().get_login_url() == 'test'
+        redirect_view.login_url = "test"
+        assert redirect_view().get_login_url() == "test"
 
     def test_get_login_url_default(self, redirect_view):
         assert redirect_view().get_login_url() == settings.LOGIN_URL
@@ -36,44 +36,44 @@ class Test_Redirect:
             redirect_view().get_login_url()
 
     def test_get_redirect_field_name(self, redirect_view):
-        redirect_view.redirect_field_name = 'test'
-        assert redirect_view().get_redirect_field_name() == 'test'
+        redirect_view.redirect_field_name = "test"
+        assert redirect_view().get_redirect_field_name() == "test"
 
     def test_get_redirect_field_name_default(self, redirect_view):
         assert redirect_view().get_redirect_field_name() == REDIRECT_FIELD_NAME
 
-    @mock.patch('braces.mixins.RedirectMixin.redirect')
+    @mock.patch("braces.mixins.RedirectMixin.redirect")
     def test_test_failure(self, mock_redirect, redirect_view):
         redirect_view.raise_exception = False
-        redirect_view.request = RequestFactory().get('/')
+        redirect_view.request = RequestFactory().get("/")
 
         redirect_view().handle_test_failure()
         mock_redirect.assert_called
 
-    @mock.patch('braces.mixins.RedirectMixin.redirect')
+    @mock.patch("braces.mixins.RedirectMixin.redirect")
     def test_test_anonymous(self, mock_redirect, redirect_view):
         redirect_view.raise_exception = False
         redirect_view.redirect_unauthenticated_users = True
-        redirect_view.request = RequestFactory().get('/')
+        redirect_view.request = RequestFactory().get("/")
         redirect_view().handle_test_failure()
         mock_redirect.called
 
-    @mock.patch('braces.mixins.RedirectMixin.redirect')
+    @mock.patch("braces.mixins.RedirectMixin.redirect")
     def test_test_exception(self, mock_redirect, redirect_view):
         redirect_view.raise_exception = ImproperlyConfigured
 
         with pytest.raises(ImproperlyConfigured):
-            redirect_view.as_view()(RequestFactory().get('/'))
+            redirect_view.as_view()(RequestFactory().get("/"))
         mock_redirect.assert_called_once
 
-    @mock.patch('braces.mixins.RedirectMixin.redirect')
+    @mock.patch("braces.mixins.RedirectMixin.redirect")
     def test_test_callable(self, mock_redirect, redirect_view):
         redirect_view.raise_exception = "fail"
         redirect_view.fail = lambda x: ImproperlyConfigured
         redirect_view.test_method = lambda x: False
 
         with pytest.raises(ImproperlyConfigured):
-            redirect_view.as_view()(RequestFactory().get('/'))
+            redirect_view.as_view()(RequestFactory().get("/"))
         mock_redirect.assert_called_once
 
 
@@ -81,9 +81,9 @@ class TestCanonicalURL:
     def test_get_canonical_url(self):
         class _View(mixins.CanonicalRedirectMixin, View):
             def get_canonical_url(self):
-                return 'test'
+                return "test"
 
-        assert _View().get_canonical_url() == 'test'
+        assert _View().get_canonical_url() == "test"
 
     def test_get_canonical_url_missing(self):
         class _View(mixins.CanonicalRedirectMixin, View):
@@ -102,29 +102,29 @@ class TestCanonicalURL:
     def test_dispatch(self, rf):
         class _View(mixins.CanonicalRedirectMixin, View):
             canonical_redirect = True
-            slug_field = 'slug'
-            slug_url_kwarg = 'slug'
+            slug_field = "slug"
+            slug_url_kwarg = "slug"
 
             def get_canonical_url(self):
-                return 'test'
+                return "test"
 
             def get_object(self):
-                return mock.Mock(slug='test')
+                return mock.Mock(slug="test")
 
-        response = _View().dispatch(rf.get('/'))
-        assert response.url == 'test'
+        response = _View().dispatch(rf.get("/"))
+        assert response.url == "test"
 
     def test_non_canonical_url(self, rf):
         class _View(mixins.CanonicalRedirectMixin, View):
             canonical_redirect = True
-            slug_field = 'slug'
-            slug_url_kwarg = 'slug'
+            slug_field = "slug"
+            slug_url_kwarg = "slug"
 
             def get_canonical_url(self):
-                return 'test'
+                return "test"
 
             def get_object(self):
-                return mock.Mock(slug='fail')
+                return mock.Mock(slug="fail")
 
-        redirect = _View().dispatch(rf.get('/?slug=fail'))
+        redirect = _View().dispatch(rf.get("/?slug=fail"))
         assert redirect.url == "test"

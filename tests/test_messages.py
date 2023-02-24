@@ -33,9 +33,16 @@ class TestMessages:
         response = self.get_response(request, view)
         return request, response
 
-    @pytest.mark.parametrize("level", [
-        messages.DEBUG, messages.INFO, messages.SUCCESS,
-        messages.WARNING, messages.ERROR])
+    @pytest.mark.parametrize(
+        "level",
+        [
+            messages.DEBUG,
+            messages.INFO,
+            messages.SUCCESS,
+            messages.WARNING,
+            messages.ERROR,
+        ],
+    )
     def test_add_messages(self, level):
         class _View(self._View):
             def get(self, request):

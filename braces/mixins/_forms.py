@@ -14,10 +14,10 @@ class UserFormMixin:
 
     def __init__(self, *args, **kwargs):
         if not issubclass(self.__class__, forms.Form):
-            raise TypeError('UserFormMixin can only be used with forms')
+            raise TypeError("UserFormMixin can only be used with forms")
 
-        if 'user' in kwargs:
-            self.user = kwargs.pop('user')
+        if "user" in kwargs:
+            self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
 
 
@@ -26,7 +26,7 @@ class FormWithUserMixin:
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
+        kwargs["user"] = self.request.user
         return kwargs
 
     def get_form_class(self):
@@ -34,8 +34,10 @@ class FormWithUserMixin:
         if issubclass(form_class, UserFormMixin):
             return form_class
         else:
+
             class FormWithUser(form_class, UserFormMixin):
                 pass
+
             return FormWithUser
 
 
@@ -94,9 +96,7 @@ class MultipleFormsMixin:
             )
 
         if not isinstance(self.form_classes, dict):
-            raise ImproperlyConfigured(
-                f"{name}.form_classes must be a dict."
-            )
+            raise ImproperlyConfigured(f"{name}.form_classes must be a dict.")
 
         return self.form_classes
 
@@ -156,9 +156,7 @@ class MultipleModelFormsMixin(MultipleFormsMixin):
             )
 
         if not isinstance(self.instances, dict):
-            raise ImproperlyConfigured(
-                f"{name}.instances must be a dict."
-            )
+            raise ImproperlyConfigured(f"{name}.instances must be a dict.")
 
         return self.instances
 

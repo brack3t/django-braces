@@ -5,20 +5,21 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import Promise
 
 
-
 class _MessageHelper:
-    API = set([
-        "add_message",
-        "get_messages",
-        "get_level",
-        "set_level",
-        "debug",
-        "info",
-        "success",
-        "warning",
-        "error",
-        "MessageFailure",
-    ])
+    API = set(
+        [
+            "add_message",
+            "get_messages",
+            "get_level",
+            "set_level",
+            "debug",
+            "info",
+            "success",
+            "warning",
+            "error",
+            "MessageFailure",
+        ]
+    )
 
     def __init__(self, request):
         for name in self.API:
