@@ -3,21 +3,14 @@ import codecs
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    View,
-    UpdateView,
-    FormView,
-    TemplateView,
-    ListView,
-    DetailView,
-    CreateView,
-)
+from django.views.generic import (CreateView, DetailView, FormView, ListView,
+                                  TemplateView, UpdateView, View)
 
 from braces import views
 
-from .models import Article, CanonicalArticle
 from .forms import ArticleForm, FormWithUserKwarg
 from .helpers import SetJSONEncoder
+from .models import Article, CanonicalArticle
 
 
 class OkView(View):

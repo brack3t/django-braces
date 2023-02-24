@@ -1,10 +1,10 @@
 import pytest
-from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.messages.middleware import MessageMiddleware
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic import View
+from django.http import HttpResponse
 from django.test import RequestFactory
+from django.views.generic import View
 
 from braces import mixins
 

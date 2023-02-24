@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import Dict, List
 
 from django import forms
 from django.core.exceptions import ImproperlyConfigured

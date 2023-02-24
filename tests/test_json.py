@@ -1,9 +1,9 @@
 import pytest
-
 from django import http
 from django.views.generic import View
 
 from braces import mixins
+
 from .project.models import Article
 
 

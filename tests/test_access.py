@@ -1,5 +1,8 @@
 import copy
+from datetime import timedelta
 from importlib import import_module
+
+import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
@@ -8,8 +11,7 @@ from django.http import HttpResponse
 from django.test import RequestFactory
 from django.utils.timezone import now
 from django.views import View
-from datetime import timedelta
-import pytest
+
 from braces import mixins
 
 

@@ -4,6 +4,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 
 from braces import mixins
+
 from .project.models import Article
 
 

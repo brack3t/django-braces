@@ -1,12 +1,14 @@
 import inspect
-from typing import Dict, Union, List
+from datetime import timedelta
+from typing import Dict, List, Union
+
+from django import http
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.views import redirect_to_login, logout_then_login
+from django.contrib.auth.views import logout_then_login, redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django import http
 from django.utils.timezone import now
-from datetime import timedelta
+
 from braces.mixins._redirects import RedirectMixin
 
 

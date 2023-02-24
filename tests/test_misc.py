@@ -1,7 +1,6 @@
 import pytest
-
-from django.views.generic import TemplateView, View
 from django.core.exceptions import ImproperlyConfigured
+from django.views.generic import TemplateView, View
 
 from braces import mixins
 

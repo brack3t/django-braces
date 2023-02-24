@@ -1,8 +1,9 @@
 from typing import Iterable
+
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 
 class JSONResponseMixin:

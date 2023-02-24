@@ -1,6 +1,6 @@
-import pytest
 from unittest import mock
 
+import pytest
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.exceptions import ImproperlyConfigured

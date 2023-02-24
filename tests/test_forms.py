@@ -4,6 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.views.generic import FormView
 
 from braces import mixins
+
 from .project.models import Article, CanonicalArticle
 
 

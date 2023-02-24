@@ -1,5 +1,5 @@
-from typing import Iterable, Union, List
 import warnings
+from typing import Iterable, List, Union
 
 from django.core.exceptions import ImproperlyConfigured
 
