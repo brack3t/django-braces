@@ -1,10 +1,17 @@
-import codecs
+import codecs  # isort: skip
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (CreateView, DetailView, FormView, ListView,
-                                  TemplateView, UpdateView, View)
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    FormView,
+    ListView,
+    TemplateView,
+    UpdateView,
+    View,
+)
 
 from braces import views
 

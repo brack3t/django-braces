@@ -92,13 +92,6 @@ class TestCanonicalURL:
         with pytest.raises(NotImplementedError):
             _View().get_canonical_url()
 
-    def test_get_canonical_url_missing(self):
-        class _View(mixins.CanonicalRedirectMixin, View):
-            pass
-
-        with pytest.raises(NotImplementedError):
-            _View().get_canonical_url()
-
     def test_dispatch(self, rf):
         class _View(mixins.CanonicalRedirectMixin, View):
             canonical_redirect = True

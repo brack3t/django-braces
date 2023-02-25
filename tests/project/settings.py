@@ -1,4 +1,4 @@
-from django.conf.global_settings import *
+from django.conf.global_settings import *  # noqa: F401, F403
 from django.contrib.messages import constants as message_constants
 
 DEBUG = False

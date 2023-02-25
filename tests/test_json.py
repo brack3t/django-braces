@@ -1,4 +1,3 @@
-import pytest
 from django import http
 from django.views.generic import View
 

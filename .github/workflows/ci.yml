@@ -15,7 +15,7 @@ jobs:
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python }}
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -37,4 +37,4 @@ jobs:
       - name: Python Interrogate Check
         uses: JackMcKew/python-interrogate-check@main
         with:
-          path: 'braces'
+          path: "braces"

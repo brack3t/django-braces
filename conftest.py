@@ -1,5 +1,7 @@
 import os
+
 from django.conf import settings
+
 from tests.project import settings as test_settings
 
 

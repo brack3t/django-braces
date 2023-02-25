@@ -1,5 +1,6 @@
 import os
 import re
+
 from setuptools import setup
 
 NAME = "braces"
@@ -15,7 +16,6 @@ def parse_dist_meta():
     """Extract metadata information from ``$dist/__init__.py``."""
 
     re_meta = re.compile(r"__(\w+?)__\s*=\s*(.*)")
-    re_doc = re.compile(r'^"""(.+?)"""')
     here = os.path.abspath(os.path.dirname(__file__))
     with open(os.path.join(here, NAME, "__init__.py")) as meta_fh:
         distmeta = {}

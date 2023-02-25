@@ -2,6 +2,7 @@ import warnings
 from typing import Iterable, List, Union
 
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import QuerySet
 
 
 class SelectRelatedMixin:
@@ -20,7 +21,7 @@ class SelectRelatedMixin:
 
         return self.select_related
 
-    def get_queryset(self) -> "QuerySet":
+    def get_queryset(self) -> QuerySet:
         queryset = super().get_queryset()
         select_related = self.get_select_related()
         return queryset.select_related(*select_related)
@@ -42,7 +43,7 @@ class PrefetchRelatedMixin:
 
         return self.prefetch_related
 
-    def get_queryset(self) -> "QuerySet":
+    def get_queryset(self) -> QuerySet:
         queryset = super().get_queryset()
         prefetch_related = self.get_prefetch_related()
         return queryset.prefetch_related(*prefetch_related)
@@ -96,7 +97,7 @@ class OrderableListMixin:
             direction = self.get_orderable_direction_default()
         return field, direction
 
-    def get_queryset(self) -> "QuerySet":
+    def get_queryset(self) -> QuerySet:
         queryset = super().get_queryset()
 
         field, direction = self.get_order_from_request()
