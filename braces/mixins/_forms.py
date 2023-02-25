@@ -47,11 +47,11 @@ class FormWithUserMixin:
 class CSRFExemptMixin:
     """Exempts the view from CSRF requirements"""
 
-    # @method_decorator(csrf_exempt)
-    # def dispatch(self, request, *args, **kwargs):
-    #     """Dispatch the exempted request"""
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        """Dispatch the exempted request"""
 
-    #     return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def as_view(self, **initkwargs):
         """Return the view function"""
