@@ -12,10 +12,12 @@ from django.utils.timezone import now
 from braces.mixins._redirects import RedirectMixin
 
 
-class RequestPassesTest:
+class PassesTest:
+    """Requires a test, usually of the request, to pass before the view is dispatched."""
     request_test: Union[str, callable] = None
 
     def dispatch(self, request, *args, **kwargs):
+        """Run the test method and dispatch the view if it passes."""
         test_method = self.get_test_method()
 
         if not test_method():
@@ -24,6 +26,8 @@ class RequestPassesTest:
         return super().dispatch(request, *args, **kwargs)
 
     def get_test_method(self) -> callable:
+        """What method should be used to test the request?
+        Provide a callable object or a string that can be used to look up a callable"""
         if self.request_test is None:
             raise ImproperlyConfigured(
                 "{0} is missing the request_test method. Define {0}.request_test or "
@@ -51,10 +55,12 @@ class RequestPassesTest:
         return method
 
     def handle_test_failure(self) -> Exception:
+        """Test failed, raise an exception or redirect"""
         raise PermissionDenied
 
 
-class RedirectOnFailure(RedirectMixin, RequestPassesTest):
+class RedirectOnFailure(RedirectMixin, PassesTest):
+    """Redirects to a login page if the request test fails"""
     login_url: str = None
     redirect_field_name: str = REDIRECT_FIELD_NAME
     raise_exception: bool = False
@@ -136,6 +142,7 @@ class SuperuserRequiredMixin(RedirectOnFailure):
     request_test: str = "test_superuser"
 
     def test_superuser(self) -> bool:
+        """The user must be authenticated and a superuser"""
         user = getattr(self.request, "user", None)
         if user is not None:
             return user.is_authenticated and user.is_superuser
@@ -148,6 +155,7 @@ class StaffUserRequiredMixin(RedirectOnFailure):
     request_test: str = "test_staffuser"
 
     def test_staffuser(self) -> bool:
+        """The user must be authenticated and is_staff=True"""
         user = getattr(self.request, "user", None)
         if user is not None:
             return user.is_authenticated and user.is_staff
@@ -161,7 +169,7 @@ class GroupRequiredMixin(RedirectOnFailure):
     request_test: str = "check_groups"
 
     def get_group_required(self) -> List[str]:
-        """Returns the group required"""
+        """Returns the group(s) required"""
         if self.group_required is None:
             raise ImproperlyConfigured(
                 "{0} is missing the group_required. "
@@ -183,6 +191,7 @@ class GroupRequiredMixin(RedirectOnFailure):
         )
 
     def check_groups(self) -> bool:
+        """The user must be authenticated and a member of the appropriate group(s)"""
         user = getattr(self.request, "user", None)
         if user is not None:
             return user.is_authenticated and self.check_membership()
@@ -196,6 +205,8 @@ class AnonymousRequiredMixin(RedirectOnFailure):
     redirect_unauthenticated_users: bool = False
 
     def test_anonymous(self) -> bool:
+        """The user must be anonymous, non-authenticated
+        No redirect to login as that wouldn't make sense."""
         user = getattr(self.request, "user", None)
         if user is not None:
             return not user.is_authenticated
@@ -208,6 +219,7 @@ class LoginRequiredMixin(RedirectOnFailure):
     request_test: str = "test_authenticated"
 
     def test_authenticated(self) -> bool:
+        """The user must be authenticated"""
         user = getattr(self.request, "user", None)
         if user is not None:
             return user.is_authenticated
@@ -221,6 +233,7 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
     max_age: int = 1800  # 30 minutes
 
     def test_recent_login(self) -> bool:
+        """Make sure the user's login is recent enough"""
         user = getattr(self.request, "user", None)
         if user is not None:
             return (
@@ -232,15 +245,17 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
     def handle_test_failure(
         self,
     ) -> Union[PermissionDenied, http.HttpResponse]:
+        """Logout the user and redirect to login"""
         return logout_then_login(self.request, self.get_login_url())
 
 
 class PermissionRequiredMixin(RedirectOnFailure):
+    """Require a user to have specific permission(s)"""
     permission_required: Union[str, Dict[str, List[str]]] = None
     request_test: str = "check_permissions"
 
     def get_permission_required(self) -> Union[str, Dict[str, List[str]]]:
-        """Returns the permission required"""
+        """Returns the permission(s) required"""
         if self.permission_required is None:
             raise ImproperlyConfigured(
                 "{0} is missing the permission_required. "
@@ -254,6 +269,7 @@ class PermissionRequiredMixin(RedirectOnFailure):
         return self.permission_required
 
     def check_permissions(self) -> bool:
+        """Get permissions, make sure the user has them appropriately"""
         permissions = self.get_permission_required()
         _all = permissions.get("all", [])
         _any = permissions.get("any", [])
@@ -267,12 +283,13 @@ class PermissionRequiredMixin(RedirectOnFailure):
 
 
 class SSLRequiredMixin(RedirectOnFailure):
-    """Require the user to be using SSL"""
+    """Require the request to be using SSL"""
 
     request_test: str = "test_ssl"
     redirect_to_ssl: bool = True
 
     def test_ssl(self) -> bool:
+        """The request must be using SSL"""
         if getattr(settings, "DEBUG", False):
             return True
 
@@ -281,6 +298,7 @@ class SSLRequiredMixin(RedirectOnFailure):
     def handle_test_failure(
         self,
     ) -> Union[PermissionDenied, http.HttpResponse]:
+        """If not using SSL, redirect to the same URL but with HTTPS"""
         if self.redirect_to_ssl:
             current = self.request.build_absolute_uri(
                 self.request.get_full_path()

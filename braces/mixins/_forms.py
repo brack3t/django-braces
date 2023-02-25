@@ -3,6 +3,7 @@ from typing import Dict, List
 from django import forms
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -10,7 +11,7 @@ from braces import mixins
 
 
 class UserFormMixin:
-    """Mixin for forms that stores the request.user as self.user"""
+    """Mixin for Forms/ModelForms that will store the request.user as self.user"""
 
     def __init__(self, *args, **kwargs):
         if not issubclass(self.__class__, forms.Form):
@@ -25,55 +26,47 @@ class FormWithUserMixin:
     """Provides the view's form with the requesting user"""
 
     def get_form_kwargs(self):
+        """Inject the request.user into the form's kwargs"""
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
 
     def get_form_class(self):
+        """Get the form class or wrap it with UserFormMixin"""
         form_class = super().get_form_class()
         if issubclass(form_class, UserFormMixin):
             return form_class
         else:
 
-            class FormWithUser(form_class, UserFormMixin):
+            class FormWithUser(UserFormMixin, form_class):
                 pass
 
             return FormWithUser
 
 
 class CSRFExemptMixin:
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    """Exempts the view from CSRF requirements"""
+
+    # @method_decorator(csrf_exempt)
+    # def dispatch(self, request, *args, **kwargs):
+    #     """Dispatch the exempted request"""
+
+    #     return super().dispatch(request, *args, **kwargs)
+
+    def as_view(self, **initkwargs):
+        """Return the view function"""
+        view = super().as_view(**initkwargs)
+        return csrf_exempt(view)
 
 
 # Aliases
 class CsrfExemptMixin(CSRFExemptMixin):
+    """Exempts the view from CSRF requirements"""
     pass
 
 
-class SuccessURLRedirectMixin(mixins.RedirectMixin):
-    success_url: str = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.redirect_url = self.success_url
-
-    def get_success_url(self) -> str:
-        if self.success_url is None:
-            name = self.__class__.__name__
-            raise ImproperlyConfigured(
-                f"{name} is missing a success_url. Define "
-                f"{name}.success_url, or override "
-                f"{name}.get_success_url()."
-            )
-        return self.success_url
-
-    def get_redirect_url(self) -> str:
-        return self.get_success_url()
-
-
 class MultipleFormsMixin:
+    """Provides a view with the ability to handle multiple Forms"""
     form_classes: Dict[str, forms.Form] = None
     initial: Dict[str, Dict] = {}
 
@@ -82,11 +75,13 @@ class MultipleFormsMixin:
         self.get_form = self.get_forms
 
     def get_context_data(self, **kwargs) -> Dict:
+        """Add the forms to the context"""
         context = super().get_context_data(**kwargs)
         context["forms"] = self.get_forms()
         return context
 
     def get_form_classes(self) -> List:
+        """Get the form classes to use in this view"""
         if self.form_classes is None:
             name = self.__class__.__name__
             raise ImproperlyConfigured(
@@ -101,52 +96,63 @@ class MultipleFormsMixin:
         return self.form_classes
 
     def get_forms(self) -> Dict[str, forms.Form]:
+        """Instantiates the forms with their kwargs"""
         forms = {}
         for name, form_class in self.get_form_classes().items():
             forms[name] = form_class(**self.get_form_kwargs(name))
         return forms
 
     def get_form_kwargs(self, name) -> Dict:
+        """Add common kwargs to the form"""
         kwargs = {
-            "prefix": name,
+            "prefix": name,  # all forms get a prefix
         }
 
         initial = self.get_initial()
         if name in initial:
-            kwargs["initial"] = initial[name]
+            kwargs["initial"] = initial[name]  # use the form's initial data
 
         if self.request.method in ("POST", "PUT", "PATCH"):
+            """Attach the request's POST data and any files to the form"""
             kwargs["data"] = self.request.POST
             kwargs["files"] = self.request.FILES
 
         return kwargs
 
     def validate_forms(self) -> bool:
+        """Validate all forms using their own .is_valid() method"""
         forms = self.get_forms()
         return all(form.is_valid() for form in forms.values())
 
-    def forms_valid(self) -> None:
+    def forms_valid(self) -> HttpResponse:
+        """Called when all forms are valid. Should return an HttpResponse"""
         raise NotImplementedError
 
-    def forms_invalid(self) -> None:
+    def forms_invalid(self) -> HttpResponse:
+        """Called when any form is invalid. Should return an HttpResponse"""
         raise NotImplementedError
 
     def post(self, request, *args, **kwargs):
+        """Handle POST requests: validate and run appropriate handler"""
         if self.validate_forms():
             return self.forms_valid()
         return self.forms_invalid()
 
     def put(self, request, *args, **kwargs):
+        """Process PUT requests like POSTs"""
         return self.post(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
+        """Process PATCH requests like POSTs"""
         return self.post(request, *args, **kwargs)
 
 
 class MultipleModelFormsMixin(MultipleFormsMixin):
+    """Provides a view with the ability to handle multiple ModelForms"""
     instances: Dict[str, models.Model] = None
 
     def get_instances(self) -> Dict[str, models.Model]:
+        """Which instances should be used for each form?"""
         if self.instances is None:
             name = self.__class__.__name__
             raise ImproperlyConfigured(
@@ -161,6 +167,7 @@ class MultipleModelFormsMixin(MultipleFormsMixin):
         return self.instances
 
     def get_form_kwargs(self, name) -> Dict:
+        """Add the instance to the form if needed"""
         kwargs = super().get_form_kwargs(name)
         instances = self.get_instances()
         if name in instances:

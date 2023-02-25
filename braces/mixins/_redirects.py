@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 
 class RedirectMixin:
+    """Mixin to simplify redirecting a request."""
     redirect_url: str = None
 
     def redirect(self) -> http.HttpResponseRedirect:
@@ -10,6 +11,7 @@ class RedirectMixin:
         return http.HttpResponseRedirect(self.get_redirect_url())
 
     def get_redirect_url(self) -> str:
+        """Get the URL to redirect to"""
         if self.redirect_url is None:
             name = self.__class__.__name__
             raise ImproperlyConfigured(
@@ -21,6 +23,7 @@ class RedirectMixin:
 
 
 class CanonicalRedirectMixin(RedirectMixin):
+    """Redirect to the canonical URL for an object"""
     canonical_redirect: bool = False
     slug_field: str = "slug"
     slug_url_kwarg: str = "slug"
@@ -35,6 +38,7 @@ class CanonicalRedirectMixin(RedirectMixin):
         raise NotImplementedError
 
     def dispatch(self, request, *args, **kwargs):
+        """Check the slug and redirect if necessary"""
         slug_field = getattr(self.get_object(), self.slug_field, None)
         slug_kwarg = kwargs.get(self.slug_url_kwarg, None)
 

@@ -16,7 +16,7 @@ from braces import mixins
 
 
 class TestRequestPassesTest:
-    class _View(mixins.RequestPassesTest, View):
+    class _View(mixins.PassesTest, View):
         request_test = "test_method"
 
         def get(self, request):

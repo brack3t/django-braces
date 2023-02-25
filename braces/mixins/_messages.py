@@ -6,6 +6,7 @@ from django.utils.functional import Promise
 
 
 class _MessageHelper:
+    """An interface to the `django.contrib.messages` API."""
     API = set(
         [
             "add_message",
@@ -29,30 +30,35 @@ class _MessageHelper:
 
 class _MessageDescriptor:
     """
-    A descriptor that wraps `django.contrib.messages` and automatically
-    passes the current request object.
+    A descriptor that gives messages access to the request.
     """
 
     def __get__(self, instance, owner):
+        """Use the custom MessageHelper, with the request"""
         if instance is None:
             return self
         return _MessageHelper(instance.request)
 
     def __set__(self, instance, value):
+        """`messages` is a read-only attribute."""
         raise AttributeError("Cannot set the 'messages' attribute.")
 
     def __delete__(self, instance):
+        """`messages` is a read-only attribute."""
         raise AttributeError("Cannot delete the 'messages' attribute.")
 
 
 class MessagesMixin:
+    """A mixin that provides access to the messages API."""
     messages = _MessageDescriptor()
 
 
 class FormValidMessageMixin(MessagesMixin):
+    """Automatically add a message when a form is valid."""
     form_valid_message: str = None
 
     def get_form_valid_message(self):
+        """What message should be added?"""
         name = self.__class__.__name__
         if not getattr(self, "form_valid_message", None):
             raise ImproperlyConfigured(
@@ -75,6 +81,7 @@ class FormValidMessageMixin(MessagesMixin):
         return self.form_valid_message
 
     def form_valid(self, form):
+        """Add the message when the form is valid."""
         response = super().form_valid(form)
         self.messages.success(
             self.get_form_valid_message(), fail_silently=True
@@ -82,6 +89,7 @@ class FormValidMessageMixin(MessagesMixin):
         return response
 
     def delete(self, *args, **kwargs):
+        """Add the message for deletes, too."""
         response = super().delete(*args, **kwargs)
         self.messages.success(
             self.get_form_valid_message(), fail_silently=True
@@ -90,9 +98,11 @@ class FormValidMessageMixin(MessagesMixin):
 
 
 class FormInvalidMessageMixin(MessagesMixin):
+    """Automatically add a message when a form is invalid."""
     form_invalid_message: str = None
 
     def get_form_invalid_message(self):
+        """What message should be added?"""
         name = self.__class__.__name__
 
         if not getattr(self, "form_invalid_message", None):
@@ -117,6 +127,7 @@ class FormInvalidMessageMixin(MessagesMixin):
         return self.form_invalid_message
 
     def form_invalid(self, form):
+        """Add the message when the form is invalid."""
         response = super().form_invalid(form)
         self.messages.error(
             self.get_form_invalid_message(), fail_silently=True
@@ -125,4 +136,5 @@ class FormInvalidMessageMixin(MessagesMixin):
 
 
 class FormMessagesMixin(FormValidMessageMixin, FormInvalidMessageMixin):
-    pass
+    """Attach messages for both valid and invalid forms."""
+    ...
