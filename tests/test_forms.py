@@ -74,18 +74,6 @@ class TestCSRFExempt:
         assert view.dispatch(request).status_code == 302
 
 
-class TestSuccessURLRedirect:
-    class _View(mixins.SuccessURLRedirectMixin, FormView):
-        success_url = "/"
-
-    def test_success_url(self, rf):
-        request = rf.get("/")
-        view = self._View()
-        view.setup(request)
-        assert view.get_success_url() == "/"
-        assert view.get_redirect_url() == "/"
-
-
 class TestMultipleFormsMixin:
     def setup_method(self):
         self.Form1 = type("Form1", (forms.Form,), {"name": forms.CharField()})
