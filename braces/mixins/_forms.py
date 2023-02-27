@@ -7,8 +7,6 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-from braces import mixins
-
 
 class UserFormMixin:
     """Mixin for Forms/ModelForms that will store the request.user as self.user"""
@@ -44,19 +42,25 @@ class FormWithUserMixin:
             return FormWithUser
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class CSRFExemptMixin:
     """Exempts the view from CSRF requirements"""
 
-    @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         """Dispatch the exempted request"""
 
         return super().dispatch(request, *args, **kwargs)
 
-    def as_view(self, **initkwargs):
-        """Return the view function"""
-        view = super().as_view(**initkwargs)
-        return csrf_exempt(view)
+    # @method_decorator(csrf_exempt)
+    # def dispatch(self, request, *args, **kwargs):
+    #     """Dispatch the exempted request"""
+
+    #     return super().dispatch(request, *args, **kwargs)
+
+    # def as_view(self, **initkwargs):
+    #     """Return the view function"""
+    #     view = super().as_view(**initkwargs)
+    #     return csrf_exempt(view)
 
 
 # Aliases
@@ -168,6 +172,7 @@ class MultipleModelFormsMixin(MultipleFormsMixin):
 
     def get_form_kwargs(self, name) -> Dict:
         """Add the instance to the form if needed"""
+        assert self.instances
         kwargs = super().get_form_kwargs(name)
         instances = self.get_instances()
         if name in instances:
