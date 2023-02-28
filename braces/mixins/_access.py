@@ -1,6 +1,6 @@
 import inspect
 from datetime import timedelta
-from typing import Dict, List, Union
+from typing import Callable, Dict, List, Union
 
 from django import http
 from django.conf import settings
@@ -14,7 +14,7 @@ from braces.mixins._redirects import RedirectMixin
 
 class PassesTest:
     """Requires a test, usually of the request, to pass before the view is dispatched."""
-    request_test: Union[str, callable] = None
+    request_test: Union[str, Callable] = None
 
     def dispatch(self, request, *args, **kwargs):
         """Run the test method and dispatch the view if it passes."""
@@ -25,7 +25,7 @@ class PassesTest:
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_test_method(self) -> callable:
+    def get_test_method(self) -> Callable:
         """What method should be used to test the request?
         Provide a callable object or a string that can be used to look up a callable"""
         if self.request_test is None:

@@ -45,17 +45,3 @@ class TestJSONResponse:
             view.render_json_response({"foo": "bar"}).content
             == b'{"foo": "bar"}'
         )
-
-    def test_render_json_object_response(self):
-        view = self._View()
-
-        request = http.HttpRequest()
-        view.setup(request)
-
-        json_response = view.render_json_object_response(
-            [Article(title="bob")]
-        )
-        print(json_response.content)
-        assert json_response.content == (
-            b'[{"model": "project.article", "pk": null, "fields": {"author": null, "coauthor": null, "title": "bob", "body": "", "slug": ""}}]'
-        )

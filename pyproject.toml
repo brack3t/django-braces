@@ -26,3 +26,18 @@ verbose = 1
 quiet = false
 color = true
 omit-covered-files = true
+
+[tool.mypy]
+implicit_optional = true
+show_error_context = true
+show_column_numbers = true
+pretty = true
+color_output = true
+error_summary = true
+plugins = [
+    "mypy_django_plugin.main",
+    "mypy_drf_plugin.main",
+]
+
+[tool.django-stubs]
+django_settings_module = "tests.project.settings"

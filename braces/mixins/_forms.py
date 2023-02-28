@@ -7,11 +7,13 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
+from braces.stubs import FormView, ModelFormView
+
 
 class UserFormMixin:
     """Mixin for Forms/ModelForms that will store the request.user as self.user"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self: forms.Form, *args, **kwargs):
         if not issubclass(self.__class__, forms.Form):
             raise TypeError("UserFormMixin can only be used with forms")
 
@@ -20,7 +22,7 @@ class UserFormMixin:
         super().__init__(*args, **kwargs)
 
 
-class FormWithUserMixin:
+class FormWithUserMixin(FormView):
     """Provides the view's form with the requesting user"""
 
     def get_form_kwargs(self):
@@ -69,7 +71,7 @@ class CsrfExemptMixin(CSRFExemptMixin):
     pass
 
 
-class MultipleFormsMixin:
+class MultipleFormsMixin(FormView):
     """Provides a view with the ability to handle multiple Forms"""
     form_classes: Dict[str, forms.Form] = None
     initial: Dict[str, Dict] = {}
@@ -151,7 +153,7 @@ class MultipleFormsMixin:
         return self.post(request, *args, **kwargs)
 
 
-class MultipleModelFormsMixin(MultipleFormsMixin):
+class MultipleModelFormsMixin(ModelFormView, MultipleFormsMixin):
     """Provides a view with the ability to handle multiple ModelForms"""
     instances: Dict[str, models.Model] = None
 

@@ -11,3 +11,5 @@ interrogate
 isort
 twine
 mypy
+django-stubs[compatible-mypy]
+djangorestframework-stubs

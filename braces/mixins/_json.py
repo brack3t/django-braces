@@ -1,17 +1,17 @@
-from typing import Iterable
-
-from django.core import serializers
+from typing import Any, Dict
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
+
+from braces.stubs import BasicView
 
 
-class JSONResponseMixin:
+class JSONResponseMixin(BasicView):
     """A mixin that can be used to render a JSON response.
     NOTE: This is meant for light work. For heavy work, use a proper API framework."""
 
     content_type: str = "application/json"
-    json_dumps_kwargs: dict = None
+    json_dumps_kwargs: Dict[str, Any] = None
     json_encoder_class: type = None
 
     def get_content_type(self) -> str:
@@ -24,7 +24,7 @@ class JSONResponseMixin:
             )
         return self.content_type
 
-    def get_json_dumps_kwargs(self) -> dict:
+    def get_json_dumps_kwargs(self) -> Dict[str, Any]:
         """What kwargs should be passed to json.dumps()?"""
         dumps_kwargs = getattr(self, "json_dumps_kwargs", None) or {}
         dumps_kwargs.setdefault("ensure_ascii", False)
@@ -36,9 +36,9 @@ class JSONResponseMixin:
             self.json_encoder_class = DjangoJSONEncoder
         return self.json_encoder_class
 
-    def render_json_response(self, context: dict = None, status: int = 200):
+    def render_json_response(self, context: dict = None, status: int = 200) -> JsonResponse:
         """render_to_response but JSON"""
-        context = context or self.get_context() or {}
+        context = context or self.get_context_data() or {}
         return JsonResponse(
             data=context,
             safe=False,
@@ -47,17 +47,6 @@ class JSONResponseMixin:
             content_type=self.get_content_type(),
             status=status,
         )
-
-    def render_json_object_response(self, objects: Iterable, **kwargs):
-        """Render a JSON response from a list of objects"""
-        try:
-            response = self.render_json_response(objects, **kwargs)
-        except TypeError:
-            json_data = serializers.serialize("json", objects, **kwargs)
-            response = HttpResponse(
-                json_data, content_type=self.get_content_type()
-            )
-        return response
 
 
 # Aliases for backwards compatibility
