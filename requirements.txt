@@ -9,7 +9,6 @@ black
 flake8
 interrogate
 isort
-twine
 mypy
 django-stubs[compatible-mypy]
-djangorestframework-stubs
+djangorestframework-stubs[compatible-mypy]

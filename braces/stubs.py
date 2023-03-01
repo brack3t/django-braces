@@ -1,10 +1,8 @@
-from typing import Any, Protocol, TypeVar
+from typing import Any, Literal, Protocol, TypeVar
 
 from django.db import models
 from django.forms import BaseForm, BaseModelForm
 from django.http import HttpRequest, HttpResponse
-from django.utils.datastructures import _ListOrTuple
-from typing_extensions import Literal
 
 
 _FormT = TypeVar("_FormT", bound=BaseForm)
@@ -37,7 +35,6 @@ class FormView(BasicView):
 
 
 class ModelFormView(BasicView):
-    fields: _ListOrTuple[str] | Literal["__all__"] | None
     def get_form_class(self) -> type[_ModelFormT]: ...
     def get_form_kwargs(self) -> dict[str, Any]: ...
     def form_valid(self, form: _ModelFormT) -> HttpResponse: ...
