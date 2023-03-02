@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import Any, Dict
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
@@ -8,10 +9,11 @@ from braces.stubs import BasicView
 
 class JSONResponseMixin(BasicView):
     """A mixin that can be used to render a JSON response.
-    NOTE: This is meant for light work. For heavy work, use a proper API framework."""
+    NOTE: This is meant for light work. For heavy work, use a proper API framework.
+    """
 
     content_type: str = "application/json"
-    json_dumps_kwargs: Dict[str, Any] = None
+    json_dumps_kwargs: dict[str, Any] = None
     json_encoder_class: type = None
 
     def get_content_type(self) -> str:
@@ -36,7 +38,9 @@ class JSONResponseMixin(BasicView):
             self.json_encoder_class = DjangoJSONEncoder
         return self.json_encoder_class
 
-    def render_json_response(self, context: dict = None, status: int = 200) -> JsonResponse:
+    def render_json_response(
+        self, context: dict = None, status: int = 200
+    ) -> JsonResponse:
         """render_to_response but JSON"""
         context = context or self.get_context_data() or {}
         return JsonResponse(
@@ -48,8 +52,10 @@ class JSONResponseMixin(BasicView):
             status=status,
         )
 
+        # Aliases for backwards compatibility
 
-# Aliases for backwards compatibility
+
 class JsonResponseMixin(JSONResponseMixin):
     """Alias for JSONResponseMixin"""
+
     ...

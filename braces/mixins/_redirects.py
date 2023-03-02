@@ -4,6 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 class RedirectMixin:
     """Mixin to simplify redirecting a request."""
+
     redirect_url: str = None
 
     def redirect(self) -> http.HttpResponseRedirect:
@@ -24,6 +25,7 @@ class RedirectMixin:
 
 class CanonicalRedirectMixin(RedirectMixin):
     """Redirect to the canonical URL for an object"""
+
     canonical_redirect: bool = False
     slug_field: str = "slug"
     slug_url_kwarg: str = "slug"

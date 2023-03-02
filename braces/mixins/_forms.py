@@ -68,11 +68,13 @@ class CSRFExemptMixin:
 # Aliases
 class CsrfExemptMixin(CSRFExemptMixin):
     """Exempts the view from CSRF requirements"""
+
     pass
 
 
 class MultipleFormsMixin(FormView):
     """Provides a view with the ability to handle multiple Forms"""
+
     form_classes: Dict[str, forms.Form] = None
     initial: Dict[str, Dict] = {}
 
@@ -155,6 +157,7 @@ class MultipleFormsMixin(FormView):
 
 class MultipleModelFormsMixin(ModelFormView, MultipleFormsMixin):
     """Provides a view with the ability to handle multiple ModelForms"""
+
     instances: Dict[str, models.Model] = None
 
     def get_instances(self) -> Dict[str, models.Model]:

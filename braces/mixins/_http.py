@@ -4,6 +4,7 @@ from django.views.decorators.cache import cache_control, never_cache
 
 class AllVerbsMixin:
     """Handle all HTTP verbs with a single method."""
+
     all_verb_handler: str = "all"
 
     def dispatch(self, request, *args, **kwargs):
@@ -25,6 +26,7 @@ class AllVerbsMixin:
 
 class HeaderMixin:
     """Mixin for easily adding headers to a response."""
+
     headers: dict = None
 
     def get_headers(self, request) -> dict:
@@ -43,6 +45,7 @@ class HeaderMixin:
 
 class CacheControlMixin:
     """Provides a view with cache control options."""
+
     cache_control_public: bool = None
     cache_control_private: bool = None
     cache_control_no_cache: bool = None

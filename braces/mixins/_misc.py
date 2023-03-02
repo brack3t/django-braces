@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 class StaticContextMixin:
     """A mixin for adding static items to the context."""
+
     static_context: dict = None
 
     def get_static_context(self) -> dict:

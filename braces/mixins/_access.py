@@ -14,6 +14,7 @@ from braces.mixins._redirects import RedirectMixin
 
 class PassesTest:
     """Requires a test, usually of the request, to pass before the view is dispatched."""
+
     request_test: Union[str, Callable] = None
 
     def dispatch(self, request, *args, **kwargs):
@@ -27,7 +28,8 @@ class PassesTest:
 
     def get_test_method(self) -> Callable:
         """What method should be used to test the request?
-        Provide a callable object or a string that can be used to look up a callable"""
+        Provide a callable object or a string that can be used to look up a callable
+        """
         if self.request_test is None:
             raise ImproperlyConfigured(
                 "{0} is missing the request_test method. Define {0}.request_test or "
@@ -61,6 +63,7 @@ class PassesTest:
 
 class RedirectOnFailure(RedirectMixin, PassesTest):
     """Redirects to a login page if the request test fails"""
+
     login_url: str = None
     redirect_field_name: str = REDIRECT_FIELD_NAME
     raise_exception: bool = False
@@ -251,6 +254,7 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
 
 class PermissionRequiredMixin(RedirectOnFailure):
     """Require a user to have specific permission(s)"""
+
     permission_required: Union[str, Dict[str, List[str]]] = None
     request_test: str = "check_permissions"
 
