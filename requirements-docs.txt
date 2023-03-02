@@ -1,3 +1,0 @@
-sphinx==1.8.5
-releases
-semantic-version==2.8.5

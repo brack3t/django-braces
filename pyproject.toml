@@ -47,13 +47,14 @@ documentation = [
 ]
 dev = [
     "black",
-    "flake8",
-    "interrogate",
-    "isort",
     "django",
     "django-rest-framework",
     "django-stubs[compatible-mypy]",
     "djangorestframework-stubs[compatible-mypy]",
+    "flake8",
+    "future_typing",
+    "interrogate",
+    "isort",
 ]
 testing = [
     "pytest",
@@ -67,6 +68,16 @@ file = "LICENSE.txt"
 
 [tool.black]
 line-length = 79
+
+[tool.isort]
+profile = "black"
+
+[tool.flake8]
+extend-exclude = ["venv", "build", "dist", "docs"]
+extend-ignore = ["F403",]
+format = "pylint"
+hang-closing = true
+require-plugins = []
 
 [tool.pytest.ini_options]
 addopts = "--cov --nomigrations"
