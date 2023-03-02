@@ -3,10 +3,11 @@ requires = ["setuptools>=40.6.6", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
+name = "django-braces"
 version = "2.0.0"
 authors = [
-    "Kenneth Love <kenneth@brack3t.com>",
-    "Chris Jones <chris@brack3t.com>"
+    {name="Kenneth Love", email="kenneth@bracket.com"},
+    {name="Chris Jones", email="chris@bracket.com"},
 ]
 description = "Reusable, generic mixins for Django"
 readme = "README.md"
@@ -39,17 +40,20 @@ documentation = "https://django-braces.readthedocs.io/en/latest/"
 repo = "https://github.com/brack3t/django-braces"
 
 [project.optional-dependencies]
-dev = [
-    "django",
-    "django-rest-framework",
-    "django-stubs[compatible-mypy]",
-    "djangorestframework-stubs[compatible-mypy]",
+documentation = [
+    "sphinx",
+    "releases",
+    "semantic-version",
 ]
-formatting = [
+dev = [
     "black",
     "flake8",
     "interrogate",
     "isort",
+    "django",
+    "django-rest-framework",
+    "django-stubs[compatible-mypy]",
+    "djangorestframework-stubs[compatible-mypy]",
 ]
 testing = [
     "pytest",
@@ -59,7 +63,7 @@ testing = [
 ]
 
 [project.license]
-file = "LICENSE"
+file = "LICENSE.txt"
 
 [tool.black]
 line-length = 79
@@ -127,7 +131,7 @@ django_settings_module = "tests.project.settings"
 # github_url = "https://github.com/<user or organization>/<project>/"
 
 [tool.tbump.version]
-current = "2.0"
+current = "2.0.0"
 
 # Example of a semver regexp.
 # Make sure this matches current_version before
