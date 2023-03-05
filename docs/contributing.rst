@@ -43,7 +43,7 @@ Tests
 
 All code changes should come with test changes. We use
 `py.test <https://pypi.python.org/pypi/pytest>`_ instead of Python's
-``unittest``. 
+``unittest``.
 
 We try to keep the project at high test coverage but know this isn't something
 we can achieve alone. Tests should be included with your pull requests and

@@ -63,7 +63,7 @@ UserKwargModelFormMixin
 -----------------------
 
 The ``UserKwargModelFormMixin`` is a form mixin to go along with our :ref:`UserFormKwargsMixin`.
-This becomes the first inherited class of our forms that receive the ``user`` keyword argument. With this mixin, the ``pop()``\ ping of the ``user`` is automated and no longer has to be done manually on every form that needs this behavior. 
+This becomes the first inherited class of our forms that receive the ``user`` keyword argument. With this mixin, the ``pop()``\ ping of the ``user`` is automated and no longer has to be done manually on every form that needs this behavior.
 
 Usage
 ^^^^^

@@ -26,7 +26,7 @@ Direct Contributors
 * Kit Sunde
 * Ben Cardy
 * Rag Sagar.V
-* Lacey Williams Henschel 
+* Lacey Williams Henschel
 * Gregory Shikhman
 * Mike Bryant
 * Fabio C. Barrionuevo da Luz
