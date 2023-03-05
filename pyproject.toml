@@ -1,17 +1,12 @@
 [build-system]
-requires = ["setuptools>=40.6.6", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
 [project]
-name = "django-braces"
-version = "2.0.0"
 authors = [
   { name = "Kenneth Love", email = "kenneth@bracket.com" },
   { name = "Chris Jones", email = "chris@bracket.com" },
 ]
-description = "Reusable, generic mixins for Django"
-readme = "README.md"
-requires-python = ">=3.8"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Development Status :: 6 - Mature",
@@ -30,18 +25,22 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+dependencies = ["flit"]
+dynamic = ["version", "description"]
 keywords = ["django", "views", "forms", "mixins"]
+license = {file = "LICENSE.txt"}
+name = "django-braces"
+readme = "README.md"
+requires-python = ">=3.8"
+
 [project.urls]
 documentation = "https://django-braces.readthedocs.io/en/latest/"
-repo = "https://github.com/brack3t/django-braces"
+repository = "https://github.com/brack3t/django-braces"
 
 [project.optional-dependencies]
-documentation = ["sphinx", "releases", "semantic-version"]
-dev = [
+checks = [
   "bandit[toml]",
   "black",
-  "django",
-  "django-rest-framework",
   "django-stubs[compatible-mypy]",
   "djangorestframework-stubs[compatible-mypy]",
   "flake8",
@@ -49,12 +48,19 @@ dev = [
   "isort",
   "mypy",
 ]
+dev = [
+  "django",
+  "django-rest-framework",
+  "pre-commit",
+]
+documentation = ["sphinx", "releases", "semantic-version"]
 testing = ["pytest", "pytest-cov", "pytest-django"]
 
-[project.license]
-file = "LICENSE.txt"
-
 # Tool configuration
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+
 [tool.black]
 line-length = 88
 
@@ -96,6 +102,9 @@ extend-ignore = ["F403", "PLU002"]
 format = "pylint"
 hang-closing = true
 require-plugins = []
+
+[tool.flit.module]
+name = "braces"
 
 [tool.interrogate]
 ignore-init-method = true
