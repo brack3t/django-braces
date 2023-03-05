@@ -167,7 +167,6 @@ class MultipleModelFormsMixin(ModelFormView, MultipleFormsMixin):
 
     def get_form_kwargs(self, name) -> dict:
         """Add the instance to the form if needed"""
-        assert self.instances
         kwargs = super().get_form_kwargs(name)
         instances = self.get_instances()
         if name in instances:
