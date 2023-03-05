@@ -25,7 +25,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = ["flit"]
+dependencies = ["flit", "pre-commit"]
 dynamic = ["version", "description"]
 keywords = ["django", "views", "forms", "mixins"]
 license = {file = "LICENSE.txt"}
@@ -46,12 +46,12 @@ checks = [
   "flake8",
   "interrogate",
   "isort",
+  "pylint",
   "mypy",
 ]
 dev = [
   "django",
   "django-rest-framework",
-  "pre-commit",
 ]
 documentation = ["sphinx", "releases", "semantic-version"]
 testing = ["pytest", "pytest-cov", "pytest-django"]
@@ -150,7 +150,46 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 show_error_context = true
 show_column_numbers = true
 
-[tool.pytest.ini_options]
+[tool.pylint]
+# main
+ignore-paths = [
+  "__pycache__",
+  ".gitignore",
+  ".github",
+  ".mypy_cache",
+  "docs",
+  "CONTRIBUTORS.txt",
+  "LICENSE.txt",
+  "MANIFEST.in",
+  "pyproject.toml",
+  "README.md",
+]
+ignore-patterns = [
+  "\\.vscode.*"
+]
+load-plugins = [
+  "broad_try_clause",
+  "code_style",
+  "consider-using-any-or-all",
+  "consider_refactoring_into_while",
+  "deprecated_builtins",
+  "design",
+  "dunder",
+  "multiple_types",
+  "set_membership",
+]
+# format
+max-line-length = 88
+# imports
+known-third-party = ["django", "rest_framework"]
+# variables
+allow-global-unused-variables = false
+init-import = true
+# broad_try_clause
+max-try-statements = 3
+
+[tool.pytest]
+# ini_options
 addopts = "--cov --nomigrations"
 
 [tool.tbump]
