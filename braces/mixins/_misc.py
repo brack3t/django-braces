@@ -1,4 +1,8 @@
+"""Mixins that don't have a better home"""
 from django.core.exceptions import ImproperlyConfigured
+
+# pylint: disable-next=unused-variable
+__all__ = ["StaticContextMixin"]
 
 
 class StaticContextMixin:

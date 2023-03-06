@@ -4,6 +4,7 @@ from django.views.generic import View
 from braces import mixins
 
 
+# @pytest.mark.parametrize("cls", [mixins.JSONResponseMixin, mixins.JsonResponseMixin])
 class TestJSONResponse:
     class _View(mixins.JSONResponseMixin, View):
         def get(self, request):

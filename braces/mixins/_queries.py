@@ -1,10 +1,14 @@
-from __future__ import annotations
+"""Mixins related to Django ORM queries"""
+from __future__ import annotations  # pylint: disable=unused-variable
 
 import warnings
 from typing import Iterable, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import QuerySet
+
+# pylint: disable-next=unused-variable
+__all__ = ["SelectRelatedMixin", "PrefetchRelatedMixin", "OrderableListMixin"]
 
 
 class SelectRelatedMixin:
@@ -97,8 +101,10 @@ class OrderableListMixin:
         """Which direction should be used for ordering by default?"""
         direction = self.orderable_direction_default
         if not direction or direction not in ["asc", "desc"]:
+            name = self.__class__.__name__
             raise ImproperlyConfigured(
-                f"{self.__class__.__name__} only allows asc or desc as orderable direction default"
+                f"{name} only allows 'asc' or 'desc' as values for "
+                f"{name}.orderable_direction_default."
             )
         return direction
 

@@ -1,7 +1,12 @@
+"""Mixins related to Django REST Framework"""
+from __future__ import annotations  # pylint: disable=unused-variable
 from typing import Dict, Type
 
 from django.core.exceptions import ImproperlyConfigured
 from rest_framework.serializers import Serializer
+
+# pylint: disable-next=unused-variable
+__all__ = ["MultipleSerializersMixin"]
 
 
 class MultipleSerializersMixin:
@@ -14,16 +19,8 @@ class MultipleSerializersMixin:
 
     serializer_classes: Dict[str, Type[Serializer]] = None
 
-    def get_serializer_class(self):
-        """Return the class to use for the serializer.
-
-        Defaults to using `super().serializer_class`.
-
-        You may want to override this if you need to provide different
-        serializations depending on the incoming request.
-
-        (E.g. admins get full serialization, others get basic serialization)
-        """
+    def get_serializer_classes(self) -> dict[str, Type[Serializer]]:
+        """Return the classes used for serialization"""
 
         class_name = self.__class__.__name__
         if self.serializer_classes is None:
@@ -39,4 +36,18 @@ class MultipleSerializersMixin:
                 "dictionary or a series of two-tuples."
             )
 
-        return self.serializer_classes[self.request.method.lower()]
+        return self.serializer_classes
+
+    def get_serializer_class(self) -> Type[Serializer]:
+        """Return the class to use for the serializer.
+
+        Defaults to using `super().serializer_class`.
+
+        You may want to override this if you need to provide different
+        serializations depending on the incoming request.
+
+        (E.g. admins get full serialization, others get basic serialization)
+        """
+
+        serializer_classes = self.get_serializer_classes()
+        return serializer_classes[self.request.method.lower()]

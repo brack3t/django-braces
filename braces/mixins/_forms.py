@@ -1,4 +1,5 @@
-from __future__ import annotations
+"""Mixins for form-using views. One mixin for forms."""
+from __future__ import annotations  # pylint: disable=unused-variable
 
 from django import forms
 from django.core.exceptions import ImproperlyConfigured
@@ -7,10 +8,17 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-from braces.stubs import ModelFormView
+
+__all__ = [  # pylint: disable=unused-variable
+    "UserFormMixin",
+    "FormWithUserMixin",
+    "CSRFExemptMixin",
+    "MultipleFormsMixin",
+    "MultipleModelFormsMixin",
+]
 
 
-class UserFormMixin:
+class UserFormMixin:  # pylint: disable=too-few-public-methods
     """Mixin for Forms/ModelForms that will store the request.user
     as self.user"""
 
@@ -37,15 +45,15 @@ class FormWithUserMixin:
         form_class = super().get_form_class()
         if issubclass(form_class, UserFormMixin):
             return form_class
-        else:
 
-            class FormWithUser(UserFormMixin, form_class):
-                ...
+        # pylint: disable-next=too-few-public-methods, missing-class-docstring
+        class FormWithUser(UserFormMixin, form_class):
+            __doc__ = form_class.__doc__
 
-            return FormWithUser
+        return FormWithUser
 
 
-class CSRFExemptMixin:
+class CSRFExemptMixin:  # pylint: disable=too-few-public-methods
     """Exempts the view from CSRF requirements"""
 
     @method_decorator(csrf_exempt)
@@ -55,11 +63,7 @@ class CSRFExemptMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
-# Aliases
-class CsrfExemptMixin(CSRFExemptMixin):
-    """Exempts the view from CSRF requirements"""
-
-    pass
+CsrfExemptMixin = CSRFExemptMixin  # pylint: disable=unused-variable
 
 
 class MultipleFormsMixin:
@@ -95,10 +99,10 @@ class MultipleFormsMixin:
 
     def get_forms(self) -> dict[str, forms.Form]:
         """Instantiates the forms with their kwargs"""
-        forms = {}
+        _forms = {}
         for name, form_class in self.get_form_classes().items():
-            forms[name] = form_class(**self.get_form_kwargs(name))
-        return forms
+            _forms[name] = form_class(**self.get_form_kwargs(name))
+        return _forms
 
     def get_form_kwargs(self, name) -> dict:
         """Add common kwargs to the form"""
@@ -110,8 +114,8 @@ class MultipleFormsMixin:
         if name in initial:
             kwargs["initial"] = initial[name]  # use the form's initial data
 
-        if self.request.method in ("POST", "PUT", "PATCH"):
-            """Attach the request's POST data and any files to the form"""
+        if self.request.method in {"POST", "PUT", "PATCH"}:
+            # Attach the request's POST data and any files to the form
             kwargs["data"] = self.request.POST
             kwargs["files"] = self.request.FILES
 
@@ -119,8 +123,8 @@ class MultipleFormsMixin:
 
     def validate_forms(self) -> bool:
         """Validate all forms using their own .is_valid() method"""
-        forms = self.get_forms()
-        return all(form.is_valid() for form in forms.values())
+        _forms = self.get_forms()
+        return all(f.is_valid() for f in _forms.values())
 
     def forms_valid(self) -> HttpResponse:
         """Called when all forms are valid. Should return an HttpResponse"""
@@ -130,6 +134,7 @@ class MultipleFormsMixin:
         """Called when any form is invalid. Should return an HttpResponse"""
         raise NotImplementedError
 
+    # pylint: disable-next=unused-argument
     def post(self, request, *args, **kwargs):
         """Handle POST requests: validate and run appropriate handler"""
         if self.validate_forms():
@@ -145,7 +150,8 @@ class MultipleFormsMixin:
         return self.post(request, *args, **kwargs)
 
 
-class MultipleModelFormsMixin(ModelFormView, MultipleFormsMixin):
+# pylint: disable-next=abstract-method
+class MultipleModelFormsMixin(MultipleFormsMixin):
     """Provides a view with the ability to handle multiple ModelForms"""
 
     instances: dict[str, models.Model] = None
@@ -167,8 +173,21 @@ class MultipleModelFormsMixin(ModelFormView, MultipleFormsMixin):
 
     def get_form_kwargs(self, name) -> dict:
         """Add the instance to the form if needed"""
-        kwargs = super().get_form_kwargs(name)
+        kwargs = {
+            "prefix": name,  # all forms get a prefix
+        }
+
+        initial = self.get_initial()
+        if name in initial:
+            kwargs["initial"] = initial[name]  # use the form's initial data
+
+        if self.request.method in {"POST", "PUT", "PATCH"}:
+            # Attach the request's POST data and any files to the form
+            kwargs["data"] = self.request.POST
+            kwargs["files"] = self.request.FILES
+
         instances = self.get_instances()
         if name in instances:
             kwargs["instance"] = instances[name]
+
         return kwargs

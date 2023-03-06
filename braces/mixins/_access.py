@@ -1,4 +1,5 @@
-from __future__ import annotations
+"""Mixins related to authorization and authentication"""
+from __future__ import annotations  # pylint: disable=unused-variable
 
 import inspect
 from datetime import timedelta
@@ -12,6 +13,20 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.utils.timezone import now
 
 from braces.mixins._redirects import RedirectMixin
+
+# pylint: disable-next=unused-variable
+__all__ = [
+    "PassesTest",
+    "RedirectOnFailure",
+    "SuperuserRequiredMixin",
+    "StaffUserRequiredMixin",
+    "GroupRequiredMixin",
+    "AnonymousRequiredMixin",
+    "LoginRequiredMixin",
+    "RecentLoginRequiredMixin",
+    "PermissionRequiredMixin",
+    "SSLRequiredMixin",
+]
 
 
 class PassesTest:
@@ -27,7 +42,7 @@ class PassesTest:
         if not test_method():
             return self.handle_test_failure()
 
-        return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)  # pylint: disable=no-member
 
     def get_test_method(self) -> Callable:
         """What method should be used to test the request?
@@ -44,19 +59,19 @@ class PassesTest:
 
         try:
             method = getattr(self, self.request_test)
-        except AttributeError:
+        except AttributeError as exc:
             class_name = self.__class__.__name__
 
             raise ImproperlyConfigured(
                 f"{class_name} is missing the request_test method. "
                 f"Define {class_name}.request_test or "
                 f"override {class_name}.get_request_test()."
-            )
+            ) from exc
+
         if not callable(method):
             raise ImproperlyConfigured(
-                "{0}.{1} must be callable.".format(
-                    self.__class__.__name__, self.request_test
-                )
+                f"{self.__class__.__name__}.{self.request_test} must be "
+                "callable."
             )
 
         return method
@@ -71,35 +86,30 @@ class RedirectOnFailure(RedirectMixin, PassesTest):
 
     login_url: str = None
     redirect_field_name: str = REDIRECT_FIELD_NAME
-    raise_exception: bool = False
+    raise_exception: bool | Exception | Callable = False
     redirect_unauthenticated_users: bool = True
 
     def get_login_url(self) -> str:
         """Returns the URL for the login page"""
         if self.login_url is None:
             try:
-                login_url = settings.LOGIN_URL
-            except AttributeError:
-                login_url = self.login_url
-        else:
-            login_url = self.login_url
-
-        if not login_url:
-            raise ImproperlyConfigured(
-                "Define {0}.login_url or settings.LOGIN_URL or "
-                "override {0}.get_login_url().".format(self.__class__.__name__)
-            )
-        return login_url
+                self.login_url = settings.LOGIN_URL
+            except AttributeError as exc:
+                name = self.__class__.__name__
+                raise ImproperlyConfigured(
+                    f"Define {name}.login_url or settings.LOGIN_URL or "
+                    f"override {name}.get_login_url()."
+                ) from exc
+        return self.login_url
 
     def get_redirect_field_name(self) -> str:
         """Returns the query string field name for the redirection URL"""
         if self.redirect_field_name is None:
+            name = self.__class__.__name__
             raise ImproperlyConfigured(
-                "{0} is missing the redirect_field_name. "
-                "Define {0}.redirect_field_name or "
-                "override {0}.get_redirect_field_name().".format(
-                    self.__class__.__name__
-                )
+                f"{name} is missing the redirect_field_name. "
+                f"Define {name}.redirect_field_name or "
+                f"override {name}.get_redirect_field_name()."
             )
         return self.redirect_field_name
 
@@ -114,7 +124,7 @@ class RedirectOnFailure(RedirectMixin, PassesTest):
         # redirect unauthenticated users to login
         if (
             self.redirect_unauthenticated_users
-            and not self.request.user.is_authenticated
+            and not self.request.user.is_authenticated  # pylint: disable=no-member
         ):
             return self.redirect()
 
@@ -122,12 +132,12 @@ class RedirectOnFailure(RedirectMixin, PassesTest):
         if inspect.isclass(self.raise_exception) and issubclass(
             self.raise_exception, Exception
         ):
-            raise self.raise_exception
+            raise self.raise_exception  # pylint: disable=not-callable,raising-bad-type
 
         # if self.raise_exception is a callable, call it
         if callable(self.raise_exception):
             if isinstance(
-                response := self.raise_exception(self.request),
+                response := self.raise_exception(self.request),  # pylint: disable=not-callable
                 (http.HttpResponse, http.StreamingHttpResponse),
             ):
                 return response
@@ -138,7 +148,7 @@ class RedirectOnFailure(RedirectMixin, PassesTest):
     def redirect(self) -> http.HttpResponseRedirect:
         """Generate a redirect for the login URL"""
         return redirect_to_login(
-            self.request.get_full_path(),
+            self.request.get_full_path(),  # pylint: disable=no-member
             self.get_login_url(),
             self.get_redirect_field_name(),
         )
@@ -151,8 +161,7 @@ class SuperuserRequiredMixin(RedirectOnFailure):
 
     def test_superuser(self) -> bool:
         """The user must be authenticated and a superuser"""
-        user = getattr(self.request, "user", None)
-        if user is not None:
+        if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated and user.is_superuser
         return False
 
@@ -164,8 +173,7 @@ class StaffUserRequiredMixin(RedirectOnFailure):
 
     def test_staffuser(self) -> bool:
         """The user must be authenticated and is_staff=True"""
-        user = getattr(self.request, "user", None)
-        if user is not None:
+        if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated and user.is_staff
         return False
 
@@ -180,12 +188,11 @@ class GroupRequiredMixin(RedirectOnFailure):
     def get_group_required(self) -> list[str]:
         """Returns the group(s) required"""
         if self.group_required is None:
+            name = self.__class__.__name__
             raise ImproperlyConfigured(
-                "{0} is missing the group_required. "
-                "Define {0}.group_required or "
-                "override {0}.get_group_required().".format(
-                    self.__class__.__name__
-                )
+                f"{name} is missing the group_required. "
+                f"Define {name}.group_required or "
+                f"override {name}.get_group_required()."
             )
         if isinstance(self.group_required, str):
             return [self.group_required]
@@ -203,8 +210,7 @@ class GroupRequiredMixin(RedirectOnFailure):
     def check_groups(self) -> bool:
         """The user must be authenticated and a member of the
         appropriate groups"""
-        user = getattr(self.request, "user", None)
-        if user is not None:
+        if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated and self.check_membership()
         return False
 
@@ -218,8 +224,7 @@ class AnonymousRequiredMixin(RedirectOnFailure):
     def test_anonymous(self) -> bool:
         """The user must be anonymous, non-authenticated
         No redirect to login as that wouldn't make sense."""
-        user = getattr(self.request, "user", None)
-        if user is not None:
+        if (user := getattr(self.request, "user", None)) is not None:
             return not user.is_authenticated
         return True
 
@@ -231,8 +236,7 @@ class LoginRequiredMixin(RedirectOnFailure):
 
     def test_authenticated(self) -> bool:
         """The user must be authenticated"""
-        user = getattr(self.request, "user", None)
-        if user is not None:
+        if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated
         return False
 
@@ -245,11 +249,9 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
 
     def test_recent_login(self) -> bool:
         """Make sure the user's login is recent enough"""
-        user = getattr(self.request, "user", None)
-        if user is not None:
-            return (
-                user.is_authenticated
-                and user.last_login > now() - timedelta(seconds=self.max_age)
+        if (user := getattr(self.request, "user", None)) is not None:
+            return user.is_authenticated and user.last_login > now() - timedelta(
+                seconds=self.max_age
             )
         return False
 
@@ -269,12 +271,11 @@ class PermissionRequiredMixin(RedirectOnFailure):
     def get_permission_required(self) -> Union[str, dict[str, list[str]]]:
         """Returns the permission(s) required"""
         if self.permission_required is None:
+            name = self.__class__.__name__
             raise ImproperlyConfigured(
-                "{0} is missing the permission_required. "
-                "Define {0}.permission_required or "
-                "override {0}.get_permission_required().".format(
-                    self.__class__.__name__
-                )
+                f"{name} is missing the permission_required. "
+                f"Define {name}.permission_required or "
+                f"override {name}.get_permission_required()."
             )
         if isinstance(self.permission_required, str):
             return {"all": [self.permission_required]}
@@ -312,9 +313,7 @@ class SSLRequiredMixin(RedirectOnFailure):
     ) -> Union[PermissionDenied, http.HttpResponse]:
         """If not using SSL, redirect to the same URL but with HTTPS"""
         if self.redirect_to_ssl:
-            current = self.request.build_absolute_uri(
-                self.request.get_full_path()
-            )
+            current = self.request.build_absolute_uri(self.request.get_full_path())
             secure = current.replace("http://", "https://")
             return http.HttpResponsePermanentRedirect(secure)
         return super().handle_test_failure()

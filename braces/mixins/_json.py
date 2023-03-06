@@ -1,4 +1,5 @@
-from __future__ import annotations
+"""Mixins related to JSON responses"""
+from __future__ import annotations  # pylint: disable=unused-variable
 
 from typing import Any, Type
 
@@ -7,6 +8,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 
 from braces.stubs import BasicView
+
+# pylint: disable-next=unused-variable
+__all__ = ["JSONResponseMixin", "JsonResponseMixin"]
 
 
 class JSONResponseMixin(BasicView):
@@ -58,7 +62,4 @@ class JSONResponseMixin(BasicView):
         # Aliases for backwards compatibility
 
 
-class JsonResponseMixin(JSONResponseMixin):
-    """Alias for JSONResponseMixin"""
-
-    ...
+JsonResponseMixin = JSONResponseMixin

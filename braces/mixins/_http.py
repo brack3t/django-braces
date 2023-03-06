@@ -1,5 +1,11 @@
+"""Mixins related to HTTP requests and responses"""
+from __future__ import annotations  # pylint: disable=unused-variable
+
 from django.core.exceptions import ImproperlyConfigured
 from django.views.decorators.cache import cache_control, never_cache
+
+# pylint: disable-next=unused-variable
+__all__ = ["AllVerbsMixin", "HeaderMixin", "CacheControlMixin", "NeverCacheMixin"]
 
 
 class AllVerbsMixin:
@@ -30,16 +36,17 @@ class HeaderMixin:
 
     headers: dict = None
 
-    def get_headers(self, request) -> dict:
+    def get_headers(self) -> dict:
         """Return a dictionary of headers to add to the response."""
         if self.headers is None:
             self.headers = {}
         return self.headers
 
+    # pylint: disable-next=too-many-function-args
     def dispatch(self, request, *args, **kwargs):
         """Add headers to the response."""
         response = super().dispatch(request, *args, **kwargs)
-        for key, value in self.get_headers(request).items():
+        for key, value in self.get_headers().items():
             response[key] = value
         return response
 
@@ -73,7 +80,7 @@ class CacheControlMixin:
         return cache_control(**cls.get_cache_control_options())(view)
 
 
-class NeverCacheMixin:
+class NeverCacheMixin:  # pylint: disable=too-few-public-methods
     """Prevents a view from being cached."""
 
     @classmethod
