@@ -191,6 +191,7 @@ max-try-statements = 3
 [tool.pytest.ini_options]
 # ini_options
 addopts = "--cov --nomigrations --reverse"
+django_find_project = false
 DJANGO_SETTINGS_MODULE = "tests.project.settings"
 pythonpath = ". src"
 
