@@ -54,7 +54,7 @@ dev = [
   "django-rest-framework",
 ]
 documentation = ["sphinx", "releases", "semantic-version"]
-testing = ["pytest", "pytest-cov", "pytest-django"]
+testing = ["pytest", "pytest-cov", "pytest-django", "pytest-reverse"]
 
 # Tool configuration
 
@@ -188,9 +188,11 @@ init-import = true
 # broad_try_clause
 max-try-statements = 3
 
-[tool.pytest]
+[tool.pytest.ini_options]
 # ini_options
-addopts = "--cov --nomigrations"
+addopts = "--cov --nomigrations --reverse"
+DJANGO_SETTINGS_MODULE = "tests.project.settings"
+pythonpath = ". src"
 
 [tool.tbump]
 github_url = "https://github.com/brack3t/django-braces/"

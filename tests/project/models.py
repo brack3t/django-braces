@@ -16,6 +16,9 @@ class Article(models.Model):
     body = models.TextField()
     slug = models.SlugField(blank=True)
 
+    class Meta:
+        app_label = "project"
+
 
 class CanonicalArticle(models.Model):
     """
@@ -28,6 +31,9 @@ class CanonicalArticle(models.Model):
     title = models.CharField(max_length=30)
     body = models.TextField()
     slug = models.SlugField(blank=True)
+
+    class Meta:
+        app_label = "project"
 
     def get_canonical_slug(self):
         """Required by mixin to use the model as the source of truth"""
