@@ -107,32 +107,35 @@ class TestStaffUserRequired:
 
 @pytest.mark.django_db
 class TestGroupRequired:
-    class _View(mixins.GroupRequiredMixin, View):
-        group_required = ["test", "fake"]
 
-        def get(self, request):
-            return HttpResponse("OK")
+    @pytest.fixture
+    def view_class(self):
+        class _View(mixins.GroupRequiredMixin, View):
+            group_required = ["test", "fake"]
+
+            def get(self, request):
+                return HttpResponse("OK")
+        return _View
 
     def setup_method(self):
         self.user = get_user_model().objects.create_user("test", "Test1234")
         test_group = Group.objects.create(name="test")
         self.user.groups.add(test_group)
 
-    def test_success(self):
+    def test_success(self, view_class):
         request = RequestFactory().get("/")
         request.user = self.user
-        response = self._View.as_view()(request)
+        response = view_class.as_view()(request)
         assert response.status_code == 200
 
-    def test_failure(self):
+    def test_failure(self, view_class):
         request = RequestFactory().get("/")
         request.user = self.user
-        self.user.groups.clear()
-        response = self._View.as_view()(request)
+        request.user.groups.clear()
+        response = view_class.as_view()(request)
         assert response.status_code == 302
 
-    def test_no_group_required(self):
-        view_class = copy.copy(self._View)
+    def test_no_group_required(self, view_class):
         view_class.group_required = None
         request = RequestFactory().get("/")
         request.user = self.user
@@ -140,10 +143,9 @@ class TestGroupRequired:
         with pytest.raises(ImproperlyConfigured):
             view_class.as_view()(request)
 
-    def test_group_string(self):
-        view_class = copy.copy(self._View)
+    def test_group_string(self, view_class):
         view_class.group_required = "test"
-        assert self._View().get_group_required() == ["test"]
+        assert view_class.get_group_required() == ["test"]
 
 
 class TestAnonymousRequired:

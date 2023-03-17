@@ -190,7 +190,7 @@ class GroupRequiredMixin(RedirectOnFailure):
         if self.group_required is None:
             name = self.__class__.__name__
             raise ImproperlyConfigured(
-                f"{name} is missing the group_required. "
+                f"{name} is missing the group_required attribute. "
                 f"Define {name}.group_required or "
                 f"override {name}.get_group_required()."
             )
