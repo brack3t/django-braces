@@ -1,5 +1,5 @@
 """Mixins related to JSON responses"""
-from __future__ import annotations  # pylint: disable=unused-variable
+from __future__ import annotations
 
 from typing import Any, Type
 
@@ -7,13 +7,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 
-from braces.stubs import BasicView
-
-# pylint: disable-next=unused-variable
 __all__ = ["JSONResponseMixin", "JsonResponseMixin"]
 
 
-class JSONResponseMixin(BasicView):
+class JSONResponseMixin:
     """A mixin that can be used to render a JSON response.
     NOTE: This is meant for light work. For heavy work, use a proper
     API framework.
