@@ -8,25 +8,10 @@ from typing import Callable, Union
 from django import http
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.views import logout_then_login, redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.utils.timezone import now
 
-from braces.mixins._redirects import RedirectMixin
-
-# pylint: disable-next=unused-variable
-__all__ = [
-    "PassesTest",
-    "RedirectOnFailure",
-    "SuperuserRequiredMixin",
-    "StaffUserRequiredMixin",
-    "GroupRequiredMixin",
-    "AnonymousRequiredMixin",
-    "LoginRequiredMixin",
-    "RecentLoginRequiredMixin",
-    "PermissionRequiredMixin",
-    "SSLRequiredMixin",
-]
+from braces.mixins.redirects import RedirectMixin
 
 
 class PassesTest:
@@ -147,6 +132,7 @@ class RedirectOnFailure(RedirectMixin, PassesTest):
 
     def redirect(self) -> http.HttpResponseRedirect:
         """Generate a redirect for the login URL"""
+        from django.contrib.auth.views import redirect_to_login
         return redirect_to_login(
             self.request.get_full_path(),  # pylint: disable=no-member
             self.get_login_url(),
@@ -259,6 +245,7 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
         self,
     ) -> Union[PermissionDenied, http.HttpResponse]:
         """Logout the user and redirect to login"""
+        from django.contrib.auth.views import logout_then_login
         return logout_then_login(self.request, self.get_login_url())
 
 
@@ -317,3 +304,18 @@ class SSLRequiredMixin(RedirectOnFailure):
             secure = current.replace("http://", "https://")
             return http.HttpResponsePermanentRedirect(secure)
         return super().handle_test_failure()
+
+
+# pylint: disable-next=unused-variable
+__all__ = [
+    "PassesTest",
+    "RedirectOnFailure",
+    "SuperuserRequiredMixin",
+    "StaffUserRequiredMixin",
+    "GroupRequiredMixin",
+    "AnonymousRequiredMixin",
+    "LoginRequiredMixin",
+    "RecentLoginRequiredMixin",
+    "PermissionRequiredMixin",
+    "SSLRequiredMixin",
+]

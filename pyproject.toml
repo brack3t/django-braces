@@ -39,15 +39,12 @@ repository = "https://github.com/brack3t/django-braces"
 
 [project.optional-dependencies]
 checks = [
-  "bandit[toml]",
   "black",
   "django-stubs[compatible-mypy]",
   "djangorestframework-stubs[compatible-mypy]",
-  "flake8",
   "interrogate",
-  "isort",
-  "pylint",
   "mypy",
+  "ruff",
 ]
 dev = [
   "django",
@@ -57,9 +54,6 @@ documentation = ["sphinx", "releases", "semantic-version"]
 testing = ["pytest", "pytest-cov", "pytest-django", "pytest-reverse"]
 
 # Tool configuration
-
-[tool.bandit]
-exclude_dirs = ["tests"]
 
 [tool.black]
 line-length = 88
@@ -96,13 +90,6 @@ source = ["braces"]
 [tool.django-stubs]
 django_settings_module = "tests.project.settings"
 
-[tool.flake8]
-extend-exclude = ["venv", "build", "dist", "docs"]
-extend-ignore = ["F403", "PLU002"]
-format = "pylint"
-hang-closing = true
-require-plugins = []
-
 [tool.flit.module]
 name = "braces"
 
@@ -125,20 +112,6 @@ quiet = false
 color = true
 omit-covered-files = true
 
-[tool.isort]
-combine_as_imports = true
-ensure_newline_before_comments = true
-extend_skip = [".gitignore", "pyproject.toml", ".md", ".txt", ".in", ".yml"]
-force_grid_wrap = 0
-include_trailing_comma = true
-known_third_party = ["django", "rest_framework"]
-line_length = 88
-multi_line_output = 5
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-skip_gitignore = true
-split_on_trailing_comma = true
-src_paths = ["braces", "tests"]
-use_parentheses = true
 
 [tool.mypy]
 color_output = true
@@ -150,50 +123,71 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 show_error_context = true
 show_column_numbers = true
 
-[tool.pylint]
-# main
-ignore-paths = [
-  "__pycache__",
-  ".gitignore",
-  ".github",
-  ".mypy_cache",
-  "docs",
-  "CONTRIBUTORS.txt",
-  "LICENSE.txt",
-  "MANIFEST.in",
-  "pyproject.toml",
-  "README.md",
-]
-ignore-patterns = [
-  "\\.vscode.*"
-]
-load-plugins = [
-  "pylint.extensions.bad_builtin",
-  "pylint.extensions.broad_try_clause",
-  "pylint.extensions.code_style",
-  "pylint.extensions.consider_refactoring_into_while_condition",
-  "pylint.extensions.for_any_all",
-  "pylint.extensions.mccabe",
-  "pylint.extensions.dunder",
-  "pylint.extensions.redefined_variable_type",
-  "pylint.extensions.set_membership",
-]
-# format
-max-line-length = 88
-# imports
-known-third-party = ["django", "rest_framework"]
-# variables
-allow-global-unused-variables = false
-init-import = true
-# broad_try_clause
-max-try-statements = 3
-
 [tool.pytest.ini_options]
 # ini_options
 addopts = "--cov --nomigrations --reverse"
 django_find_project = false
 DJANGO_SETTINGS_MODULE = "tests.project.settings"
+markers = ["mixin_class", "view_class"]
 pythonpath = ". src"
+
+[tool.ruff]
+select = [
+  "ANN",  # flake8-annotations
+  "B",  # flake8-bugbear
+  "BLE",  # flake8-blind-except
+  "COM",  # flake8-commas
+  "D",  # pydocstyle
+  "DJ",  # flake8-django
+  "E",  # pycodestyle
+  "EM",  # flake8-errmsg
+  "ERA",  # flake8-eradicate
+  "F",  # Pyflakes
+  "FBT",  # flake8-boolean-trap
+  "G",  # flake8-logging-format
+  "I",  # isort
+  "INP",  # flake8-no-pep420
+  "N",  # pep8-naming
+  "PIE",  # flake8-pie
+  "PT",  # flake8-pytest
+  "PYI",  # flake8-pyi
+  "Q",  # flake8-quotes
+  "RET", # flake8-return
+  "RSE",  # flake8-raises
+  "RUF",  # ruff-specific rules
+  "S",  # flake8-bandit
+  "SIM",  # flake8-simplify
+  "T20", # flake8-print
+  "TCH",  # flake8-type-checking
+  "TRY",  # tryceratops
+]
+
+# ignore
+ignore = ["F403",]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["ANN", "B", "BLE", "COM", "D", "DJ", "E", "EM", "ERA", "F", "FBT", "G", "I", "INP", "N", "PIE", "PT", "PYI", "Q", "RET", "RSE", "RUF", "S", "SIM", "T20", "TCH", "TRY"]
+
+unfixable = []
+
+extend-exclude = ["docs"]
+per-file-ignores = {}
+ignore-init-module-imports = true
+
+format = "pylint"
+
+# Assume Python 3.8.
+target-version = "py38"
+src = ["src", "tests"]
+
+[tool.ruff.isort]
+combine-as-imports = true
+known-third-party = ["django", "rest_framework"]
+split-on-trailing-comma = true
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
 
 [tool.tbump]
 github_url = "https://github.com/brack3t/django-braces/"
