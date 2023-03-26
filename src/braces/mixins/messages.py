@@ -4,6 +4,13 @@ from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import Promise
 
+__all__ = [
+    "MessagesMixin",
+    "FormValidMessageMixin",
+    "FormInvalidMessageMixin",
+    "FormMessagesMixin",
+]
+
 
 class _MessageHelper:
     """An interface to the `django.contrib.messages` API."""
@@ -77,26 +84,20 @@ class FormValidMessageMixin(MessagesMixin):
             )
 
         if not isinstance(self.form_valid_message, (str, Promise)):
-            raise ImproperlyConfigured(
-                f"{name}.form_valid_message must be a str."
-            )
+            raise ImproperlyConfigured(f"{name}.form_valid_message must be a str.")
 
         return self.form_valid_message
 
     def form_valid(self, form):
         """Add the message when the form is valid."""
         response = super().form_valid(form)
-        self.messages.success(
-            self.get_form_valid_message(), fail_silently=True
-        )
+        self.messages.success(self.get_form_valid_message(), fail_silently=True)
         return response
 
     def delete(self, *args, **kwargs):
         """Add the message for deletes, too."""
         response = super().delete(*args, **kwargs)
-        self.messages.success(
-            self.get_form_valid_message(), fail_silently=True
-        )
+        self.messages.success(self.get_form_valid_message(), fail_silently=True)
         return response
 
 
@@ -124,18 +125,14 @@ class FormInvalidMessageMixin(MessagesMixin):
             )
 
         if not isinstance(self.form_invalid_message, (str, Promise)):
-            raise ImproperlyConfigured(
-                f"{name}.form_invalid_message must be a str."
-            )
+            raise ImproperlyConfigured(f"{name}.form_invalid_message must be a str.")
 
         return self.form_invalid_message
 
     def form_invalid(self, form):
         """Add the message when the form is invalid."""
         response = super().form_invalid(form)
-        self.messages.error(
-            self.get_form_invalid_message(), fail_silently=True
-        )
+        self.messages.error(self.get_form_invalid_message(), fail_silently=True)
         return response
 
 

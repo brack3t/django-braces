@@ -1,6 +1,7 @@
 from django import http
 from django.core.exceptions import ImproperlyConfigured
 
+__all__ = ["RedirectMixin", "CanonicalRedirectMixin"]
 
 class RedirectMixin:
     """Mixin to simplify redirecting a request."""

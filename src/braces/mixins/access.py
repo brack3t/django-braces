@@ -30,16 +30,17 @@ class PassesTest:
         return super().dispatch(request, *args, **kwargs)  # pylint: disable=no-member
 
     def get_test_method(self) -> Callable:
-        """What method should be used to test the request?
+        """Find the method to test the request with.
+
         Provide a callable object or a string that can be used to
         look up a callable
         """
         if self.request_test is None:
             class_name = self.__class__.__name__
             raise ImproperlyConfigured(
-                f"{class_name} is missing the request_test method. "
-                f"Define {class_name}.request_test or override "
-                f"{class_name}.get_request_test()."
+                "{0} is missing the request_test method. "
+                "Define {0}.request_test or override "
+                "{0}.get_request_test()." % class_name
             )
 
         try:
@@ -51,6 +52,7 @@ class PassesTest:
                 f"{class_name} is missing the request_test method. "
                 f"Define {class_name}.request_test or "
                 f"override {class_name}.get_request_test()."
+                "Attribute."
             ) from exc
 
         if not callable(method):

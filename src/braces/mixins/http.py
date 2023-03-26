@@ -16,14 +16,11 @@ class AllVerbsMixin:
     def dispatch(self, request, *args, **kwargs):
         """Run all requests through the all_verb_handler method."""
         if not self.all_verb_handler:
-            raise ImproperlyConfigured(
-                f"{self.__class__.__name__} requires the all_verb_handler "
-                "attribute to be set."
-            )
+            err = (f"{self.__class__.__name__} requires the all_verb_handler "
+                    "attribute to be set.")
+            raise ImproperlyConfigured(err)
 
-        handler = getattr(
-            self, self.all_verb_handler, self.http_method_not_allowed
-        )
+        handler = getattr(self, self.all_verb_handler, self.http_method_not_allowed)
         return handler(request, *args, **kwargs)
 
     def all(self, request, *args, **kwargs):

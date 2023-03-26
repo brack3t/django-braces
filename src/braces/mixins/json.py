@@ -7,11 +7,12 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 
-__all__ = ["JSONResponseMixin", "JsonResponseMixin"]
+__all__ = ["JSONResponseMixin"]
 
 
 class JSONResponseMixin:
     """A mixin that can be used to render a JSON response.
+
     NOTE: This is meant for light work. For heavy work, use a proper
     API framework.
     """
@@ -55,8 +56,3 @@ class JSONResponseMixin:
             content_type=self.get_content_type(),
             status=status,
         )
-
-        # Aliases for backwards compatibility
-
-
-JsonResponseMixin = JSONResponseMixin
