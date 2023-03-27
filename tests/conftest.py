@@ -5,7 +5,7 @@ from django.views.generic import View
 
 from braces import mixins
 
-MIXINS_TABLE = (
+MIXINS = (
     ("PassesTest", mixins.PassesTest),
     ("RedirectOnFailure", mixins.RedirectOnFailure),
     ("SuperuserRequiredMixin", mixins.SuperuserRequiredMixin),
@@ -40,23 +40,26 @@ MIXINS_TABLE = (
 )
 
 
-@pytest.fixture(name="mixin_view", scope="function")
-def make_test_view(request) -> View:
+@pytest.fixture(name="mixin_view")
+def make_mixin_view() -> View:
     """Combine a mixin and View for a test."""
-    mixin_class = request.node.get_closest_marker("mixin_class")
-    if mixin_class and mixin_class is None:
-        pytest.fail("No `mixin class` specified for `mixin_view` fixture")
-    mixin_name = mixin_class.args[0]
 
-    mixin = (cls for name, cls in MIXINS_TABLE if name == mixin_name)
-    mixin = next(mixin, None)
-    if mixin is None:
-        pytest.fail(f"Couldn't find {mixin_name}")
+    def _make_mixin_view(mixin_name, kwargs=None):
+        mixin = (cls for name, cls in MIXINS if name == mixin_name)
+        mixin = next(mixin, None)
+        if mixin is None:
+            pytest.fail(f"Couldn't find {mixin_name}")
 
-    class FixtureView(mixin, View):
-        """Temporary view with a specific mixin."""
-        def get(self, request):
-            """Reply to GETs."""
-            return HttpResponse("OK")
+        if not kwargs or not isinstance(kwargs, dict):
+            kwargs = {}
+        kwargs.update({
+            "get": lambda s, r: HttpResponse("braces"),
+        })
+        view_class = type(
+            "FixtureView",
+            (mixin, View),
+            kwargs
+        )
+        return view_class
 
-    return copy.copy(FixtureView)
+    return _make_mixin_view

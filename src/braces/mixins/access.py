@@ -278,9 +278,10 @@ class PermissionRequiredMixin(RedirectOnFailure):
 
         if not getattr(self.request, "user", None):
             return False
-        perms_all = self.request.user.has_perms(_all) or []
-        perms_any = [self.request.user.has_perm(perm) for perm in _any]
+        perms_all = user.has_perms(_all) or []
+        perms_any = [user.has_perm(perm) for perm in _any]
 
+        assert False
         return any((perms_all, any(perms_any)))
 
 
