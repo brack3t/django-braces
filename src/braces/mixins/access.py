@@ -1,20 +1,18 @@
 """Mixins related to authorization and authentication"""
 from __future__ import annotations  # pylint: disable=unused-variable
 
-import inspect
 from datetime import timedelta
 from typing import Callable, Union
 
 from django import http
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.utils.timezone import now
 
-from braces.mixins.redirects import RedirectMixin
+from braces.mixins.redirects import RedirectOnFailureMixin
 
 
-class PassesTest:
+class PassesTestMixin(RedirectOnFailureMixin):
     """Requires a test, usually of the request, to pass before the view
     is dispatched."""
 
@@ -35,8 +33,8 @@ class PassesTest:
         Provide a callable object or a string that can be used to
         look up a callable
         """
+        class_name = self.__class__.__name__
         if self.request_test is None:
-            class_name = self.__class__.__name__
             raise ImproperlyConfigured(
                 "{0} is missing the request_test method. "
                 "Define {0}.request_test or override "
@@ -46,8 +44,6 @@ class PassesTest:
         try:
             method = getattr(self, self.request_test)
         except AttributeError as exc:
-            class_name = self.__class__.__name__
-
             raise ImproperlyConfigured(
                 f"{class_name} is missing the request_test method. "
                 f"Define {class_name}.request_test or "
@@ -68,81 +64,7 @@ class PassesTest:
         raise PermissionDenied
 
 
-class RedirectOnFailure(RedirectMixin, PassesTest):
-    """Redirects to a login page if the request test fails"""
-
-    login_url: str = None
-    redirect_field_name: str = REDIRECT_FIELD_NAME
-    raise_exception: bool | Exception | Callable = False
-    redirect_unauthenticated_users: bool = True
-
-    def get_login_url(self) -> str:
-        """Returns the URL for the login page"""
-        if self.login_url is None:
-            try:
-                self.login_url = settings.LOGIN_URL
-            except AttributeError as exc:
-                name = self.__class__.__name__
-                raise ImproperlyConfigured(
-                    f"Define {name}.login_url or settings.LOGIN_URL or "
-                    f"override {name}.get_login_url()."
-                ) from exc
-        return self.login_url
-
-    def get_redirect_field_name(self) -> str:
-        """Returns the query string field name for the redirection URL"""
-        if self.redirect_field_name is None:
-            name = self.__class__.__name__
-            raise ImproperlyConfigured(
-                f"{name} is missing the redirect_field_name. "
-                f"Define {name}.redirect_field_name or "
-                f"override {name}.get_redirect_field_name()."
-            )
-        return self.redirect_field_name
-
-    def handle_test_failure(
-        self,
-    ) -> Union[PermissionDenied, http.HttpResponse]:
-        """Test failed, should we redirect or raise an exception?"""
-        # redirect without an exception
-        if not self.raise_exception:
-            return self.redirect()
-
-        # redirect unauthenticated users to login
-        if (
-            self.redirect_unauthenticated_users
-            and not self.request.user.is_authenticated  # pylint: disable=no-member
-        ):
-            return self.redirect()
-
-        # if self.raise_exception is an exception, raise it
-        if inspect.isclass(self.raise_exception) and issubclass(
-            self.raise_exception, Exception
-        ):
-            raise self.raise_exception  # pylint: disable=not-callable,raising-bad-type
-
-        # if self.raise_exception is a callable, call it
-        if callable(self.raise_exception):
-            if isinstance(
-                response := self.raise_exception(self.request),  # pylint: disable=not-callable
-                (http.HttpResponse, http.StreamingHttpResponse),
-            ):
-                return response
-
-        # raise the default exception
-        raise http.Http404
-
-    def redirect(self) -> http.HttpResponseRedirect:
-        """Generate a redirect for the login URL"""
-        from django.contrib.auth.views import redirect_to_login
-        return redirect_to_login(
-            self.request.get_full_path(),  # pylint: disable=no-member
-            self.get_login_url(),
-            self.get_redirect_field_name(),
-        )
-
-
-class SuperuserRequiredMixin(RedirectOnFailure):
+class SuperuserRequiredMixin(RedirectOnFailureMixin):
     """Require the user to be authenticated and a superuser"""
 
     request_test: str = "test_superuser"
@@ -154,7 +76,7 @@ class SuperuserRequiredMixin(RedirectOnFailure):
         return False
 
 
-class StaffUserRequiredMixin(RedirectOnFailure):
+class StaffUserRequiredMixin(RedirectOnFailureMixin):
     """Require the user to be authenticated and a staff user"""
 
     request_test: str = "test_staffuser"
@@ -166,7 +88,7 @@ class StaffUserRequiredMixin(RedirectOnFailure):
         return False
 
 
-class GroupRequiredMixin(RedirectOnFailure):
+class GroupRequiredMixin(RedirectOnFailureMixin):
     """Requires the user to be authenticated and a member of at least
     one of the specified group"""
 
@@ -203,7 +125,7 @@ class GroupRequiredMixin(RedirectOnFailure):
         return False
 
 
-class AnonymousRequiredMixin(RedirectOnFailure):
+class AnonymousRequiredMixin(RedirectOnFailureMixin):
     """Require the user to be anonymous"""
 
     request_test: str = "test_anonymous"
@@ -217,7 +139,7 @@ class AnonymousRequiredMixin(RedirectOnFailure):
         return True
 
 
-class LoginRequiredMixin(RedirectOnFailure):
+class LoginRequiredMixin(RedirectOnFailureMixin):
     """Require the user to be authenticated"""
 
     request_test: str = "test_authenticated"
@@ -251,7 +173,7 @@ class RecentLoginRequiredMixin(LoginRequiredMixin):
         return logout_then_login(self.request, self.get_login_url())
 
 
-class PermissionRequiredMixin(RedirectOnFailure):
+class PermissionRequiredMixin(RedirectOnFailureMixin):
     """Require a user to have specific permission(s)"""
 
     permission_required: Union[str, dict[str, list[str]]] = None
@@ -285,7 +207,7 @@ class PermissionRequiredMixin(RedirectOnFailure):
         return any((perms_all, any(perms_any)))
 
 
-class SSLRequiredMixin(RedirectOnFailure):
+class SSLRequiredMixin(RedirectOnFailureMixin):
     """Require the request to be using SSL"""
 
     request_test: str = "test_ssl"
@@ -311,8 +233,7 @@ class SSLRequiredMixin(RedirectOnFailure):
 
 # pylint: disable-next=unused-variable
 __all__ = [
-    "PassesTest",
-    "RedirectOnFailure",
+    "PassesTestMixin",
     "SuperuserRequiredMixin",
     "StaffUserRequiredMixin",
     "GroupRequiredMixin",

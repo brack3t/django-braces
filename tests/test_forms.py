@@ -9,15 +9,18 @@ from .project.models import Article, CanonicalArticle
 
 
 class TestUserFormMixin:
-    def test_invalid_class(self):
-        class InvalidForm(mixins.UserFormMixin):
-            pass
+    class InvalidForm(mixins.UserFormMixin):
+        pass
 
+    class ValidForm(mixins.UserFormMixin, forms.Form):
+        pass
+
+    def test_invalid_class(self):
         with pytest.raises(TypeError):
-            InvalidForm()
+            self.InvalidForm()
 
     def test_form_has_user(self, admin_user):
-        form = TestFormWithUserMixin._Form(user=admin_user)
+        form = self.ValidForm(user=admin_user)
         assert form.user == admin_user
 
 
@@ -77,9 +80,7 @@ class TestCSRFExempt:
 class TestMultipleFormsMixin:
     def setup_method(self):
         self.Form1 = type("Form1", (forms.Form,), {"name": forms.CharField()})
-        self.Form2 = type(
-            "Form2", (forms.Form,), {"age": forms.IntegerField()}
-        )
+        self.Form2 = type("Form2", (forms.Form,), {"age": forms.IntegerField()})
 
         class _View(mixins.MultipleFormsMixin, FormView):
             form_classes = {"my_form": self.Form1, "my_form2": self.Form2}

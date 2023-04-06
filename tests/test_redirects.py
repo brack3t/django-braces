@@ -13,11 +13,9 @@ from braces import mixins
 
 @pytest.fixture
 def redirect_view():
-    class _View(mixins.RedirectOnFailure, View):
-        def get(self, request):
-            return HttpResponse("OK")
-
-    return _View
+    class _View(mixins.RedirectMixin, View):
+        redirect_url = "/"
+    yield _View
 
 
 class Test_Redirect:
@@ -43,12 +41,12 @@ class Test_Redirect:
         assert redirect_view().get_redirect_field_name() == REDIRECT_FIELD_NAME
 
     @mock.patch("braces.mixins.RedirectMixin.redirect")
-    def test_test_failure(self, mock_redirect, redirect_view):
+    def test_test_failure(self, mock_redirect, redirect_view, rf):
         redirect_view.raise_exception = False
-        redirect_view.request = RequestFactory().get("/")
+        redirect_view.request = rf.get("/")
 
         redirect_view().handle_test_failure()
-        mock_redirect.assert_called
+        mock_redirect.assert_called()
 
     @mock.patch("braces.mixins.RedirectMixin.redirect")
     def test_test_anonymous(self, mock_redirect, redirect_view):
@@ -56,7 +54,7 @@ class Test_Redirect:
         redirect_view.redirect_unauthenticated_users = True
         redirect_view.request = RequestFactory().get("/")
         redirect_view().handle_test_failure()
-        mock_redirect.called
+        assert mock_redirect.called
 
     @mock.patch("braces.mixins.RedirectMixin.redirect")
     def test_test_exception(self, mock_redirect, redirect_view):
@@ -64,17 +62,15 @@ class Test_Redirect:
 
         with pytest.raises(ImproperlyConfigured):
             redirect_view.as_view()(RequestFactory().get("/"))
-        mock_redirect.assert_called_once
+        mock_redirect.assert_called_once()
 
     @mock.patch("braces.mixins.RedirectMixin.redirect")
     def test_test_callable(self, mock_redirect, redirect_view):
-        redirect_view.raise_exception = "fail"
-        redirect_view.fail = lambda x: ImproperlyConfigured
         redirect_view.test_method = lambda x: False
 
         with pytest.raises(ImproperlyConfigured):
             redirect_view.as_view()(RequestFactory().get("/"))
-        mock_redirect.assert_called_once
+        mock_redirect.assert_called_once()
 
 
 class TestCanonicalURL:
