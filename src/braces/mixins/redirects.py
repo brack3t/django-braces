@@ -11,7 +11,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured
 
 if typing.TYPE_CHECKING:
-    from typing import Callable, Optional, Union
+    from typing import Callable, Optional, Self, Union
 
 __all__ = [
     "RedirectMixin",
@@ -26,11 +26,11 @@ class RedirectMixin:
 
     redirect_url: Optional[str] = None
 
-    def redirect(self: RedirectMixin) -> http.HttpResponseRedirect:
+    def redirect(self) -> http.HttpResponseRedirect:
         """Generate a redirect for the login URL."""
         return http.HttpResponseRedirect(self.get_redirect_url())
 
-    def get_redirect_url(self: RedirectMixin) -> str:
+    def get_redirect_url(self) -> str:
         """Get the URL to redirect to."""
         if self.redirect_url is None:
             _class = self.__class__.__name__
@@ -50,18 +50,18 @@ class CanonicalRedirectMixin(RedirectMixin):
     slug_field: str = "slug"
     slug_url_kwarg: str = "slug"
 
-    def __init__(self: CanonicalRedirectMixin, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """Set `self.redirect_url` if needed."""
         super().__init__(*args, **kwargs)
         if self.canonical_redirect:
             self.redirect_url = self.get_canonical_url()
 
-    def get_canonical_url(self: CanonicalRedirectMixin) -> str:
+    def get_canonical_url(self) -> str:
         """Generate the canonical URL for the page."""
         raise NotImplementedError
 
     def dispatch(
-        self: CanonicalRedirectMixin, request: http.HttpRequest, *args, **kwargs
+        self, request: http.HttpRequest, *args, **kwargs
     ) -> http.HttpResponse:
         """Check the slug and redirect if necessary."""
         slug_field = getattr(self.get_object(), self.slug_field, None)
@@ -71,9 +71,7 @@ class CanonicalRedirectMixin(RedirectMixin):
             return self.redirect(self.get_canonical_url())
         return super().dispatch(request, *args, **kwargs)
 
-    def redirect(
-        self: CanonicalRedirectMixin, url: Optional[str] = None
-    ) -> http.HttpResponseRedirect:
+    def redirect(self, url: Optional[str] = None) -> http.HttpResponseRedirect:
         """Generate a redirect for the login URL."""
         return http.HttpResponseRedirect(url or self.get_redirect_url())
 
@@ -85,7 +83,7 @@ class RedirectOnFailureMixin(RedirectMixin):
     raise_exception: Union[bool, Exception, Callable] = False
     redirect_unauthenticated_users: bool = True
 
-    def get_redirect_field_name(self: RedirectOnFailureMixin) -> str:
+    def get_redirect_field_name(self) -> str:
         """Return the query string field name for the redirection URL."""
         if self.redirect_field_name is None:
             _class = self.__class__.__name__
@@ -97,7 +95,7 @@ class RedirectOnFailureMixin(RedirectMixin):
             raise ImproperlyConfigured(_err_msg)
         return self.redirect_field_name
 
-    def handle_test_failure(self: RedirectOnFailureMixin) -> http.HttpResponse:
+    def handle_test_failure(self) -> http.HttpResponse:
         """Handle a failed request with a redirect or an exception."""
         # redirect without an exception
         if not self.raise_exception:
@@ -126,7 +124,7 @@ class RedirectOnFailureMixin(RedirectMixin):
         # raise the default exception
         raise http.Http404
 
-    def redirect(self: RedirectOnFailureMixin) -> http.HttpResponseRedirect:
+    def redirect(self) -> http.HttpResponseRedirect:
         """Generate a redirect."""
         return http.HttpResponseRedirect(self.get_redirect_url())
 
@@ -137,7 +135,7 @@ class RedirectToLoginMixin(RedirectOnFailureMixin):
     login_url: Optional[str] = None
     redirect_field_name: Optional[str] = None
 
-    def get_login_url(self: RedirectToLoginMixin) -> str:
+    def get_login_url(self) -> str:
         """Return the URL for the login page."""
         if self.login_url is None:
             try:
@@ -152,7 +150,7 @@ class RedirectToLoginMixin(RedirectOnFailureMixin):
                 raise ImproperlyConfigured(_err_msg) from exc
         return self.login_url
 
-    def redirect(self: RedirectToLoginMixin) -> http.HttpResponseRedirect:
+    def redirect(self) -> http.HttpResponseRedirect:
         """Generate a redirect for the login URL."""
         return redirect_to_login(
             self.request.get_full_path(),

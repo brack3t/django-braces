@@ -14,7 +14,7 @@ from django.utils.timezone import now
 from braces.mixins.redirects import RedirectOnFailureMixin
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Callable, Union
+    from typing import Any, Callable, Self, Union
 
     from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 
@@ -41,7 +41,7 @@ class PassesTestMixin(RedirectOnFailureMixin):
     dispatch_test: Union[str, Callable] = None
 
     def dispatch(
-        self: PassesTestMixin,
+        self,
         request: HttpRequest,
         *args: tuple[Any],
         **kwargs: dict[Any, Any],
@@ -54,7 +54,7 @@ class PassesTestMixin(RedirectOnFailureMixin):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_test_method(self: PassesTestMixin) -> Callable:
+    def get_test_method(self) -> Callable:
         """Find the method to test the request with.
 
         Provide a callable object or a string that can be used to
@@ -81,7 +81,7 @@ class PassesTestMixin(RedirectOnFailureMixin):
 
         return method
 
-    def handle_test_failure(self: PassesTestMixin) -> Exception:
+    def handle_test_failure(self) -> Exception:
         """Test failed, raise an exception or redirect."""
         raise PermissionDenied
 
@@ -91,7 +91,7 @@ class SuperuserRequiredMixin(PassesTestMixin):
 
     dispatch_test: str = "test_superuser"
 
-    def test_superuser(self: SuperuserRequiredMixin) -> bool:
+    def test_superuser(self) -> bool:
         """The user must be both authenticated and a superuser."""
         if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated and user.is_superuser
@@ -103,7 +103,7 @@ class StaffUserRequiredMixin(PassesTestMixin):
 
     dispatch_test: str = "test_staffuser"
 
-    def test_staffuser(self: StaffUserRequiredMixin) -> bool:
+    def test_staffuser(self) -> bool:
         """The user must be authenticated and `is_staff` must be True."""
         if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated and user.is_staff
@@ -116,7 +116,7 @@ class GroupRequiredMixin(PassesTestMixin):
     group_required: Union[str, list[str]] = None
     dispatch_test: str = "check_groups"
 
-    def get_group_required(self: GroupRequiredMixin) -> list[str]:
+    def get_group_required(self) -> list[str]:
         """Return a list of required groups."""
         if self.group_required is None:
             _class = self.__class__.__name__
@@ -130,7 +130,7 @@ class GroupRequiredMixin(PassesTestMixin):
             return [self.group_required]
         return self.group_required
 
-    def check_membership(self: GroupRequiredMixin) -> bool:
+    def check_membership(self) -> bool:
         """Check the user's membership in the required groups."""
         return bool(
             set(self.get_group_required()).intersection(
@@ -138,7 +138,7 @@ class GroupRequiredMixin(PassesTestMixin):
             )
         )
 
-    def check_groups(self: GroupRequiredMixin) -> bool:
+    def check_groups(self) -> bool:
         """Check that the user is authenticated and a group member."""
         if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated and self.check_membership()
@@ -151,7 +151,7 @@ class AnonymousRequiredMixin(PassesTestMixin):
     dispatch_test: str = "test_anonymous"
     redirect_unauthenticated_users: bool = False
 
-    def test_anonymous(self: AnonymousRequiredMixin) -> bool:
+    def test_anonymous(self) -> bool:
         """Accept anonymous users."""
         if (user := getattr(self.request, "user", None)) is not None:
             return not user.is_authenticated
@@ -163,7 +163,7 @@ class LoginRequiredMixin(PassesTestMixin):
 
     dispatch_test: str = "test_authenticated"
 
-    def test_authenticated(self: LoginRequiredMixin) -> bool:
+    def test_authenticated(self) -> bool:
         """The user must be authenticated."""
         if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated
@@ -176,7 +176,7 @@ class RecentLoginRequiredMixin(PassesTestMixin):
     dispatch_test: str = "test_recent_login"
     max_age: int = 1800  # 30 minutes
 
-    def test_recent_login(self: RecentLoginRequiredMixin) -> bool:
+    def test_recent_login(self) -> bool:
         """Make sure the user's login is recent enough."""
         if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated and user.last_login > now() - timedelta(
@@ -185,7 +185,7 @@ class RecentLoginRequiredMixin(PassesTestMixin):
         return False
 
     def handle_test_failure(
-        self: RecentLoginRequiredMixin,
+        self,
     ) -> HttpResponseRedirect:
         """Logout the user and redirect to login."""
         return logout_then_login(self.request, self.get_login_url())
@@ -198,7 +198,7 @@ class PermissionRequiredMixin(PassesTestMixin):
     dispatch_test: str = "check_permissions"
 
     def get_permission_required(
-        self: PermissionRequiredMixin,
+        self,
     ) -> Union[str, dict[str, list[str]]]:
         """Return a dict of required and optional permissions."""
         if self.permission_required is None:
@@ -213,7 +213,7 @@ class PermissionRequiredMixin(PassesTestMixin):
             return {"all": [self.permission_required]}
         return self.permission_required
 
-    def check_permissions(self: PermissionRequiredMixin) -> bool:
+    def check_permissions(self) -> bool:
         """Check user for appropriate permissions."""
         permissions = self.get_permission_required()
         _all = permissions.get("all", [])
@@ -233,7 +233,7 @@ class SSLRequiredMixin(PassesTestMixin):
     dispatch_test: str = "test_ssl"
     redirect_to_ssl: bool = True
 
-    def test_ssl(self: SSLRequiredMixin) -> bool:
+    def test_ssl(self) -> bool:
         """Reject non-SSL requests."""
         # SSL isn't usually used/available during testing, so skip it.
         if getattr(settings, "DEBUG", False):
@@ -242,7 +242,7 @@ class SSLRequiredMixin(PassesTestMixin):
         return self.request.is_secure()
 
     def handle_test_failure(
-        self: SSLRequiredMixin,
+        self,
     ) -> Union[HttpResponse, BadRequest]:
         """Redirect to the SSL version of the request's URL."""
         if self.redirect_to_ssl:

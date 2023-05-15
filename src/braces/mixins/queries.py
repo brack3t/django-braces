@@ -7,7 +7,7 @@ import typing
 from django.core.exceptions import ImproperlyConfigured
 
 if typing.TYPE_CHECKING:
-    from typing import Iterable, Union
+    from typing import Iterable, Self, Union
 
     from django.db.models import QuerySet
 
@@ -19,7 +19,7 @@ class SelectRelatedMixin:
 
     select_related: Union[str, Iterable[str]] = None
 
-    def get_select_related(self: SelectRelatedMixin) -> list[str]:
+    def get_select_related(self) -> list[str]:
         """Get the fields to be select_related."""
         _class = self.__class__.__name__
 
@@ -36,7 +36,7 @@ class SelectRelatedMixin:
 
         return self.select_related
 
-    def get_queryset(self: SelectRelatedMixin) -> QuerySet:
+    def get_queryset(self) -> QuerySet:
         """Add select_related to the queryset."""
         queryset = super().get_queryset()
         select_related = self.get_select_related()
@@ -48,7 +48,7 @@ class PrefetchRelatedMixin:
 
     prefetch_related: Union[str, Iterable[str]] = None
 
-    def get_prefetch_related(self: PrefetchRelatedMixin) -> list[str]:
+    def get_prefetch_related(self) -> list[str]:
         """Get the fields to be prefetch_related."""
         _class = self.__class__.__name__
         if not getattr(self, "prefetch_related", None) or not self.prefetch_related:
@@ -64,7 +64,7 @@ class PrefetchRelatedMixin:
 
         return self.prefetch_related
 
-    def get_queryset(self: PrefetchRelatedMixin) -> QuerySet:
+    def get_queryset(self) -> QuerySet:
         """Add prefetch_related to the queryset."""
         queryset = super().get_queryset()
         prefetch_related = self.get_prefetch_related()
@@ -78,7 +78,7 @@ class OrderableListMixin:
     orderable_field_default: str = None
     orderable_direction_default: str = "asc"
 
-    def __init__(self: OrderableListMixin, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """Set up the mixin's attributes."""
         super().__init__(*args, **kwargs)
 
@@ -89,7 +89,7 @@ class OrderableListMixin:
         if getattr(self, "ordering_default", None) is not None:
             self.orderable_direction_default = self.ordering_default
 
-    def get_orderable_fields(self: OrderableListMixin) -> list[str]:
+    def get_orderable_fields(self) -> list[str]:
         """Get fields to use for ordering."""
         if not self.orderable_fields:
             _class = self.__class__.__name__
@@ -101,7 +101,7 @@ class OrderableListMixin:
             raise ImproperlyConfigured(_err_msg)
         return self.orderable_fields
 
-    def get_orderable_field_default(self: OrderableListMixin) -> str:
+    def get_orderable_field_default(self) -> str:
         """Get the default ordering field."""
         if not self.orderable_field_default:
             _class = self.__class__.__name__
@@ -113,16 +113,16 @@ class OrderableListMixin:
             raise ImproperlyConfigured(_err_msg)
         return self.orderable_field_default
 
-    def get_orderable_direction_default(self: OrderableListMixin) -> str:
+    def get_orderable_direction_default(self) -> str:
         """Get the default ordering direction."""
         direction = self.orderable_direction_default
         if not direction or direction not in ["asc", "desc"]:
             _class = self.__class__.__name__
-            _err_msg = f"{_class.orderable_direction_default} must be 'asc' or 'desc'."
+            _err_msg = f"{_class}.orderable_direction_default must be 'asc' or 'desc'."
             raise ImproperlyConfigured(_err_msg)
         return direction
 
-    def get_order_from_request(self: OrderableListMixin) -> Iterable[str]:
+    def get_order_from_request(self) -> Iterable[str]:
         """Use the query string to determine the ordering."""
         request_kwargs = self.request.GET.dict()
         field = request_kwargs.get("order_by", "").lower()
@@ -134,7 +134,7 @@ class OrderableListMixin:
             direction = self.get_orderable_direction_default()
         return field, direction
 
-    def get_queryset(self: OrderableListMixin) -> QuerySet:
+    def get_queryset(self) -> QuerySet:
         """Order the queryset."""
         queryset = super().get_queryset()
 

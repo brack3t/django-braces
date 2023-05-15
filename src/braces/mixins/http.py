@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.views.decorators.cache import cache_control, never_cache
 
 if typing.TYPE_CHECKING:
-    from typing import Callable
+    from typing import Callable, Self
 
     from django.http import HttpRequest, HttpResponse
 
@@ -21,7 +21,7 @@ class AllVerbsMixin:
     all_verb_handler: str = "all"
 
     def dispatch(
-        self: AllVerbsMixin, request: HttpRequest, *args, **kwargs
+        self, request: HttpRequest, *args, **kwargs
     ) -> HttpResponse:
         """Run all requests through the all_verb_handler method."""
         if not self.all_verb_handler:
@@ -34,7 +34,7 @@ class AllVerbsMixin:
         handler = getattr(self, self.all_verb_handler, self.http_method_not_allowed)
         return handler(request, *args, **kwargs)
 
-    def all(self: AllVerbsMixin, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def all(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """Handle all requests."""
         raise NotImplementedError
 
@@ -44,14 +44,14 @@ class HeaderMixin:
 
     headers: dict = None
 
-    def get_headers(self: HeaderMixin) -> dict:
+    def get_headers(self) -> dict:
         """Return a dictionary of headers to add to the response."""
         if self.headers is None:
             self.headers = {}
         return self.headers
 
     def dispatch(
-        self: HeaderMixin, request: HttpRequest, *args, **kwargs
+        self, request: HttpRequest, *args, **kwargs
     ) -> HttpResponse:
         """Add headers to the response."""
         response = super().dispatch(request, *args, **kwargs)
@@ -74,7 +74,7 @@ class CacheControlMixin:
     cache_control_s_maxage: int = None
 
     @classmethod
-    def get_cache_control_options(cls: CacheControlMixin) -> dict:
+    def get_cache_control_options(cls) -> dict:
         """Get the view's cache-control options."""
         options = {}
         for key, value in cls.__dict__.items():
@@ -83,7 +83,7 @@ class CacheControlMixin:
         return options
 
     @classmethod
-    def as_view(cls: CacheControlMixin, **initkwargs: dict) -> Callable:
+    def as_view(cls, **initkwargs: dict) -> Callable:
         """Add cache control to the view."""
         view = super().as_view(**initkwargs)
         return cache_control(**cls.get_cache_control_options())(view)
@@ -93,7 +93,7 @@ class NeverCacheMixin:
     """Prevents a view from being cached."""
 
     @classmethod
-    def as_view(cls: NeverCacheMixin, **initkwargs: dict) -> Callable:
+    def as_view(cls, **initkwargs: dict) -> Callable:
         """Wrap the view with never_cache."""
         view = super().as_view(**initkwargs)
         return never_cache(view)

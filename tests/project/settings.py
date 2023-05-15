@@ -1,5 +1,7 @@
 from django.conf.global_settings import *  # noqa: F401, F403
 from django.contrib.messages import constants as message_constants
+del DEFAULT_FILE_STORAGE
+del STATICFILES_STORAGE
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -31,6 +33,15 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 INSTALLED_APPS = [
     "django.contrib.auth",

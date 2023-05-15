@@ -7,7 +7,7 @@ import typing
 from django.core.exceptions import ImproperlyConfigured
 
 if typing.TYPE_CHECKING:
-    from typing import Dict, Type
+    from typing import Dict, Self, Type
 
     from rest_framework.serializers import Serializer
 
@@ -24,7 +24,7 @@ class MultipleSerializersMixin:
 
     serializer_classes: Dict[str, Type[Serializer]] = None
 
-    def get_serializer_classes(self: MultipleSerializersMixin) -> dict[str, Type[Serializer]]:
+    def get_serializer_classes(self) -> dict[str, Type[Serializer]]:
         """Get necessary serializer classes."""
         _class = self.__class__.__name__
         if self.serializer_classes is None:
@@ -41,7 +41,7 @@ class MultipleSerializersMixin:
 
         return self.serializer_classes
 
-    def get_serializer_class(self: MultipleSerializersMixin) -> Type[Serializer]:
+    def get_serializer_class(self) -> Type[Serializer]:
         """Get the serializer class to use for this request.
 
         Defaults to using `super().serializer_class`.
