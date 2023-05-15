@@ -4,8 +4,8 @@ build-backend = "flit_core.buildapi"
 
 [project]
 authors = [
-  { name = "Kenneth Love", email = "kenneth@bracket.com" },
-  { name = "Chris Jones", email = "chris@bracket.com" },
+  { name = "Kenneth Love", email = "kenneth@brack3t.com" },
+  { name = "Chris Jones", email = "chris@brack3t.com" },
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
