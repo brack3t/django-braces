@@ -1,11 +1,16 @@
-"""Mixins related to Django REST Framework"""
-from __future__ import annotations  # pylint: disable=unused-variable
-from typing import Dict, Type
+"""Mixins related to Django REST Framework."""
+
+from __future__ import annotations
+
+import typing
 
 from django.core.exceptions import ImproperlyConfigured
-from rest_framework.serializers import Serializer
 
-# pylint: disable-next=unused-variable
+if typing.TYPE_CHECKING:
+    from typing import Dict, Type
+
+    from rest_framework.serializers import Serializer
+
 __all__ = ["MultipleSerializersMixin"]
 
 
@@ -19,27 +24,25 @@ class MultipleSerializersMixin:
 
     serializer_classes: Dict[str, Type[Serializer]] = None
 
-    def get_serializer_classes(self) -> dict[str, Type[Serializer]]:
-        """Return the classes used for serialization"""
-
-        class_name = self.__class__.__name__
+    def get_serializer_classes(self: MultipleSerializersMixin) -> dict[str, Type[Serializer]]:
+        """Get necessary serializer classes."""
+        _class = self.__class__.__name__
         if self.serializer_classes is None:
-            raise ImproperlyConfigured(
-                f"{class_name} is missing the serializer_classes attribute. "
-                f"Define {class_name}.serializer_classes, or override "
-                f"{class_name}.get_serializer_class()"
+            _err_msg = (
+                f"{_class} is missing the serializer_classes attribute. "
+                f"Define `{_class}.serializer_classes`, or override "
+                f"`{_class}.get_serializer_classes()`."
             )
+            raise ImproperlyConfigured(_err_msg)
 
         if not isinstance(self.serializer_classes, (dict, list, tuple)):
-            raise ImproperlyConfigured(
-                f"{class_name}.serializer_classes must be a "
-                "dictionary or a series of two-tuples."
-            )
+            _err_msg = f"{_class}.serializer_classes must be a dictionary."
+            raise ImproperlyConfigured(_err_msg)
 
         return self.serializer_classes
 
-    def get_serializer_class(self) -> Type[Serializer]:
-        """Return the class to use for the serializer.
+    def get_serializer_class(self: MultipleSerializersMixin) -> Type[Serializer]:
+        """Get the serializer class to use for this request.
 
         Defaults to using `super().serializer_class`.
 
@@ -48,6 +51,5 @@ class MultipleSerializersMixin:
 
         (E.g. admins get full serialization, others get basic serialization)
         """
-
         serializer_classes = self.get_serializer_classes()
         return serializer_classes[self.request.method.lower()]

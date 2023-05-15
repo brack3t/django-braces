@@ -1,11 +1,16 @@
-"""Mixins related to JSON responses"""
+"""Mixins related to JSON responses."""
+
 from __future__ import annotations
 
-from typing import Any, Type
+import typing
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
+
+if typing.TYPE_CHECKING:
+    from typing import Any, Type
+
 
 __all__ = ["JSONResponseMixin"]
 
@@ -21,32 +26,34 @@ class JSONResponseMixin:
     json_dumps_kwargs: dict[str, Any] = None
     json_encoder_class: type = None
 
-    def get_content_type(self) -> str:
-        """What content type should be used for the response?"""
+    def get_content_type(self: JSONResponseMixin) -> str:
+        """Determine appropriate content type for response."""
         if self.content_type is None or not isinstance(self.content_type, str):
-            class_name = self.__class__.__name__
-            raise ImproperlyConfigured(
-                f"{class_name} is missing a content type. Define {class_name}"
-                f".content_type or override {class_name}.get_content_type()."
+            _class = self.__class__.__name__
+            _err_msg = (
+                f"{_class} is missing the `content_type` attribute. "
+                f"Define `{_class}.content_type` or override "
+                f"`{_class}.get_content_type`."
             )
+            raise ImproperlyConfigured(_err_msg)
         return self.content_type
 
-    def get_json_dumps_kwargs(self) -> dict[str, Any]:
-        """What kwargs should be passed to json.dumps()?"""
+    def get_json_dumps_kwargs(self: JSONResponseMixin) -> dict[str, Any]:
+        """Collect kwargs for json.dumps()."""
         dumps_kwargs = getattr(self, "json_dumps_kwargs", None) or {}
         dumps_kwargs.setdefault("ensure_ascii", False)
         return dumps_kwargs
 
-    def get_json_encoder_class(self) -> Type:
-        """What JSON encoder class should be used?"""
+    def get_json_encoder_class(self: JSONResponseMixin) -> Type:
+        """Get the appropriate JSON encoder."""
         if self.json_encoder_class is None:
             self.json_encoder_class = DjangoJSONEncoder
         return self.json_encoder_class
 
     def render_json_response(
-        self, context: dict = None, status: int = 200
+        self: JSONResponseMixin, context: dict = None, status: int = 200
     ) -> JsonResponse:
-        """render_to_response but JSON"""
+        """Render a JSON response."""
         context = context or self.get_context_data() or {}
         return JsonResponse(
             data=context,

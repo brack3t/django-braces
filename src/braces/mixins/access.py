@@ -2,16 +2,21 @@
 
 from __future__ import annotations
 
+import typing
 from datetime import timedelta
-from typing import Any, Callable, Union
 
-from django import http
 from django.conf import settings
 from django.contrib.auth.views import logout_then_login
-from django.core.exceptions import BadRequest, ImproperlyConfigured, PermissionDenied
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.http import HttpResponsePermanentRedirect
 from django.utils.timezone import now
 
 from braces.mixins.redirects import RedirectOnFailureMixin
+
+if typing.TYPE_CHECKING:
+    from typing import Any, Callable, Union
+
+    from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 
 __all__ = [
     "PassesTestMixin",
@@ -37,10 +42,10 @@ class PassesTestMixin(RedirectOnFailureMixin):
 
     def dispatch(
         self: PassesTestMixin,
-        request: http.HttpRequest,
+        request: HttpRequest,
         *args: tuple[Any],
         **kwargs: dict[Any, Any],
-    ) -> http.HttpResponse:
+    ) -> HttpResponse:
         """Run the test method and dispatch the view if it passes."""
         test_method = self.get_test_method()
 
@@ -181,7 +186,7 @@ class RecentLoginRequiredMixin(PassesTestMixin):
 
     def handle_test_failure(
         self: RecentLoginRequiredMixin,
-    ) -> http.HttpResponseRedirect:
+    ) -> HttpResponseRedirect:
         """Logout the user and redirect to login."""
         return logout_then_login(self.request, self.get_login_url())
 
@@ -238,10 +243,10 @@ class SSLRequiredMixin(PassesTestMixin):
 
     def handle_test_failure(
         self: SSLRequiredMixin,
-    ) -> Union[http.HttpResponse, BadRequest]:
+    ) -> Union[HttpResponse, BadRequest]:
         """Redirect to the SSL version of the request's URL."""
         if self.redirect_to_ssl:
             current = self.request.build_absolute_uri(self.request.get_full_path())
             secure = current.replace("http://", "https://")
-            return http.HttpResponsePermanentRedirect(secure)
+            return HttpResponsePermanentRedirect(secure)
         raise BadRequest

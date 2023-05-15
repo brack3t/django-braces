@@ -1,7 +1,7 @@
-"""Mixins that don't have a better home"""
+"""Mixins that don't have a better home."""
+
 from django.core.exceptions import ImproperlyConfigured
 
-# pylint: disable-next=unused-variable
 __all__ = ["StaticContextMixin"]
 
 
@@ -10,23 +10,23 @@ class StaticContextMixin:
 
     static_context: dict = None
 
-    def get_static_context(self) -> dict:
+    def get_static_context(self: StaticContextMixin) -> dict:
         """Get the static context to add to the view's context."""
-        class_name = self.__class__.__name__
+        _class = self.__class__.__name__
         if self.static_context is None:
-            raise ImproperlyConfigured(
-                f"{class_name} is missing the static_context attribute. "
-                f"Define {class_name}.static_context, or override "
-                f"{class_name}.get_static_context()"
+            _err_msg = (
+                f"{_class} is missing the static_context attribute. "
+                f"Define `{_class}.static_context`, or override "
+                f"`{_class}.get_static_context()`."
             )
+            raise ImproperlyConfigured(_err_msg)
+
         if not isinstance(self.static_context, dict):
-            raise ImproperlyConfigured(
-                f"{class_name}.static_context must be a "
-                "dictionary or a series of two-tuples."
-            )
+            _err_msg = f"{_class}.static_context must be a dictionary."
+            raise ImproperlyConfigured(_err_msg)
         return self.static_context
 
-    def get_context_data(self, **kwargs) -> dict:
+    def get_context_data(self: StaticContextMixin, **kwargs: dict) -> dict:
         """Add the static context to the view's context."""
         context = super().get_context_data(**kwargs)
         context.update(self.get_static_context())

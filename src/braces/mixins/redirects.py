@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import inspect
-from typing import Callable, Optional, Union
+import typing
 
 from django import http
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured
+
+if typing.TYPE_CHECKING:
+    from typing import Callable, Optional, Union
 
 __all__ = [
     "RedirectMixin",
