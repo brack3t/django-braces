@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.views.decorators.cache import cache_control, never_cache
 
 if typing.TYPE_CHECKING:
-    from typing import Callable, Self
+    from typing import Callable
 
     from django.http import HttpRequest, HttpResponse
 

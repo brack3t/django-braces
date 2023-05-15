@@ -14,7 +14,7 @@ from django.utils.timezone import now
 from braces.mixins.redirects import RedirectOnFailureMixin
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Callable, Self, Union
+    from typing import Any, Callable, Union
 
     from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 
@@ -188,7 +188,7 @@ class RecentLoginRequiredMixin(PassesTestMixin):
         self,
     ) -> HttpResponseRedirect:
         """Logout the user and redirect to login."""
-        return logout_then_login(self.request, self.get_login_url())
+        return logout_then_login(self.request)
 
 
 class PermissionRequiredMixin(PassesTestMixin):

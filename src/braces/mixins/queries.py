@@ -7,7 +7,7 @@ import typing
 from django.core.exceptions import ImproperlyConfigured
 
 if typing.TYPE_CHECKING:
-    from typing import Iterable, Self, Union
+    from typing import Iterable, Union
 
     from django.db.models import QuerySet
 

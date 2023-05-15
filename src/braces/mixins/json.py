@@ -9,7 +9,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Self, Type
+    from typing import Any, Type
 
 
 __all__ = ["JSONResponseMixin"]

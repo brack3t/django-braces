@@ -1,6 +1,5 @@
 """Mixins related to Django's messages framework."""
 
-import typing
 from functools import partial
 
 from django import forms
@@ -8,9 +7,6 @@ from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest, HttpResponse
 from django.utils.functional import Promise
-
-if typing.TYPE_CHECKING:
-    from typing import Self
 
 __all__ = [
     "MessagesMixin",

@@ -7,7 +7,7 @@ import typing
 from django.core.exceptions import ImproperlyConfigured
 
 if typing.TYPE_CHECKING:
-    from typing import Dict, Self, Type
+    from typing import Dict, Type
 
     from rest_framework.serializers import Serializer
 

@@ -10,8 +10,6 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 if typing.TYPE_CHECKING:
-    from typing import Self
-
     from django.db import models
     from django.http import HttpRequest, HttpResponse
 

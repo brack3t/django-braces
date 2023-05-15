@@ -11,7 +11,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured
 
 if typing.TYPE_CHECKING:
-    from typing import Callable, Optional, Self, Union
+    from typing import Callable, Optional, Union
 
 __all__ = [
     "RedirectMixin",

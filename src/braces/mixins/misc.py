@@ -1,11 +1,6 @@
 """Mixins that don't have a better home."""
 
-import typing
-
 from django.core.exceptions import ImproperlyConfigured
-
-if typing.TYPE_CHECKING:
-    from typing import Self
 
 __all__ = ["StaticContextMixin"]
 
