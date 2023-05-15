@@ -130,16 +130,16 @@ pretty = true
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 show_error_context = true
 show_column_numbers = true
-
+strict = true
 
 [tool.pytest.ini_options]
 # ini_options
 addopts = "--cov --no-cov-on-fail --nomigrations --reverse -c pyproject.toml"
 django_find_project = false
 DJANGO_SETTINGS_MODULE = "tests.project.settings"
-markers = ["make_mixin_view", "mixin"]
+markers = ["mixin_view_factory", "mixin"]
 norecursedirs = [".git", "docs", "__pycache__"]
-pythonpath = [".", "tests.project", "src.braces"]
+pythonpath = [".", "tests.project", "src"]#, "src.braces"]
 testpaths = ["tests"]
 
 [tool.ruff]
@@ -184,8 +184,6 @@ unfixable = []
 extend-exclude = ["docs"]
 per-file-ignores = {}
 ignore-init-module-imports = true
-
-format = "pylint"
 
 # Assume Python 3.8.
 target-version = "py38"

@@ -1,35 +1,33 @@
 """Provides the `mixin_view` fixture."""
-from typing import Callable
+
+import logging
+from importlib import import_module
+from typing import Any, Callable, Dict
 
 import pytest
 from django.http import HttpResponse
 from django.views.generic import View
 
-from braces import mixins
+log = logging.getLogger(__name__)
 
 
 @pytest.fixture(name="mixin_view")
-def make_mixin_view(request) -> Callable:
+def mixin_view_factory(request: pytest.FixtureRequest) -> Callable:
     """Combine a mixin and View for a test."""
-
     mixin_request = request.node.get_closest_marker("mixin")
     if not mixin_request:
         pytest.fail("No mixin marker found")
+    mixins = import_module(".mixins", "braces")
     mixin_name = mixin_request.args[0]
-    mixin_class = getattr(mixins, mixin_name, None)
+    mixin_class = getattr(mixins, mixin_name)
 
-    if mixin_class is None:
-        pytest.fail(f"Couldn't find {mixin_name}")
-
-    def _make_mixin_view(**kwargs) -> View:
-        kwargs.update({
-            "get": lambda s, r: HttpResponse("braces"),
-        })
-        view_class = type(
-            "FixtureView",
-            (mixin_class, View),
-            kwargs
+    def mixin_view(**kwargs: Dict[Any, Any]) -> View:
+        """Mixed-in view generator."""
+        kwargs.update(
+            {
+                "get": lambda s, r: HttpResponse("django-braces"),
+            }
         )
-        return view_class
+        return type("FixtureView", (mixin_class, View), kwargs)
 
-    return _make_mixin_view
+    return mixin_view
