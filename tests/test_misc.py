@@ -1,33 +1,46 @@
+"""Tests related to the miscellaneous mixins."""
+
 import pytest
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic import TemplateView, View
-
-from braces import mixins
+from django.views.generic import TemplateView
 
 
+@pytest.fixture()
+def static_view(mixin_view):
+    """Fixture for a TemplateView with the StaticContextMixin."""
+
+    def _view(**kwargs) -> type[TemplateView]:
+        """Return a mixin view with the `StaticContextMixin`."""
+        return type(
+            "StaticView",
+            (mixin_view(), TemplateView),
+            {"template_name": "test.html"}, **kwargs
+        )
+    return _view
+
+
+@pytest.mark.mixin("StaticContextMixin")
 class TestStaticContext:
-    def test_static_context_attribute(self):
-        class _View(mixins.StaticContextMixin, View):
-            static_context = {"test": "test"}
+    """Tests related to the `StaticContextMixin`."""
 
-        assert _View().get_static_context() == {"test": "test"}
+    def test_static_context_attribute(self, static_view):
+        """Test that `static_context` is returned."""
+        view = static_view()(static_context={"django": "braces"})
+        assert view.get_static_context() == {"django": "braces"}
 
-    def test_static_context_method(self):
-        class _View(mixins.StaticContextMixin, View):
-            def get_static_context(self):
-                return {"test": "test"}
+    def test_static_context_method(self, mixin_view):
+        """Test that `get_static_context` is returned."""
+        view = mixin_view(
+            get_static_context=lambda x: {"django": "braces"}
+        )
+        assert view().get_static_context() == {"django": "braces"}
 
-        assert _View().get_static_context() == {"test": "test"}
-
-    def test_static_context_missing(self):
-        class _View(mixins.StaticContextMixin, View):
-            pass
-
+    def test_static_context_missing(self, mixin_view):
+        """With no `static_context` attribute or method, raise an exception."""
         with pytest.raises(ImproperlyConfigured):
-            _View().get_static_context()
+            mixin_view()().get_static_context()
 
-    def test_static_context_in_context(self):
-        class _View(mixins.StaticContextMixin, TemplateView):
-            static_context = {"test": "test"}
-
-        assert _View().get_context_data()["test"] == "test"
+    def test_static_context_in_context(self, mixin_view):
+        """Test that `static_context` is in the view's context."""
+        view = mixin_view(static_context={"django": "braces"})
+        assert view().get_context_data()["django"] == "braces"

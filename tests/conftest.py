@@ -8,8 +8,21 @@ import pytest
 from django.db.models import Model
 from django.http import HttpResponse
 from django.views.generic import View
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.list import MultipleObjectMixin
+
+from .project.models import Article
 
 log = logging.getLogger(__name__)
+
+
+@pytest.fixture()
+@pytest.mark.django_db()
+def user(django_user_model) -> Model:  # noqa: ANN001
+    """Provide a generic user fixture for tests."""
+    u = django_user_model.objects.create_user("test", "Test1234")
+    yield u
+    u.delete()
 
 
 @pytest.fixture(name="mixin_view")
@@ -22,7 +35,7 @@ def mixin_view_factory(request: pytest.FixtureRequest) -> Callable:
     mixin_name = mixin_request.args[0]
     mixin_class = getattr(mixins, mixin_name)
 
-    def mixin_view(**kwargs: Dict[Any, Any]) -> View:
+    def mixin_view(**kwargs: Dict[Any, Any]) -> type[View]:
         """Mixed-in view generator."""
         kwargs.update(
             {
@@ -30,14 +43,32 @@ def mixin_view_factory(request: pytest.FixtureRequest) -> Callable:
             }
         )
         return type("FixtureView", (mixin_class, View), kwargs)
-
     return mixin_view
 
 
 @pytest.fixture()
-@pytest.mark.django_db()
-def user(django_user_model) -> Model:  # noqa: ANN001
-    """Provide a generic user fixture for tests."""
-    u = django_user_model.objects.create_user("test", "Test1234")
-    yield u
-    u.delete()
+def single_object_view(mixin_view):
+    """Fixture for a view with the `SingleObjectMixin`."""
+
+    def _view(**kwargs) -> type[SingleObjectMixin]:
+        """Return a mixin view with the `SingleObjectMixin`."""
+        return type(
+            "SingleObjectView",
+            (mixin_view(), SingleObjectMixin),
+            {"model": Article}, **kwargs
+        )
+    return _view
+
+
+@pytest.fixture()
+def multiple_object_view(mixin_view):
+    """Fixture for a view with the `MultipleObjectMixin`."""
+
+    def _view(**kwargs) -> type[MultipleObjectMixin]:
+        """Return a mixin view with the `MultipleObjectMixin`."""
+        return type(
+            "MultipleObjectView",
+            (mixin_view(), MultipleObjectMixin),
+            {"model": Article}, **kwargs
+        )
+    return _view

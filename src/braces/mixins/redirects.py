@@ -48,8 +48,6 @@ class CanonicalRedirectMixin(RedirectMixin):
     """Redirect to the canonical URL for an object."""
 
     canonical_redirect: bool = False
-    slug_field: str = "slug"
-    slug_url_kwarg: str = "slug"
 
     def __init__(self, *args, **kwargs) -> None:
         """Set `self.redirect_url` if needed."""
@@ -58,21 +56,22 @@ class CanonicalRedirectMixin(RedirectMixin):
             self.redirect_url = self.get_canonical_url()
 
     def get_canonical_url(self) -> str:
-        """Generate the canonical URL for the page."""
+        """Generate the canonical URL for the page.
+
+        How could we possibly know what the canonical URL is?
+        Your models, routes, and views are unique, so you'll
+        have to implement this yourself.
+        """
         raise NotImplementedError
 
     def dispatch(self, request: http.HttpRequest, *args, **kwargs) -> http.HttpResponse:
         """Check the slug and redirect if necessary."""
-        slug_field = getattr(self.get_object(), self.slug_field, None)
-        slug_kwarg = kwargs.get(self.slug_url_kwarg, None)
-
-        if self.canonical_redirect and slug_field != slug_kwarg:
-            return self.redirect(self.get_canonical_url())
+        if all([
+            request.get_full_path() != self.get_redirect_url(),
+            self.canonical_redirect,
+        ]):
+            return self.redirect()
         return super().dispatch(request, *args, **kwargs)
-
-    def redirect(self, url: Optional[str] = None) -> http.HttpResponseRedirect:
-        """Generate a redirect for the login URL."""
-        return http.HttpResponseRedirect(url or self.get_redirect_url())
 
 
 class RedirectOnFailureMixin(RedirectMixin):

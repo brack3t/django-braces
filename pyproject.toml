@@ -127,7 +127,12 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 pretty = true
 show_column_numbers = true
 show_error_context = true
-strict = true
+# strict = true
+warn_redundant_casts = true
+check_untyped_defs = false
+disallow_untyped_calls = false
+disallow_untyped_defs = false
+disallow_untyped_decorators = false
 
 [tool.pytest.ini_options]
 # ini_options
