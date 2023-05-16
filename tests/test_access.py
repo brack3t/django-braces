@@ -49,7 +49,7 @@ class TestPassesTestMixin:
 
 
 @pytest.mark.mixin("SuperuserRequiredMixin")
-@pytest.mark.django_db
+@pytest.mark.django_db()
 class TestSuperuserRequired:
     def test_success(self, mixin_view, admin_user, rf):
         request = rf.get("/")
@@ -70,10 +70,10 @@ class TestSuperuserRequired:
 
 
 @pytest.mark.mixin("StaffUserRequiredMixin")
-@pytest.mark.django_db
+@pytest.mark.django_db()
 class TestStaffUserRequired:
-    @pytest.fixture(scope="function")
-    @pytest.mark.django_db
+    @pytest.fixture()
+    @pytest.mark.django_db()
     def user(self, django_user_model):
         u = django_user_model.objects.create_user("test", "Test1234")
         yield u
@@ -98,20 +98,20 @@ class TestStaffUserRequired:
 
 
 @pytest.mark.mixin("GroupRequiredMixin")
-@pytest.mark.django_db
+@pytest.mark.django_db()
 class TestGroupRequired:
     def setup_method(self):
         pass
 
-    @pytest.mark.django_db
-    @pytest.fixture
+    @pytest.mark.django_db()
+    @pytest.fixture()
     def group(self):
         g = Group.objects.create(name="test")
         yield g
         g.delete()
 
-    @pytest.mark.django_db
-    @pytest.fixture
+    @pytest.mark.django_db()
+    @pytest.fixture()
     def user(self, group, django_user_model):
         u = django_user_model.objects.create_user("test", "Test1234")
         u.groups.add(group)
@@ -120,7 +120,7 @@ class TestGroupRequired:
         yield u
         u.delete()
 
-    @pytest.mark.django_db
+    @pytest.mark.django_db()
     def test_success(self, mixin_view, rf, user):
         _view = mixin_view(group_required="test")
         request = rf.get("/")
@@ -128,7 +128,7 @@ class TestGroupRequired:
         response = _view.as_view()(request)
         assert response.status_code == 200
 
-    @pytest.mark.django_db
+    @pytest.mark.django_db()
     def test_failure(self, mixin_view, rf, user):
         _view = mixin_view(group_required="nothing")
         request = rf.get("/")
@@ -137,7 +137,7 @@ class TestGroupRequired:
         response = _view.as_view()(request)
         assert response.status_code == 302
 
-    @pytest.mark.django_db
+    @pytest.mark.django_db()
     def test_no_group_required(self, mixin_view, rf, user):
         _view = mixin_view(group_required=None)
         request = rf.get("/")
@@ -157,24 +157,27 @@ class TestGroupRequired:
 class TestAnonymousRequired:
     """Test mixins requiring anonymous users."""
 
-    @pytest.mark.parametrize("logged_in, status_code", [(False, 200), (True, 302)])
+    @pytest.mark.parametrize(("logged_in", "status_code"), [(False, 200), (True, 302)])
     def test_mixin(self, logged_in: bool, status_code: int, mixin_view, admin_user, rf):
         """AnonymousRequiredMixin should error for authenticated users."""
         _view = mixin_view().as_view()
+        user = admin_user if logged_in else None
         request = rf.get("/")
+        request.user = user
+        response = None
 
-        if logged_in:
-            request.user = admin_user
-            with pytest.raises(PermissionDenied):
-                response = _view(request)
-        else:
+        try:
             response = _view.as_view()(request)
-        assert response.status_code == status_code
+        except PermissionDenied:
+            if status_code == 200:
+                raise
+        finally:
+            assert response.status_code == status_code
 
 
 @pytest.mark.mixin("LoginRequiredMixin")
 class TestLoginRequired:
-    @pytest.mark.parametrize("logged_in, status_code", [(True, 200), (False, 302)])
+    @pytest.mark.parametrize(("logged_in", "status_code"), [(True, 200), (False, 302)])
     def test_mixin(self, logged_in, status_code, admin_user, mixin_view, rf):
         request = rf.get("/")
         if logged_in:
@@ -186,7 +189,7 @@ class TestLoginRequired:
 @pytest.mark.mixin("RecentLoginRequiredMixin")
 class TestRecentLoginRequired:
     @pytest.mark.parametrize(
-        "time_gap, status_code",
+        ("time_gap", "status_code"),
         [(timedelta(minutes=-10), 200), (timedelta(days=-10), 302)],
     )
     def test_mixin(self, time_gap, status_code, admin_user, rf, mixin_view):
@@ -203,19 +206,19 @@ class TestRecentLoginRequired:
 
 
 @pytest.mark.mixin("PermissionRequiredMixin")
-@pytest.mark.django_db
+@pytest.mark.django_db()
 class TestPermissionRequired:
-    @pytest.mark.django_db
-    @pytest.fixture
+    @pytest.mark.django_db()
+    @pytest.fixture()
     def permission(self):
         perm = Permission.objects.get(
-            content_type__app_label="project", codename="add_article"
+            content_type__app_label="project", codename="add_article",
         )
         yield perm
         perm.delete()
 
-    @pytest.mark.django_db
-    @pytest.fixture
+    @pytest.mark.django_db()
+    @pytest.fixture()
     def user(self, django_user_model):
         u = django_user_model.objects.create_user("test", "Test1234")
         yield u
@@ -233,8 +236,7 @@ class TestPermissionRequired:
     def test_anonymous(self, mixin_view, rf):
         _view = mixin_view(permission_required={"all": ["project.add_article"]})
         with pytest.raises(PermissionDenied):
-            response = _view.as_view()(rf.get("/"))
-            assert response.status_code == 302
+            _view.as_view()(rf.get("/"))
 
     def test_no_permission(self, mixin_view, rf, user):
         request = rf.get("/")
@@ -252,7 +254,7 @@ class TestPermissionRequired:
 
 @pytest.mark.mixin("SSLRequiredMixin")
 class TestSSLRequired:
-    @pytest.mark.parametrize("is_secure, status_code", [(True, 200), (False, 301)])
+    @pytest.mark.parametrize(("is_secure", "status_code"), [(True, 200), (False, 301)])
     def test_mixin(self, is_secure, status_code, mixin_view, rf):
         request = rf.get("/")
         request.is_secure = lambda: is_secure

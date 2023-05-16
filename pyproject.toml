@@ -1,34 +1,34 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
+requires = ["flit_core >=3.2,<4"]
 
 [project]
 authors = [
-  { name = "Kenneth Love", email = "kenneth@brack3t.com" },
   { name = "Chris Jones", email = "chris@brack3t.com" },
+  { name = "Kenneth Love", email = "kenneth@brack3t.com" },
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Development Status :: 6 - Mature",
   "Environment :: Web Environment",
-  "Framework :: Django",
   "Framework :: Django :: 3.2",
   "Framework :: Django :: 4.2",
+  "Framework :: Django",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: BSD License",
   "Natural Language :: English",
-  "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = ["flit"]
-dynamic = ["version", "description"]
-keywords = ["django", "views", "forms", "mixins"]
-license = {file = "LICENSE.txt"}
+dynamic = ["description", "version"]
+keywords = ["django", "forms", "mixins", "views"]
+license = { file = "LICENSE.txt" }
 name = "django-braces"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -46,17 +46,14 @@ checks = [
   "mypy",
   "ruff",
 ]
-dev = [
-  "django",
-  "django-rest-framework",
-]
-documentation = ["sphinx", "releases", "semantic-version"]
+dev = ["django", "django-rest-framework"]
+documentation = ["releases", "semantic-version", "sphinx"]
 testing = [
+  "coverage",
   "pytest",
   "pytest-cov",
   "pytest-django",
   "pytest-reverse",
-  "coverage",
 ]
 
 # Tool configuration
@@ -65,31 +62,31 @@ testing = [
 line-length = 88
 
 [tool.coverage.report]
-color = true
 code_highlight = true
+color = true
 exclude_lines = [
-  "pragma: no cover",
-  "raise NotImplementedError",
   "if TYPE_CHECKING:",
   "if __name__ == .__main__.:",
   "if settings.DEBUG:",
-  "if settings.TESTING:",
+  "if settings.LOCAL:",
   "if settings.PRODUCTION:",
   "if settings.STAGING:",
-  "if settings.LOCAL:",
+  "if settings.TESTING:",
+  "pragma: no cover",
+  "raise NotImplementedError",
 ]
+fail_under = 95
 ignore_errors = true
 omit = [
-  "tests/*",
-  "venv/*",
   "build/*",
+  "conftest.py",
   "dist/*",
   "docs/*",
   "setup.py",
-  "conftest.py",
+  "tests/*",
+  "venv/*",
 ]
 show_missing = true
-fail_under = 95
 
 [tool.coverage.run]
 branch = true
@@ -102,92 +99,131 @@ django_settings_module = "tests.project.settings"
 name = "braces"
 
 [tool.interrogate]
+exclude = ["build", "conftest.py", "docs", "setup.py"]
+fail-under = 75
 ignore-init-method = true
 ignore-init-module = false
 ignore-magic = false
-ignore-semiprivate = false
+ignore-module = true
+ignore-nested-classes = true
+ignore-nested-functions = false
 ignore-private = false
 ignore-property-decorators = false
-ignore-module = true
-ignore-nested-functions = false
-ignore-nested-classes = true
-fail-under = 75
-exclude = ["setup.py", "conftest.py", "docs", "build"]
 ignore-regex = ["^get$", "^mock_.*"]
+ignore-semiprivate = false
 # possible values: 0 (minimal output), 1 (-v), 2 (-vv)
-verbose = 1
-quiet = false
 color = true
 omit-covered-files = true
+quiet = false
+verbose = 1
 
 
 [tool.mypy]
 color_output = true
 error_summary = true
-exclude = ["venv", "build", "dist", "docs", "tests"]
+exclude = ["build", "dist", "docs", "tests", "venv"]
 implicit_optional = true
-pretty = true
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
-show_error_context = true
+pretty = true
 show_column_numbers = true
+show_error_context = true
 strict = true
 
 [tool.pytest.ini_options]
 # ini_options
+DJANGO_SETTINGS_MODULE = "tests.project.settings"
 addopts = "--cov --no-cov-on-fail --nomigrations --reverse -c pyproject.toml"
 django_find_project = false
-DJANGO_SETTINGS_MODULE = "tests.project.settings"
-markers = ["mixin_view_factory", "mixin"]
-norecursedirs = [".git", "docs", "__pycache__"]
-pythonpath = [".", "tests.project", "src"]#, "src.braces"]
+markers = ["mixin", "mixin_view_factory"]
+norecursedirs = [".git", "__pycache__", "docs"]
+pythonpath = [".", "src", "tests.project"]                                    #, "src.braces"]
 testpaths = ["tests"]
 
 [tool.ruff]
 select = [
-  "ANN",  # flake8-annotations
-  "B",  # flake8-bugbear
-  "BLE",  # flake8-blind-except
-  "COM",  # flake8-commas
-  "D",  # pydocstyle
+  "ANN", # flake8-annotations
+  "B",   # flake8-bugbear
+  "BLE", # flake8-blind-except
+  "COM", # flake8-commas
+  "D",   # pydocstyle
   "DJ",  # flake8-django
-  "E",  # pycodestyle
+  "E",   # pycodestyle
   "EM",  # flake8-errmsg
-  "ERA",  # flake8-eradicate
-  "F",  # Pyflakes
-  "FBT",  # flake8-boolean-trap
-  "G",  # flake8-logging-format
-  "I",  # isort
-  "INP",  # flake8-no-pep420
-  "N",  # pep8-naming
-  "PIE",  # flake8-pie
+  "ERA", # flake8-eradicate
+  "F",   # Pyflakes
+  "FBT", # flake8-boolean-trap
+  "G",   # flake8-logging-format
+  "I",   # isort
+  "INP", # flake8-no-pep420
+  "N",   # pep8-naming
+  "PIE", # flake8-pie
   "PT",  # flake8-pytest
-  "PYI",  # flake8-pyi
-  "Q",  # flake8-quotes
+  "PYI", # flake8-pyi
+  "Q",   # flake8-quotes
   "RET", # flake8-return
-  "RSE",  # flake8-raises
-  "RUF",  # ruff-specific rules
-  "S",  # flake8-bandit
-  "SIM",  # flake8-simplify
+  "RSE", # flake8-raises
+  "RUF", # ruff-specific rules
+  "S",   # flake8-bandit
+  "SIM", # flake8-simplify
   "T20", # flake8-print
-  "TCH",  # flake8-type-checking
-  "TRY",  # tryceratops
+  "TCH", # flake8-type-checking
+  "TRY", # tryceratops
 ]
 
 # ignore
-ignore = ["F403",]
+ignore = ["ANN101", "F403"]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["ANN", "B", "BLE", "COM", "D", "DJ", "E", "EM", "ERA", "F", "FBT", "G", "I", "INP", "N", "PIE", "PT", "PYI", "Q", "RET", "RSE", "RUF", "S", "SIM", "T20", "TCH", "TRY"]
+fixable = [
+  "ANN",
+  "B",
+  "BLE",
+  "COM",
+  "D",
+  "DJ",
+  "E",
+  "EM",
+  "ERA",
+  "F",
+  "FBT",
+  "G",
+  "I",
+  "INP",
+  "N",
+  "PIE",
+  "PT",
+  "PYI",
+  "Q",
+  "RET",
+  "RSE",
+  "RUF",
+  "S",
+  "SIM",
+  "T20",
+  "TCH",
+  "TRY",
+]
 
 unfixable = []
 
 extend-exclude = ["docs"]
-per-file-ignores = {}
 ignore-init-module-imports = true
 
 # Assume Python 3.8.
-target-version = "py38"
 src = ["src", "tests"]
+target-version = "py38"
+
+# format = "json"
+format = "pylint"
+
+[tool.ruff.per-file-ignores]
+"tests/test_*.py" = [
+  "ANN001",  # Missing type annotation for function argument
+  "ANN201",  # Missing type annotation for self in method
+  "D101",  # Missing class docstring
+  "FBT001", # Positional Boolean
+  "S101",  # Missing return type annotation
+]
 
 [tool.ruff.isort]
 combine-as-imports = true
@@ -226,5 +262,5 @@ tag_template = "v{new_version}"
 src = "braces/__init__.py"
 
 [[tool.tbump.before_commit]]
-name = "check changelog"
 cmd = "grep -q {new_version} docs/changelog.rst"
+name = "check changelog"
