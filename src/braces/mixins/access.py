@@ -184,9 +184,7 @@ class RecentLoginRequiredMixin(PassesTestMixin):
             )
         return False
 
-    def handle_test_failure(
-        self,
-    ) -> HttpResponseRedirect:
+    def handle_test_failure(self) -> HttpResponseRedirect:
         """Logout the user and redirect to login."""
         return logout_then_login(self.request)
 
@@ -197,9 +195,7 @@ class PermissionRequiredMixin(PassesTestMixin):
     permission_required: Union[str, dict[str, list[str]]] = None
     dispatch_test: str = "check_permissions"
 
-    def get_permission_required(
-        self,
-    ) -> Union[str, dict[str, list[str]]]:
+    def get_permission_required(self) -> Union[str, dict[str, list[str]]]:
         """Return a dict of required and optional permissions."""
         if self.permission_required is None:
             _class = self.__class__.__name__

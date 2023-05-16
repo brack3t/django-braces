@@ -16,15 +16,13 @@ class TestSelectRelated:
     def test_select_related(self):
         assert self.View().get_select_related() == ["foo", "bar"]
 
-    def test_select_related_empty(self):
+    @pytest.mark.parametrize("selected", [None, ""])
+    def test_select_related_empty(self, selected):
+        """An empty `select_related` should raise an exception."""
         view = self.View()
-        view.select_related = None
+        view.select_related = selected
 
         with pytest.raises(ImproperlyConfigured):
-            view.get_select_related()
-
-        view.select_related = ""
-        with pytest.warns(UserWarning):
             view.get_select_related()
 
     def test_select_related_non_list(self):
@@ -59,6 +57,7 @@ class TestPrefetchRelated:
         assert view.get_prefetch_related() == ["foo"]
 
     def test_prefetch_related_empty(self):
+        """An empty `prefect_related` should raise an exception."""
         view = self.View()
         view.prefetch_related = None
 
@@ -66,7 +65,7 @@ class TestPrefetchRelated:
             view.get_prefetch_related()
 
         view.prefetch_related = ""
-        with pytest.warns(UserWarning):
+        with pytest.raises(ImproperlyConfigured):
             view.get_prefetch_related()
 
     @pytest.mark.django_db

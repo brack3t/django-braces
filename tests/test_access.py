@@ -14,16 +14,16 @@ class TestPassesTestMixin:
 
     def test_success(self, mixin_view, rf):
         """A `True` test has a 200 status code."""
-        _view = mixin_view(dispatch_test="_test")
-        _view._test = lambda x: True
+        _view = mixin_view(dispatch_test="success")
+        _view.success = lambda x: True
         req = rf.get("/")
         response = _view.as_view()(req)
         assert response.status_code == 200
 
     def test_failure(self, mixin_view, rf):
         """A `False` test raises an exception."""
-        _view = mixin_view(dispatch_test="_test")
-        _view._test = lambda x: False
+        _view = mixin_view(dispatch_test="failure")
+        _view.failure = lambda x: False
 
         with pytest.raises(PermissionDenied):
             _view.as_view()(rf.get("/"))
@@ -51,35 +51,36 @@ class TestPassesTestMixin:
 @pytest.mark.mixin("SuperuserRequiredMixin")
 @pytest.mark.django_db()
 class TestSuperuserRequired:
+    """Tests for the `SuperuserRequiredMixin`."""
+
     def test_success(self, mixin_view, admin_user, rf):
+        """A superuser should have access."""
         request = rf.get("/")
         request.user = admin_user
         response = mixin_view().as_view()(request)
         assert response.status_code == 200
 
     def test_anonymous(self, mixin_view, rf):
-        response = mixin_view().as_view()(rf.get("/"))
-        assert response.status_code == 302
+        """There is no such thing as an anonymous superuser."""
+        with pytest.raises(PermissionDenied):
+            mixin_view().as_view()(rf.get("/"))
 
     def test_non_superuser(self, mixin_view, django_user_model, rf):
+        """Users without superuser status should be denied."""
         user = django_user_model.objects.create_user("test", "Test1234")
         request = rf.get("/")
         request.user = user
-        response = mixin_view().as_view()(request)
-        assert response.status_code == 302
+        with pytest.raises(PermissionDenied):
+            mixin_view().as_view()(request)
 
 
 @pytest.mark.mixin("StaffUserRequiredMixin")
 @pytest.mark.django_db()
 class TestStaffUserRequired:
-    @pytest.fixture()
-    @pytest.mark.django_db()
-    def user(self, django_user_model):
-        u = django_user_model.objects.create_user("test", "Test1234")
-        yield u
-        u.delete()
+    """Tests related to the `StaffUserRequiredMixin`."""
 
     def test_success(self, user, mixin_view, rf):
+        """Users marked as staff should have access."""
         request = rf.get("/")
         user.is_staff = True
         request.user = user
@@ -87,14 +88,16 @@ class TestStaffUserRequired:
         assert response.status_code == 200
 
     def test_anonymous(self, mixin_view, rf):
-        response = mixin_view().as_view()(rf.get("/"))
-        assert response.status_code == 302
+        """Anonymous users aren't staff and should be denied."""
+        with pytest.raises(PermissionDenied):
+            mixin_view().as_view()(rf.get("/"))
 
     def test_non_staff(self, user, mixin_view, rf):
+        """Users without staff status should be denied."""
         request = rf.get("/")
         request.user = user
-        response = mixin_view().as_view()(request)
-        assert response.status_code == 302
+        with pytest.raises(PermissionDenied):
+            mixin_view().as_view()(request)
 
 
 @pytest.mark.mixin("GroupRequiredMixin")
@@ -130,12 +133,13 @@ class TestGroupRequired:
 
     @pytest.mark.django_db()
     def test_failure(self, mixin_view, rf, user):
+        """Users who are not members are denied."""
         _view = mixin_view(group_required="nothing")
         request = rf.get("/")
         request.user = user
         request.user.groups.clear()
-        response = _view.as_view()(request)
-        assert response.status_code == 302
+        with pytest.raises(PermissionDenied):
+            _view.as_view()(request)
 
     @pytest.mark.django_db()
     def test_no_group_required(self, mixin_view, rf, user):
@@ -167,23 +171,31 @@ class TestAnonymousRequired:
         response = None
 
         try:
-            response = _view.as_view()(request)
+            response = _view(request)
         except PermissionDenied:
             if status_code == 200:
                 raise
-        finally:
+        else:
             assert response.status_code == status_code
 
 
 @pytest.mark.mixin("LoginRequiredMixin")
 class TestLoginRequired:
+    """Tests related to the `LoginRequiredMixin`."""
+
     @pytest.mark.parametrize(("logged_in", "status_code"), [(True, 200), (False, 302)])
     def test_mixin(self, logged_in, status_code, admin_user, mixin_view, rf):
+        """Unauthenticated users should be denied."""
         request = rf.get("/")
         if logged_in:
             request.user = admin_user
-        response = mixin_view().as_view()(request)
-        assert response.status_code == status_code
+        try:
+            response = mixin_view().as_view()(request)
+        except PermissionDenied:
+            if status_code == 200:
+                raise
+        else:
+            assert response.status_code == status_code
 
 
 @pytest.mark.mixin("RecentLoginRequiredMixin")
@@ -212,7 +224,8 @@ class TestPermissionRequired:
     @pytest.fixture()
     def permission(self):
         perm = Permission.objects.get(
-            content_type__app_label="project", codename="add_article",
+            content_type__app_label="project",
+            codename="add_article",
         )
         yield perm
         perm.delete()

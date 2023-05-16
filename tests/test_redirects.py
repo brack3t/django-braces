@@ -11,66 +11,36 @@ from django.views.generic import View
 from braces import mixins
 
 
-@pytest.fixture
-def redirect_view():
-    class _View(mixins.RedirectMixin, View):
-        redirect_url = "/"
-    yield _View
+@pytest.fixture()
+@pytest.mark.mixin("RedirectMixin")
+def redirect_view(mixin_view):
+    """Create view that redirects to /."""
+
+    mixin_view.redirect_url = "/"
+
+    return mixin_view
 
 
-class Test_Redirect:
-    def test_get_login_url(self, redirect_view):
-        redirect_view.login_url = "test"
-        assert redirect_view().get_login_url() == "test"
+@pytest.mark.mixin("RedirectMixin")
+class TestRedirect:
+    """Tests related to the `RedirectMixin`."""
 
-    def test_get_login_url_default(self, redirect_view):
-        assert redirect_view().get_login_url() == settings.LOGIN_URL
+    def test_get_redirect_url(self, mixin_view):
+        """Views must have `redirect_view` defined."""
+        view = mixin_view(redirect_url="/")
+        assert view().get_redirect_url() == "/"
 
-    def test_get_login_url_missing(self, settings, redirect_view):
-        del settings.LOGIN_URL
-        redirect_view.login_url = None
-
+    def test_no_redirect_url(self, mixin_view):
+        """An empty or missing `redirect_view` raises an exception."""
+        view = mixin_view(redirect_url="")
         with pytest.raises(ImproperlyConfigured):
-            redirect_view().get_login_url()
+            view().get_redirect_url()
 
-    def test_get_redirect_field_name(self, redirect_view):
-        redirect_view.redirect_field_name = "test"
-        assert redirect_view().get_redirect_field_name() == "test"
-
-    def test_get_redirect_field_name_default(self, redirect_view):
-        assert redirect_view().get_redirect_field_name() == REDIRECT_FIELD_NAME
-
-    @mock.patch("braces.mixins.RedirectMixin.redirect")
-    def test_test_failure(self, mock_redirect, redirect_view, rf):
-        redirect_view.raise_exception = False
-        redirect_view.request = rf.get("/")
-
-        redirect_view().handle_test_failure()
-        mock_redirect.assert_called()
-
-    @mock.patch("braces.mixins.RedirectMixin.redirect")
-    def test_test_anonymous(self, mock_redirect, redirect_view):
-        redirect_view.raise_exception = False
-        redirect_view.redirect_unauthenticated_users = True
-        redirect_view.request = RequestFactory().get("/")
-        redirect_view().handle_test_failure()
-        assert mock_redirect.called
-
-    @mock.patch("braces.mixins.RedirectMixin.redirect")
-    def test_test_exception(self, mock_redirect, redirect_view):
-        redirect_view.raise_exception = ImproperlyConfigured
-
-        with pytest.raises(ImproperlyConfigured):
-            redirect_view.as_view()(RequestFactory().get("/"))
-        mock_redirect.assert_called_once()
-
-    @mock.patch("braces.mixins.RedirectMixin.redirect")
-    def test_test_callable(self, mock_redirect, redirect_view):
-        redirect_view.test_method = lambda x: False
-
-        with pytest.raises(ImproperlyConfigured):
-            redirect_view.as_view()(RequestFactory().get("/"))
-        mock_redirect.assert_called_once()
+    def test_get_redirected(self, mixin_view, rf):
+        """Views should redirect requests."""
+        view = mixin_view(redirect_url="/")
+        response = view().redirect()
+        assert response.status_code == 302
 
 
 class TestCanonicalURL:

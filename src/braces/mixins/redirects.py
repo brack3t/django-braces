@@ -32,7 +32,8 @@ class RedirectMixin:
 
     def get_redirect_url(self) -> str:
         """Get the URL to redirect to."""
-        if self.redirect_url is None:
+        _url = getattr(self, "redirect_url", None)
+        if _url is None or not _url:
             _class = self.__class__.__name__
             _err_msg = (
                 f"{_class} is missing the `redirect_url` attribute. "
@@ -60,9 +61,7 @@ class CanonicalRedirectMixin(RedirectMixin):
         """Generate the canonical URL for the page."""
         raise NotImplementedError
 
-    def dispatch(
-        self, request: http.HttpRequest, *args, **kwargs
-    ) -> http.HttpResponse:
+    def dispatch(self, request: http.HttpRequest, *args, **kwargs) -> http.HttpResponse:
         """Check the slug and redirect if necessary."""
         slug_field = getattr(self.get_object(), self.slug_field, None)
         slug_kwarg = kwargs.get(self.slug_url_kwarg, None)

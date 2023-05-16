@@ -5,6 +5,7 @@ from importlib import import_module
 from typing import Any, Callable, Dict
 
 import pytest
+from django.db.models import Model
 from django.http import HttpResponse
 from django.views.generic import View
 
@@ -31,3 +32,12 @@ def mixin_view_factory(request: pytest.FixtureRequest) -> Callable:
         return type("FixtureView", (mixin_class, View), kwargs)
 
     return mixin_view
+
+
+@pytest.fixture()
+@pytest.mark.django_db()
+def user(django_user_model) -> Model:  # noqa: ANN001
+    """Provide a generic user fixture for tests."""
+    u = django_user_model.objects.create_user("test", "Test1234")
+    yield u
+    u.delete()
