@@ -1,6 +1,5 @@
-"""Provides the `mixin_view` fixture."""
+"""Provides fixture for django-braces testing."""
 
-import logging
 from importlib import import_module
 from typing import Any, Callable, Dict
 
@@ -12,8 +11,6 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 
 from .project.models import Article
-
-log = logging.getLogger(__name__)
 
 
 @pytest.fixture()
@@ -47,7 +44,7 @@ def mixin_view_factory(request: pytest.FixtureRequest) -> Callable:
 
 
 @pytest.fixture()
-def single_object_view(mixin_view):
+def single_object_view(mixin_view) -> Callable:
     """Fixture for a view with the `SingleObjectMixin`."""
 
     def _view(**kwargs) -> type[SingleObjectMixin]:
@@ -61,7 +58,7 @@ def single_object_view(mixin_view):
 
 
 @pytest.fixture()
-def multiple_object_view(mixin_view):
+def multiple_object_view(mixin_view) -> Callable:
     """Fixture for a view with the `MultipleObjectMixin`."""
 
     def _view(**kwargs) -> type[MultipleObjectMixin]:
