@@ -2,7 +2,7 @@
 
 import logging
 from importlib import import_module
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Type
 
 import pytest
 from django.db.models import Model
@@ -35,7 +35,7 @@ def mixin_view_factory(request: pytest.FixtureRequest) -> Callable:
     mixin_name = mixin_request.args[0]
     mixin_class = getattr(mixins, mixin_name)
 
-    def mixin_view(**kwargs: Dict[Any, Any]) -> type[View]:
+    def mixin_view(**kwargs: Dict[Any, Any]) -> Type[View]:
         """Mixed-in view generator."""
         kwargs.update(
             {
@@ -43,6 +43,7 @@ def mixin_view_factory(request: pytest.FixtureRequest) -> Callable:
             }
         )
         return type("FixtureView", (mixin_class, View), kwargs)
+
     return mixin_view
 
 
@@ -50,13 +51,15 @@ def mixin_view_factory(request: pytest.FixtureRequest) -> Callable:
 def single_object_view(mixin_view):
     """Fixture for a view with the `SingleObjectMixin`."""
 
-    def _view(**kwargs) -> type[SingleObjectMixin]:
+    def _view(**kwargs) -> Type[SingleObjectMixin]:
         """Return a mixin view with the `SingleObjectMixin`."""
         return type(
             "SingleObjectView",
             (mixin_view(), SingleObjectMixin),
-            {"model": Article}, **kwargs
+            {"model": Article},
+            **kwargs,
         )
+
     return _view
 
 
@@ -64,11 +67,13 @@ def single_object_view(mixin_view):
 def multiple_object_view(mixin_view):
     """Fixture for a view with the `MultipleObjectMixin`."""
 
-    def _view(**kwargs) -> type[MultipleObjectMixin]:
+    def _view(**kwargs) -> Type[MultipleObjectMixin]:
         """Return a mixin view with the `MultipleObjectMixin`."""
         return type(
             "MultipleObjectView",
             (mixin_view(), MultipleObjectMixin),
-            {"model": Article}, **kwargs
+            {"model": Article},
+            **kwargs,
         )
+
     return _view
