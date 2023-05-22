@@ -140,7 +140,7 @@ class MultipleFormsMixin:
         """Handle any form being invalid."""
         raise NotImplementedError
 
-    def post( self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """Process POST requests: validate and run appropriate handler."""
         if self.validate_forms():
             return self.forms_valid()
@@ -177,7 +177,7 @@ class MultipleModelFormsMixin(MultipleFormsMixin):
 
         return self.instances
 
-    def get_form_kwargs(self, name: str) -> dict:
+    def get_form_kwargs(self, name: str) -> Dict[str, Any]:
         """Add the instance to the form if needed."""
         kwargs = {
             "prefix": name,  # all forms get a prefix

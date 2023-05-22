@@ -7,7 +7,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.views import logout_then_login
-from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.exceptions import BadRequest, ImproperlyConfigured, PermissionDenied
 from django.http import HttpResponsePermanentRedirect
 from django.utils.timezone import now
 
@@ -38,7 +38,7 @@ class PassesTestMixin(RedirectOnFailureMixin):
     another method is called to handle whatever comes next.
     """
 
-    dispatch_test: Union[str, Callable] = None
+    dispatch_test: str = None
 
     def dispatch(
         self,
@@ -81,7 +81,7 @@ class PassesTestMixin(RedirectOnFailureMixin):
 
         return method
 
-    def handle_test_failure(self) -> Exception:
+    def handle_test_failure(self):
         """Test failed, raise an exception or redirect."""
         raise PermissionDenied
 

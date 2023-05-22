@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from typing import Any, Type
 
 
@@ -23,8 +23,9 @@ class JSONResponseMixin:
     """
 
     content_type: str = "application/json"
-    json_dumps_kwargs: dict[str, Any] = None
-    json_encoder_class: type = None
+    context: dict[str, Any] = {}
+    json_dumps_kwargs: dict[str, Any] = {}
+    json_encoder_class: Type = None
 
     def get_content_type(self) -> str:
         """Determine appropriate content type for response."""
@@ -51,7 +52,9 @@ class JSONResponseMixin:
         return self.json_encoder_class
 
     def render_json_response(
-        self, context: dict = None, status: int = 200
+        self,
+        context: dict = None,
+        status: int = 200,
     ) -> JsonResponse:
         """Render a JSON response."""
         context = context or self.get_context_data() or {}
