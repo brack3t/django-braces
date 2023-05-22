@@ -62,8 +62,6 @@ testing = [
 line-length = 88
 
 [tool.coverage.report]
-code_highlight = true
-color = true
 exclude_lines = [
   "if TYPE_CHECKING:",
   "if __name__ == .__main__.:",
