@@ -75,7 +75,7 @@ class CanonicalRedirectMixin(RedirectMixin):
 
 
 class RedirectOnFailureMixin(RedirectMixin):
-    """Redirect to `LOGIN_URL` if the request fails its tests."""
+    """Redirect if the request fails its tests."""
 
     redirect_url = "/"
     raise_exception: Union[bool, Exception, Callable] = False

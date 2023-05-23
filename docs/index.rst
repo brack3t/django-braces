@@ -20,7 +20,7 @@ You can view the code of our project or fork it and add your own mixins (please,
     :maxdepth: 2
 
     Access <access>
-    Form <form>
+    Form <forms>
     HTTP <http>
     JSON <json>
     Messages <messages>
