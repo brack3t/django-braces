@@ -4,6 +4,16 @@
 Changelog
 =========
 
+* :feature:`288` JSONRequestMixin replaces AjaxResponseMixin
+* :support:`298` Docs are updated for new and old mixins
+* :feature:`294` Form-related mixins use better APIs
+* :feature:`291` All Python 2.x support has been removed
+* :feature:`293` Moved mixins from ``views`` to ``mixins``
+* :support:`292` Adopted ``pyproject.toml`` for all project configuration
+* :feature:`295` Added DRF-related mixins
+* :support:`299` Simplified tests
+* :support:`279` Refactored tests
+* :release:`1.15.1 <DATE>`
 * :support:`277` Updated the codebase to be more modern Python/Django
 * :feature:`245` Cache-related headers
 * :release:`1.15.0 <2021-11-05>`
