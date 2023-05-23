@@ -7,7 +7,7 @@ import typing
 from django.core.exceptions import ImproperlyConfigured
 from django.views.decorators.cache import cache_control, never_cache
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from typing import Callable
 
     from django.http import HttpRequest, HttpResponse
