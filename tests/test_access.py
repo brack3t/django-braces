@@ -31,9 +31,11 @@ class TestPassesTestMixin:
     def test_non_callable(self, mixin_view, rf):
         """A non-callable test raises an exception."""
         _view = mixin_view(dispatch_test="not_callable")
+        _view.not_callable = "test"
 
-        with pytest.raises(ImproperlyConfigured):
+        with pytest.raises(ImproperlyConfigured) as exc:
             _view.as_view()(rf.get("/"))
+        assert "must be a callable." in str(exc)
 
     def test_missing_method(self, mixin_view, rf):
         """A view without a `dispatch_test` raises an exception."""
@@ -46,6 +48,14 @@ class TestPassesTestMixin:
 
         with pytest.raises(ImproperlyConfigured):
             _view.as_view()(rf.get("/"))
+
+    def test_attribute_error(self, mixin_view, rf):
+        """A view with `dispatch_test=None` raises an exception."""
+        _view = mixin_view(dispatch_test="not_a_method")
+
+        with pytest.raises(ImproperlyConfigured) as exc:
+            _view.as_view()(rf.get("/"))
+        assert "is missing the `not_a_method` method." in str(exc)
 
 
 @pytest.mark.mixin("SuperuserRequiredMixin")

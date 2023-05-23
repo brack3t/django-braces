@@ -13,7 +13,7 @@ from django.utils.timezone import now
 
 from braces.mixins.redirects import RedirectOnFailureMixin
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from typing import Any, Callable, Union
 
     from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
