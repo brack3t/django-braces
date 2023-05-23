@@ -6,13 +6,18 @@ from typing import TYPE_CHECKING
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 
 if TYPE_CHECKING:
     from typing import Any, Type
 
 
-__all__ = ["JSONResponseMixin"]
+__all__ = [
+    "JSONResponseMixin",
+    "JSONRequestMixin",
+    "JsonRequestMixin",
+    "JsonResponseMixin",
+]
 
 
 class JSONResponseMixin:
@@ -66,3 +71,51 @@ class JSONResponseMixin:
             content_type=self.get_content_type(),
             status=status,
         )
+
+
+class JSONRequestMixin:
+    """A mixin to provide custom responses to JSON requests."""
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Call the appropriate handler method."""
+        if all(
+            [
+                request.headers.get("x-requested-with") == "XMLHttpRequest",
+                request.method.lower() in self.http_method_names,
+            ]
+        ):
+            handler = getattr(
+                self,
+                f"{request.method.lower()}_json",
+                self.http_method_not_allowed,
+            )
+            self.request = request
+            self.args = args
+            self.kwargs = kwargs
+            return handler(request, *args, **kwargs)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Handle a GET request."""
+        return self.get(request, *args, **kwargs)
+
+    def post_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Handle a POST request."""
+        return self.post(request, *args, **kwargs)
+
+    def patch_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Handle a PATCH request."""
+        return self.patch(request, *args, **kwargs)
+
+    def put_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Handle a PUT request."""
+        return self.put(request, *args, **kwargs)
+
+    def delete_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Handle a DELETE request."""
+        return self.delete(request, *args, **kwargs)
+
+
+JsonRequestMixin = JSONRequestMixin
+JsonResponseMixin = JSONResponseMixin
