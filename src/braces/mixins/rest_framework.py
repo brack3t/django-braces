@@ -6,7 +6,7 @@ import typing
 
 from django.core.exceptions import ImproperlyConfigured
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from typing import Dict, Type
 
     from rest_framework.serializers import Serializer

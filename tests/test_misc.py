@@ -46,3 +46,9 @@ class TestStaticContext:
         """Test that `static_context` is in the view's context."""
         view = static_view(static_context={"django": "braces"})
         assert view().get_context_data()["django"] == "braces"
+
+    def test_static_context_not_dict(self, static_view):
+        """With a non-dict `static_context`, raise an exception."""
+        view = static_view(static_context="django")
+        with pytest.raises(ImproperlyConfigured):
+            view().get_static_context()
