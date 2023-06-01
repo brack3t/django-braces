@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
+    from typing import Any, Optional
+
     from django.db import models
     from django.http import HttpRequest, HttpResponse
 
@@ -18,7 +20,6 @@ __all__ = [
     "FormWithUserMixin",
     "CSRFExemptMixin",
     "MultipleFormsMixin",
-    "MultipleModelFormsMixin",
 ]
 
 
@@ -42,7 +43,7 @@ class FormWithUserMixin:
     def get_form_kwargs(self) -> dict:
         """Inject the request.user into the form's kwargs."""
         kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
+        kwargs.update({"user": self.request.user})
         return kwargs
 
     def get_form_class(self) -> type[forms.Form]:
@@ -73,7 +74,8 @@ class MultipleFormsMixin:
     """Provides a view with the ability to handle multiple Forms."""
 
     form_classes: dict[str, forms.Form] = None
-    initial: dict[str, dict] = {}
+    initials: dict[str, dict] = {}
+    instances: dict[str, models.Model] = None
 
     def __init__(self, *args, **kwargs) -> None:
         """Alias get_forms to get_form for backwards compatibility."""
@@ -110,15 +112,61 @@ class MultipleFormsMixin:
             _forms[name] = form_class(**self.get_form_kwargs(name))
         return _forms
 
-    def get_form_kwargs(self, name: str) -> dict:
+    def get_instance(self, name: str) -> Optional[models.Model]:
+        """Connect instances to forms."""
+        if self.instances is None:
+            _class = self.__class__.__name__
+            _err_msg = (
+                f"{_class} is missing an instances attribute."
+                f"Define `{_class}.instances`, or override "
+                f"`{_class}.get_instances`."
+            )
+            raise ImproperlyConfigured(_err_msg)
+
+        if not isinstance(self.instances, dict):
+            _err_msg = f"`{_class}.instances` must be a dictionary."
+            raise ImproperlyConfigured(_err_msg)
+
+        try:
+            instance = self.instances[name]
+        except (KeyError, ValueError) as exc:
+            _err_msg = f"`{name}` is not an available instance."
+            raise ImproperlyConfigured(_err_msg) from exc
+        else:
+            return instance
+
+    def get_initial(self, name: str) -> Optional[dict[str, Any]]:
+        """Connect instances to forms."""
+        _class = self.__class__.__name__
+        if self.initials is None:
+            _err_msg = (
+                f"{_class} is missing an initials attribute."
+                f"Define `{_class}.initials`, or override "
+                f"`{_class}.get_initial`."
+            )
+            raise ImproperlyConfigured(_err_msg)
+
+        if not isinstance(self.initials, dict):
+            _err_msg = f"`{_class}.initials` must be a dictionary."
+            raise ImproperlyConfigured(_err_msg)
+
+        try:
+            initial = self.initials[name]
+        except KeyError:
+            return {}
+        else:
+            return initial
+
+    def get_form_kwargs(self, name: str) -> dict[str, Any]:
         """Add common kwargs to the form."""
         kwargs = {
             "prefix": name,  # all forms get a prefix
         }
 
-        initial = self.get_initial()
-        if name in initial:
-            kwargs["initial"] = initial[name]  # use the form's initial data
+        kwargs["initial"] = self.get_initial(name)  # use the form's initial data
+
+        if isinstance(self, forms.ModelForm):
+            kwargs["instance"] = self.get_instance(name)  # use the form's instance
 
         if self.request.method in {"POST", "PUT", "PATCH"}:
             # Attach the request's POST data and any files to the form
@@ -153,47 +201,3 @@ class MultipleFormsMixin:
     def patch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """Process PATCH requests."""
         raise NotImplementedError
-
-
-class MultipleModelFormsMixin(MultipleFormsMixin):
-    """Provides a view with the ability to handle multiple ModelForms."""
-
-    instances: dict[str, models.Model] = None
-
-    def get_instances(self) -> dict[str, models.Model]:
-        """Connect instances to forms."""
-        if self.instances is None:
-            _class = self.__class__.__name__
-            _err_msg = (
-                f"{_class} is missing an instances attribute."
-                f"Define `{_class}.instances`, or override "
-                f"`{_class}.get_instances`."
-            )
-            raise ImproperlyConfigured(_err_msg)
-
-        if not isinstance(self.instances, dict):
-            _err_msg = f"`{_class}.instances` must be a dictionary."
-            raise ImproperlyConfigured(_err_msg)
-
-        return self.instances
-
-    def get_form_kwargs(self, name: str) -> Dict[str, Any]:
-        """Add the instance to the form if needed."""
-        kwargs = {
-            "prefix": name,  # all forms get a prefix
-        }
-
-        initial = self.get_initial()
-        if name in initial:
-            kwargs["initial"] = initial[name]  # use the form's initial data
-
-        if self.request.method in {"POST", "PUT", "PATCH"}:
-            # Attach the request's POST data and any files to the form
-            kwargs["data"] = self.request.POST
-            kwargs["files"] = self.request.FILES
-
-        instances = self.get_instances()
-        if name in instances:
-            kwargs["instance"] = instances[name]
-
-        return kwargs

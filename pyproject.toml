@@ -53,6 +53,7 @@ testing = [
   "pytest",
   "pytest-cov",
   "pytest-django",
+  "pytest-lazy-fixture",
   "pytest-reverse",
 ]
 
@@ -209,7 +210,7 @@ fixable = [
 
 unfixable = []
 
-extend-exclude = ["docs"]
+extend-exclude = ["*.pyi", "docs"]
 ignore-init-module-imports = true
 
 # Assume Python 3.8.
