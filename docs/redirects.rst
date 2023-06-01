@@ -9,11 +9,14 @@ The mixins in this group are all related to redirecting HTTP requests.
 RedirectMixin
 -------------
 
+.. versionadded:: 2.0
+
 This mixin provides a ``redirect()`` method that can be used to redirect
 the request to another URL. You can provide the URL via the ``redirect_url``
 attribute or by overriding the ``get_redirect_url()`` method.
 
 ::
+
     from django.views.generic import View
 
     from braces.mixins import RedirectMixin
@@ -56,11 +59,14 @@ since there is no way to know what the canonical URL is for your object.
 RedirectOnFailureMixin
 ----------------------
 
+.. versionadded:: 2.0
+
 This mixin is similar to the :ref:``RedirectMixin`` except that it is
 already primed with a ``redirect_url`` that is used when the view's
-``dispatch_test`` method returns ``False``. This mixin's ``handle_test_failure``
-will redirect to the URL provided. Alternatively, an exception may be
-raised by setting ``raise_exception`` to ``True``.
+``dispatch_test`` method returns ``False``. This mixin's
+``handle_test_failure`` will redirect to the URL provided.
+Alternatively, an exception may be raised by setting ``raise_exception``
+to ``True``.
 
 ::
 
@@ -80,6 +86,8 @@ raised by setting ``raise_exception`` to ``True``.
 
 RedirectToLoginMixin
 --------------------
+
+.. versionadded:: 2.0
 
 This mixin is similar to the :ref:``RedirectMixin`` except that it is
 already configured to redirect a user to the ``LOGIN_URL`` in your

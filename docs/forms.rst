@@ -10,6 +10,8 @@ These mixins are all associated with forms and form processing.
 UserFormMixin
 -------------
 
+.. versionadded:: 2.0
+
 .. note::
     This mixin is for use on a form.
 
@@ -31,6 +33,8 @@ when you need access to the requesting user.
 
 FormWithUserMixin
 -----------------
+
+.. versionadded:: 2.0
 
 A companion mixin to go along with :ref:`UserFormMixin`. This mixin will
 cause the view to automatically include the ``request.user`` in the form's
@@ -76,6 +80,8 @@ Mixin to easily opt a view out of requiring a CSRF token.
 MultipleFormsMixin
 ------------------
 
+.. versionadded:: 2.0
+
 Often views need to handle multiple forms on the same request. While
 this isn't a difficult thing to do with Django, it does require some
 knowledge and code. This mixin makes it much easier.
@@ -112,6 +118,8 @@ define the consequences of your forms yourself.
 
 MultipleModelFormsMixin
 -----------------------
+
+.. versionadded:: 2.0
 
 This mixin is a subclass of :ref:`MultipleFormsMixin` that is designed to
 work with model forms. It adds another attribute, ``instances``, which

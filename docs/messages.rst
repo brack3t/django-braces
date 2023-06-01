@@ -3,10 +3,12 @@ Message Mixins
 
 These mixins relate to sending temporary/flash messages to users.
 
-.. _MessageMixin:
+.. _MessagesMixin:
 
 MessagesMixin
 -------------
+
+.. versionadded:: 2.0
 
 This mixin adds a new ``messages`` attribute to the view. This attribute
 is a wrapper around Django's ``django.contrib.messages`` framework and

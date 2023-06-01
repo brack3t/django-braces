@@ -9,6 +9,8 @@ to help with DRF development.
 MultipleSerializerMixin
 -----------------------
 
+.. versionadded:: 2.0
+
 This mixin is similar to :ref:`MultipleFormsMixin` but handles DRF
 serializers instead of Django forms.
 

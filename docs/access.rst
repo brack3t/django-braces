@@ -59,20 +59,20 @@ to determine superuser status in a different way.
         ...
 
 
-.. _StaffuserRequiredMixin:
+.. _StaffUserRequiredMixin:
 
-StaffuserRequiredMixin
+StaffUserRequiredMixin
 ----------------------
 
-The ``StaffuserRequiredMixin`` is similar to the :ref:`SuperuserRequiredMixin`
+The ``StaffUserRequiredMixin`` is similar to the :ref:`SuperuserRequiredMixin`
 but instead of checking for ``is_superuser``, it checks for ``is_staff``.
 
 ::
 
-    from braces.mixins import StaffuserRequiredMixin
+    from braces.mixins import StaffUserRequiredMixin
 
 
-    class SomeStaffuserView(views.StaffuserRequiredMixin, View):
+    class SomeStaffUserView(views.StaffUserRequiredMixin, View):
         """Staff users are required for changing grades."""
         ...
 
@@ -142,9 +142,9 @@ Use this mixin when you want to reject unauthenticated requests.
     class SomeSecretView(LoginRequiredMixin, View):
         """Secrets for authenticated users only."""
 
-By default, a failing request causes ``PermissionDenied`` to be raised. You can
-customize this by overriding ``handle_test_failure`` like other :ref:`PassesTestMixin`
-descendants.
+By default, a failing request causes ``PermissionDenied`` to be raised.
+You can customize this by overriding ``handle_test_failure`` like other
+:ref:`PassesTestMixin` descendants.
 
 
 .. _RecentLoginRequiredMixin:

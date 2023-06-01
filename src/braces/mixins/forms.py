@@ -61,7 +61,7 @@ class CSRFExemptMixin:
     """Exempts the view from CSRF requirements."""
 
     @method_decorator(csrf_exempt)
-    def dispatch(self, request: HttpRequest, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """Dispatch the exempted request."""
         return super().dispatch(request, *args, **kwargs)
 

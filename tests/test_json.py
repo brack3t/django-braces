@@ -82,17 +82,12 @@ class TestJSONRequestMixin:
         headers = {}
         if json:
             headers = {
-                "content_type": "application/json",
+                "content-type": "application/json",
                 "x-requested-with": "XMLHttpRequest",
             }
 
-        req = rf.get(
-            "/",
-            headers=headers
-        )
+        req = rf.get("/")
+        req.headers = headers
         view.as_view()(req)
 
-        if json:
-            assert mock_json_get.called
-        else:
-            assert mock_json_get.not_called
+        assert mock_json_get.called if json else mock_json_get.not_called
