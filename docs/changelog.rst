@@ -4,6 +4,7 @@
 Changelog
 =========
 
+* :release:`2.0.0 <DATE>`
 * :feature:`288` JSONRequestMixin replaces AjaxResponseMixin
 * :support:`298` Docs are updated for new and old mixins
 * :feature:`294` Form-related mixins use better APIs
