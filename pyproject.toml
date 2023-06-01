@@ -46,7 +46,7 @@ checks = [
   "mypy",
   "ruff",
 ]
-dev = ["django", "django-rest-framework"]
+development = ["django", "django-rest-framework"]
 documentation = ["releases", "semantic-version", "sphinx"]
 testing = [
   "coverage",
