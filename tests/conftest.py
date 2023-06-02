@@ -15,12 +15,11 @@ from django.views.generic.list import MultipleObjectMixin
 from .project.models import Article
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Dict, Tuple, Type
+    from typing import Any, Callable, Type
 
     from django.db.models import Model
 
-    A = Type[Tuple[Any]]
-    K = Type[Dict[Any, Any]]
+    K = Type[dict[Any, Any]]
 
 
 @pytest.mark.django_db()

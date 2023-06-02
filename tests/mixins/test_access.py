@@ -1,10 +1,13 @@
 """Tests for the access-related mixins."""
+from __future__ import annotations
+
 from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import Group, Permission
 from django.contrib.sessions.backends.db import SessionStore
-from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpResponseBadRequest
 from django.utils.timezone import now
 
 
@@ -17,8 +20,7 @@ def group():
         """Return a customizable Group."""
         defaults = {"name": "test"}
         defaults.update(kwargs)
-        group = Group.objects.create(**defaults)
-        return group
+        return Group.objects.create(**defaults)
 
     return group_factory
 
@@ -36,12 +38,12 @@ class TestPassesTestMixin:
         assert response.status_code == 200
 
     def test_failure(self, mixin_view, rf):
-        """A `False` test raises an exception."""
+        """A `False` test returns a Bad Request (400) response."""
         _view = mixin_view(dispatch_test="failure")
         _view.failure = lambda x: False
 
-        with pytest.raises(PermissionDenied):
-            _view.as_view()(rf.get("/"))
+        response = _view.as_view()(rf.get("/"))
+        assert response.status_code == 400
 
     def test_non_callable(self, mixin_view, rf):
         """A non-callable test raises an exception."""
@@ -73,6 +75,31 @@ class TestPassesTestMixin:
         assert "is missing the `not_a_method` method." in str(exc)
 
 
+@pytest.mark.mixin("PassOrRedirectMixin")
+class TestPassOrRedirectMixin:
+    """Tests for the `PassOrRedirectMixin`."""
+
+    def test_handle_test_failure_unauthenticated(self, mixin_view, rf, user):
+        """A failed request is redirected."""
+        view = mixin_view(
+            redirect_url="/login",
+        )
+        request = rf.get("/secret")
+        request.user = None
+
+        response = view(request=request).handle_test_failure()
+        assert response.status_code == 302
+
+    def test_handle_test_failure_no_redirect(self, mixin_view, rf, user):
+        """A failed request raises an exception."""
+        view = mixin_view(redirect_url="/login")
+        request = rf.get("/secret")
+        request.user = user()
+
+        response = view(request=request).handle_test_failure()
+        assert isinstance(response, HttpResponseBadRequest)
+
+
 @pytest.mark.mixin("SuperuserRequiredMixin")
 @pytest.mark.django_db()
 class TestSuperuserRequired:
@@ -87,16 +114,16 @@ class TestSuperuserRequired:
 
     def test_anonymous(self, mixin_view, rf):
         """There is no such thing as an anonymous superuser."""
-        with pytest.raises(PermissionDenied):
-            mixin_view().as_view()(rf.get("/"))
+        response = mixin_view().as_view()(rf.get("/"))
+        assert isinstance(response, HttpResponseBadRequest)
 
     def test_non_superuser(self, mixin_view, django_user_model, rf):
         """Users without superuser status should be denied."""
         user = django_user_model.objects.create_user("test", "Test1234")
         request = rf.get("/")
         request.user = user
-        with pytest.raises(PermissionDenied):
-            mixin_view().as_view()(request)
+        response = mixin_view().as_view()(request)
+        assert isinstance(response, HttpResponseBadRequest)
 
 
 @pytest.mark.mixin("StaffUserRequiredMixin")
@@ -113,15 +140,15 @@ class TestStaffUserRequired:
 
     def test_anonymous(self, mixin_view, rf):
         """Anonymous users aren't staff and should be denied."""
-        with pytest.raises(PermissionDenied):
-            mixin_view().as_view()(rf.get("/"))
+        response = mixin_view().as_view()(rf.get("/"))
+        assert isinstance(response, HttpResponseBadRequest)
 
     def test_non_staff(self, user, mixin_view, rf):
         """Users without staff status should be denied."""
         request = rf.get("/")
         request.user = user()
-        with pytest.raises(PermissionDenied):
-            mixin_view().as_view()(request)
+        response = mixin_view().as_view()(request)
+        assert isinstance(response, HttpResponseBadRequest)
 
 
 @pytest.mark.mixin("GroupRequiredMixin")
@@ -152,8 +179,8 @@ class TestGroupRequired:
         request = rf.get("/")
         request.user = user
         view = view(request=request)
-        with pytest.raises(PermissionDenied):
-            view.dispatch(request)
+        response = view.dispatch(request)
+        assert isinstance(response, HttpResponseBadRequest)
 
     def test_no_user(self, mixin_view, rf):
         """A request with no user is denied."""
@@ -181,8 +208,8 @@ class TestGroupRequired:
 class TestAnonymousRequired:
     """Test mixins requiring anonymous users."""
 
-    @pytest.mark.parametrize(("logged_in", "status_code"), [(False, 200), (True, 302)])
-    def test_mixin(self, logged_in: bool, status_code: int, mixin_view, admin_user, rf):
+    @pytest.mark.parametrize(("logged_in", "status_code"), [(False, 200), (True, 400)])
+    def test_mixin(self, logged_in, status_code, mixin_view, admin_user, rf):
         """AnonymousRequiredMixin should error for authenticated users."""
         _view = mixin_view().as_view()
         user = admin_user if logged_in else None
@@ -190,32 +217,22 @@ class TestAnonymousRequired:
         request.user = user
         response = None
 
-        try:
-            response = _view(request)
-        except PermissionDenied:
-            if status_code == 200:
-                raise
-        else:
-            assert response.status_code == status_code
+        response = _view(request)
+        assert response.status_code == status_code
 
 
 @pytest.mark.mixin("LoginRequiredMixin")
 class TestLoginRequired:
     """Tests related to the `LoginRequiredMixin`."""
 
-    @pytest.mark.parametrize(("logged_in", "status_code"), [(True, 200), (False, 302)])
+    @pytest.mark.parametrize(("logged_in", "status_code"), [(True, 200), (False, 400)])
     def test_mixin(self, logged_in, status_code, admin_user, mixin_view, rf):
         """Unauthenticated users should be denied."""
         request = rf.get("/")
         if logged_in:
             request.user = admin_user
-        try:
-            response = mixin_view().as_view()(request)
-        except PermissionDenied:
-            if status_code == 200:
-                raise
-        else:
-            assert response.status_code == status_code
+        response = mixin_view().as_view()(request)
+        assert response.status_code == status_code
 
 
 @pytest.mark.mixin("RecentLoginRequiredMixin")
@@ -276,8 +293,8 @@ class TestPermissionRequired:
     def test_anonymous(self, mixin_view, rf):
         """Anonymous users should be denied."""
         _view = mixin_view(permission_required={"all": ["project.add_article"]})
-        with pytest.raises(PermissionDenied):
-            _view.as_view()(rf.get("/"))
+        response = _view.as_view()(rf.get("/"))
+        assert isinstance(response, HttpResponseBadRequest)
 
     def test_no_permission(self, mixin_view, rf, user):
         """Users with no permissions should be denied."""
@@ -305,7 +322,7 @@ class TestPermissionRequired:
 
         _view = mixin_view(permission_required="tests.add_article")
         assert _view(request=request).get_permission_required() == {
-            "all": ["tests.add_article"]
+            "all": ["tests.add_article"],
         }
 
 
@@ -327,3 +344,14 @@ class TestSSLRequired:
         settings.DEBUG = False
         req = rf.get("/")
         assert not mixin_view()(request=req).test_ssl()
+
+    def test_bad_request(self, mixin_view, rf):
+        """Non-SSL requests raise BadRequest if redirects are off."""
+        request = rf.get("/")
+        request.is_secure = lambda: False
+
+        view = mixin_view()
+        view.redirect_to_ssl = False
+
+        response = view.as_view()(request)
+        assert isinstance(response, HttpResponseBadRequest)

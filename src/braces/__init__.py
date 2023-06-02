@@ -1,5 +1,4 @@
-"""
-django-braces: generic view mixins
+"""django-braces: mixins for Django's class-based views.
 
 Mixins and view classes to make working with Django's
 generic class-based views simpler.

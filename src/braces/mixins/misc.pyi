@@ -1,10 +1,10 @@
 from __future__ import annotations
 from typing import *
 
-A = Type[tuple[Any]]
-K = Type[dict[Any, Any]]
+from . import K, HasContext
 
-class StaticContextMixin:
-    static_context: dict[str, Any]
-    def get_static_context(self) -> dict[str, Any]: ...
-    def get_context_data(self, **kwargs: K) -> dict[str, Any]: ...
+class StaticContextMixin(HasContext):
+    context: K
+    static_context: K
+    def get_static_context(self) -> K: ...
+    def get_context_data(self) -> K: ...

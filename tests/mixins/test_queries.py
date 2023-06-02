@@ -3,7 +3,7 @@
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 
-from .project.models import Article
+from tests.project.models import Article
 
 
 @pytest.mark.mixin("SelectRelatedMixin")

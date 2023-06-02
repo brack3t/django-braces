@@ -3,20 +3,19 @@
 from __future__ import annotations
 
 import inspect
-import typing
+from typing import TYPE_CHECKING
 
 from django import http
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured
 
-if typing.TYPE_CHECKING:
-    from typing import Callable, Optional, Union
+if TYPE_CHECKING:
+    from typing import Optional  # pragma: no cover
 
 __all__ = [
     "RedirectMixin",
     "CanonicalRedirectMixin",
-    "RedirectOnFailureMixin",
     "RedirectToLoginMixin",
 ]
 
@@ -24,7 +23,7 @@ __all__ = [
 class RedirectMixin:
     """Mixin to simplify redirecting a request."""
 
-    redirect_url: Optional[str] = None
+    redirect_url: str = ""
 
     def redirect(self) -> http.HttpResponseRedirect:
         """Generate a redirect for the login URL."""
@@ -74,64 +73,10 @@ class CanonicalRedirectMixin(RedirectMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class RedirectOnFailureMixin(RedirectMixin):
-    """Redirect if the request fails its tests."""
-
-    redirect_url = "/"
-    raise_exception: Union[bool, Exception, Callable] = False
-    redirect_unauthenticated_users: bool = True
-
-    def get_redirect_field_name(self) -> str:
-        """Return the query string field name for the redirection URL."""
-        if self.redirect_field_name is None:
-            _class = self.__class__.__name__
-            _err_msg = (
-                f"{_class} is missing the `redirect_field_name` attribute. "
-                f"Define `{_class}.redirect_field_name` or override "
-                f"`{_class}.get_redirect_field_name`."
-            )
-            raise ImproperlyConfigured(_err_msg)
-        return self.redirect_field_name
-
-    def handle_test_failure(self) -> http.HttpResponse:
-        """Handle a failed request with a redirect or an exception."""
-        # redirect without an exception
-        if not self.raise_exception:
-            return self.redirect()
-
-        # redirect unauthenticated users to login
-        if (
-            self.redirect_unauthenticated_users
-            and not self.request.user.is_authenticated
-        ):
-            return self.redirect()
-
-        # if self.raise_exception is an exception, raise it
-        if inspect.isclass(self.raise_exception) and issubclass(
-            self.raise_exception, Exception
-        ):
-            raise self.raise_exception
-
-        # if self.raise_exception is a callable, call it
-        if callable(self.raise_exception) and isinstance(
-            response := self.raise_exception(self.request),
-            (http.HttpResponse, http.StreamingHttpResponse),
-        ):
-            return response
-
-        # raise the default exception
-        raise http.Http404
-
-    def redirect(self) -> http.HttpResponseRedirect:
-        """Generate a redirect."""
-        return http.HttpResponseRedirect(self.get_redirect_url())
-
-
-class RedirectToLoginMixin(RedirectOnFailureMixin):
+class RedirectToLoginMixin(RedirectMixin):
     """Redirect failed requests to `LOGIN_URL`."""
 
     login_url: Optional[str] = None
-    redirect_field_name: Optional[str] = None
 
     def get_login_url(self) -> str:
         """Return the URL for the login page."""
@@ -152,6 +97,5 @@ class RedirectToLoginMixin(RedirectOnFailureMixin):
         """Generate a redirect for the login URL."""
         return redirect_to_login(
             self.request.get_full_path(),
-            self.get_login_url(),
-            self.get_redirect_field_name(),
+            self.get_login_url()
         )

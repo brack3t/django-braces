@@ -15,5 +15,6 @@ venv/
 .pytest_cache/
 .tool-versions
 pytest-coverage.txt
+.coverage.xml
 coverage.xml
 .vscode/

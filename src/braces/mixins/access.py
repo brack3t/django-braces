@@ -2,24 +2,26 @@
 
 from __future__ import annotations
 
-import typing
+import inspect
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
+from django import http
 from django.conf import settings
 from django.contrib.auth.views import logout_then_login
-from django.core.exceptions import BadRequest, ImproperlyConfigured, PermissionDenied
-from django.http import HttpResponsePermanentRedirect
+from django.core.exceptions import BadRequest, ImproperlyConfigured
 from django.utils.timezone import now
 
-from braces.mixins.redirects import RedirectOnFailureMixin
+from braces.mixins.redirects import RedirectMixin
 
-if typing.TYPE_CHECKING:  # pragma: no cover
-    from typing import Any, Callable, Union
+if TYPE_CHECKING:  # pragma: no cover
+    from typing import Callable
 
-    from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+    from . import A, K, RaiseOrCall
 
 __all__ = [
     "PassesTestMixin",
+    "PassOrRedirectMixin",
     "SuperuserRequiredMixin",
     "StaffUserRequiredMixin",
     "GroupRequiredMixin",
@@ -31,21 +33,21 @@ __all__ = [
 ]
 
 
-class PassesTestMixin(RedirectOnFailureMixin):
+class PassesTestMixin:
     """The view is not dispatched unless a test method passes.
 
     Executes a test function before `View.dispatch` is called. On failure,
     another method is called to handle whatever comes next.
     """
 
-    dispatch_test: str = None
+    dispatch_test = None
 
     def dispatch(
         self,
-        request: HttpRequest,
-        *args: tuple[Any],
-        **kwargs: dict[Any, Any],
-    ) -> HttpResponse:
+        request: http.HttpRequest,
+        *args: A,
+        **kwargs: K
+    ) -> http.HttpResponse:
         """Run the test method and dispatch the view if it passes."""
         test_method = self.get_test_method()
 
@@ -54,7 +56,7 @@ class PassesTestMixin(RedirectOnFailureMixin):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_test_method(self) -> Callable:
+    def get_test_method(self) -> Callable[[], bool]:
         """Find the method to test the request with.
 
         Provide a callable object or a string that can be used to
@@ -76,14 +78,31 @@ class PassesTestMixin(RedirectOnFailureMixin):
         except AttributeError as exc:
             raise ImproperlyConfigured(_missing_error_message) from exc
 
-        if not callable(method):
+        if not callable(method) or not method:
             raise ImproperlyConfigured(_callable_error_message)
 
         return method
 
-    def handle_test_failure(self):
+    def handle_test_failure(self) -> http.HttpResponse:
         """Test failed, raise an exception or redirect."""
-        raise PermissionDenied
+        return http.HttpResponseBadRequest()
+
+
+class PassOrRedirectMixin(PassesTestMixin, RedirectMixin):
+    """Failing requests should be redirected."""
+
+    redirect_url: str = "/"
+    redirect_unauthenticated_users: bool = True
+
+    def handle_test_failure(self) -> http.HttpResponse:
+        """Redirect a failed test."""
+        # redirect unauthenticated users to login
+        if ((not self.request.user or not self.request.user.is_authenticated)
+            and self.redirect_unauthenticated_users
+        ):
+            return self.redirect()
+
+        return super().handle_test_failure()
 
 
 class SuperuserRequiredMixin(PassesTestMixin):
@@ -134,8 +153,8 @@ class GroupRequiredMixin(PassesTestMixin):
         """Check the user's membership in the required groups."""
         return bool(
             set(self.get_group_required()).intersection(
-                [group.name for group in self.request.user.groups.all()]
-            )
+                [group.name for group in self.request.user.groups.all()],
+            ),
         )
 
     def check_groups(self) -> bool:
@@ -180,11 +199,11 @@ class RecentLoginRequiredMixin(PassesTestMixin):
         """Make sure the user's login is recent enough."""
         if (user := getattr(self.request, "user", None)) is not None:
             return user.is_authenticated and user.last_login > now() - timedelta(
-                seconds=self.max_age
+                seconds=self.max_age,
             )
         return False
 
-    def handle_test_failure(self) -> HttpResponseRedirect:
+    def handle_test_failure(self) -> http.HttpResponseRedirect:
         """Logout the user and redirect to login."""
         return logout_then_login(self.request)
 
@@ -239,10 +258,10 @@ class SSLRequiredMixin(PassesTestMixin):
 
     def handle_test_failure(
         self,
-    ) -> Union[HttpResponse, BadRequest]:
+    ) -> Union[http.HttpResponse, BadRequest]:
         """Redirect to the SSL version of the request's URL."""
         if self.redirect_to_ssl:
             current = self.request.build_absolute_uri(self.request.get_full_path())
             secure = current.replace("http://", "https://")
-            return HttpResponsePermanentRedirect(secure)
-        raise BadRequest
+            return http.HttpResponsePermanentRedirect(secure)
+        return super().handle_test_failure()

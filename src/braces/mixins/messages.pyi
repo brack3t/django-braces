@@ -3,8 +3,7 @@ from typing import *
 from django import forms
 from django.http import HttpRequest, HttpResponse
 
-A = Type[tuple[Any]]
-K = Type[dict[str, Any]]
+from . import A, K
 
 __all__ = [
     "MessageHelper",

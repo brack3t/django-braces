@@ -3,8 +3,7 @@ from typing import *
 
 from django.db.models import Model, QuerySet
 
-A = Type[Tuple[Any]]
-K = Type[Dict[Any, Any]]
+from . import A, K
 
 class SelectRelatedMixin:
     select_related: Union[str, Iterable[str]]

@@ -66,11 +66,6 @@ line-length = 88
 exclude_lines = [
   "if TYPE_CHECKING:",
   "if __name__ == .__main__.:",
-  "if settings.DEBUG:",
-  "if settings.LOCAL:",
-  "if settings.PRODUCTION:",
-  "if settings.STAGING:",
-  "if settings.TESTING:",
   "pragma: no cover",
   "raise NotImplementedError",
 ]
@@ -90,6 +85,9 @@ show_missing = true
 [tool.coverage.run]
 branch = true
 source = ["braces"]
+
+[tool.coverage.xml]
+output = ".coverage.xml"
 
 [tool.django-stubs]
 django_settings_module = "tests.project.settings"
@@ -136,11 +134,11 @@ warn_redundant_casts = true
 [tool.pytest.ini_options]
 # ini_options
 DJANGO_SETTINGS_MODULE = "tests.project.settings"
-addopts = "--cov --no-cov-on-fail --nomigrations --reverse -c pyproject.toml"
+addopts = "--cov --no-cov-on-fail --cov-report term-missing --cov-report xml --nomigrations --reverse -c pyproject.toml"
 django_find_project = false
 markers = ["mixin", "mixin_view_factory"]
 norecursedirs = [".git", "__pycache__", "docs"]
-pythonpath = [".", "src", "tests.project"]                                    #, "src.braces"]
+pythonpath = [".", "src", "tests.project"]
 testpaths = ["tests"]
 
 [tool.ruff]
@@ -221,9 +219,12 @@ target-version = "py38"
 format = "pylint"
 
 [tool.ruff.per-file-ignores]
-"tests/test_*.py" = [
+"tests/mixins/test_*.py" = [
   "ANN001", # Missing type annotation for function argument
-  "ANN201", # Missing type annotation for self in method
+  "ANN002", # Missing type annotation for *args
+  "ANN003", # Missing type annotation for **kwargs
+  "ANN201", # Missing return type annotation for public function
+  "ANN202", # Missing return type annotation for private function
   "FBT001", # Positional Boolean
   "S101",   # Missing return type annotation
 ]

@@ -3,8 +3,7 @@ from __future__ import annotations
 from typing import *
 from django.http import HttpRequest, HttpResponse
 
-A = Type[tuple[Any]]
-K = Type[dict[Any, Any]]
+from . import A, K
 
 class AllVerbsMixin:
     all_verb_handler: str

@@ -66,8 +66,8 @@ class TestCSRFExempt:
         view.success_url = "/"
 
         request = rf.post("/")
-        view.setup(request=request)
-        assert view.dispatch(request=request).status_code == 200
+        view().setup(request=request)
+        assert view().dispatch(request=request).status_code == 200
 
 
 @pytest.mark.mixin("MultipleFormsMixin")

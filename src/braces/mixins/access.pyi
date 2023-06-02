@@ -1,20 +1,24 @@
 from __future__ import annotations
 from typing import *
 
-from django.core.exceptions import BadRequest
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, StreamingHttpResponse, HttpResponseBadRequest
 
-from braces.mixins.redirects import RedirectOnFailureMixin
+from braces.mixins.redirects import RedirectMixin
+from . import A, CanDispatch, DOL, HasRequest, K
 
-A = Type[tuple[Any]]
-K = Type[dict[str, Any]]
-DOL = Type[Union[str, dict[str, list[str]]]]
-
-class PassesTestMixin(RedirectOnFailureMixin):
+class PassesTestMixin(CanDispatch, HasRequest):
+    request: HttpRequest
     dispatch_test: str
     def dispatch(self, request: HttpRequest, *args: A, **kwargs: K) -> HttpResponse: ...
     def get_test_method(self) -> Callable[[Any], bool]: ...
-    def handle_test_failure(self) -> Union[Exception, HttpResponse]: ...
+    def handle_test_failure(self) -> HttpResponse: ...
+
+class PassOrRedirectMixin(PassesTestMixin, RedirectMixin):
+    raise_exception: bool | Exception | Callable[[HttpRequest], HttpResponse | StreamingHttpResponse]
+    redirect_unauthenticated_users: bool
+    redirect_url: str
+    request: HttpRequest
+    def handle_test_failure(self) -> HttpResponse: ...
 
 class SuperuserRequiredMixin(PassesTestMixin):
     dispatch_test: str
@@ -56,4 +60,4 @@ class SSLRequiredMixin(PassesTestMixin):
     dispatch_test: str
     redirect_to_ssl: bool
     def test_ssl(self) -> bool: ...
-    def handle_test_failure(self) -> Union[Exception, HttpResponse, BadRequest]: ...
+    def handle_test_failure(self) -> Union[HttpResponse, HttpResponseBadRequest]: ...

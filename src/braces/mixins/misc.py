@@ -1,4 +1,7 @@
 """Mixins that don't have a better home."""
+from __future__ import annotations
+
+from typing import Any
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -26,8 +29,8 @@ class StaticContextMixin:
             raise ImproperlyConfigured(_err_msg)
         return self.static_context
 
-    def get_context_data(self, **kwargs: dict) -> dict:
+    def get_context_data(self) -> dict[str, Any]:
         """Add the static context to the view's context."""
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data()
         context.update(self.get_static_context())
         return context
