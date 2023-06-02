@@ -1,15 +1,18 @@
-from typing import Any, Callable, Union
+from __future__ import annotations
+from typing import *
 
 from django.core.exceptions import BadRequest
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 
 from braces.mixins.redirects import RedirectOnFailureMixin
 
+A = Type[tuple[Any]]
+K = Type[dict[str, Any]]
+DOL = Type[Union[str, dict[str, list[str]]]]
+
 class PassesTestMixin(RedirectOnFailureMixin):
     dispatch_test: str
-    def dispatch(
-        self, request: HttpRequest, *args: tuple[Any], **kwargs: dict[Any, Any]
-    ) -> HttpResponse: ...
+    def dispatch(self, request: HttpRequest, *args: A, **kwargs: K) -> HttpResponse: ...
     def get_test_method(self) -> Callable[[Any], bool]: ...
     def handle_test_failure(self) -> Union[Exception, HttpResponse]: ...
 
@@ -44,9 +47,9 @@ class RecentLoginRequiredMixin(PassesTestMixin):
     def handle_test_failure(self) -> HttpResponseRedirect: ...
 
 class PermissionRequiredMixin(PassesTestMixin):
-    permission_required: Union[str, dict[str, list[str]]]
+    permission_required: DOL
     dispatch_test: str
-    def get_permission_required(self) -> Union[str, dict[str, list[str]]]: ...
+    def get_permission_required(self) -> DOL: ...
     def check_permissions(self) -> bool: ...
 
 class SSLRequiredMixin(PassesTestMixin):

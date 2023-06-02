@@ -1,10 +1,10 @@
+from __future__ import annotations
 from typing import *
 
-from _typeshed import Incomplete
 from django import http
 
-A = Type[Tuple[Any]]
-K = Type[Dict[Any, Any]]
+A = Type[tuple[Any]]
+K = Type[dict[Any, Any]]
 
 class RedirectMixin:
     redirect_url: Optional[str]
@@ -13,7 +13,7 @@ class RedirectMixin:
 
 class CanonicalRedirectMixin(RedirectMixin):
     canonical_redirect: bool
-    redirect_url: Incomplete
+    redirect_url: Optional[str]
     def __init__(self, *args: A, **kwargs: K) -> None: ...
     def get_canonical_url(self) -> str: ...
     def dispatch(

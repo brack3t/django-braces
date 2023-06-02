@@ -1,18 +1,15 @@
-from _typeshed import Incomplete
-from typing import *
+from __future__ import annotations
+
 from django import forms
 from django.db import models
 from django.http import HttpRequest, HttpResponse
 
-A = Type[Tuple[Any]]
-K = Type[Dict[Any, Any]]
+from typing import *
 
-class HasContext(Protocol):
-    """The concept of `context`."""
+from . import HasContext
 
-    context: Dict[str, Any]
-
-    def get_context_data(self) -> Dict[str, Any]: ...
+A = Type[tuple[Any]]
+K = Type[dict[Any, Any]]
 
 class HasHttpMethods(Protocol):
     def delete(self, request: HttpRequest, *args: A, **kwargs: K) -> HttpResponse: ...
@@ -25,11 +22,11 @@ class HasHttpMethods(Protocol):
     def trace(self, request: HttpRequest, *args: A, **kwargs: K) -> HttpResponse: ...
 
 class UserFormMixin:
-    user: Incomplete
+    user: Type[models.Model]
     def __init__(self, *args: A, **kwargs: K) -> None: ...
 
 class FormWithUserMixin:
-    def get_form_kwargs(self) -> Dict[Any, Any]: ...
+    def get_form_kwargs(self) -> dict[Any, Any]: ...
     def get_form_class(self) -> Type[forms.Form]: ...
 
 class CSRFExemptMixin:
@@ -46,7 +43,7 @@ class MultipleFormsMixin(HasContext, HasHttpMethods):
     context: dict[str, Any]
     form_classes: dict[str, forms.Form]
     initial: dict[str, dict[str, Any]]
-    get_form: Incomplete
+    get_form: type[forms.Form]
     def __init__(self, *args: A, **kwargs: K) -> None: ...
     def get_form_classes(self) -> list[forms.Form]: ...
     def get_forms(self) -> dict[str, forms.Form]: ...
@@ -57,5 +54,5 @@ class MultipleFormsMixin(HasContext, HasHttpMethods):
 
 class MultipleModelFormsMixin(MultipleFormsMixin):
     instances: dict[str, models.Model]
-    def get_instances(self) -> Dict[str, models.Model]: ...
-    def get_form_kwargs(self, name: str) -> Dict[str, Any]: ...
+    def get_instances(self) -> dict[str, models.Model]: ...
+    def get_form_kwargs(self, name: str) -> dict[str, Any]: ...

@@ -233,7 +233,7 @@ class SSLRequiredMixin(PassesTestMixin):
         """Reject non-SSL requests."""
         # SSL isn't usually used/available during testing, so skip it.
         if getattr(settings, "DEBUG", False):
-            return True
+            return True  # pragma: no cover
 
         return self.request.is_secure()
 

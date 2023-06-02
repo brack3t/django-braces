@@ -8,6 +8,21 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.utils.timezone import now
 
 
+@pytest.mark.django_db()
+@pytest.fixture()
+def group():
+    """Generate a group."""
+
+    def group_factory(**kwargs):
+        """Return a customizable Group."""
+        defaults = {"name": "test"}
+        defaults.update(kwargs)
+        group = Group.objects.create(**defaults)
+        return group
+
+    return group_factory
+
+
 @pytest.mark.mixin("PassesTestMixin")
 class TestPassesTestMixin:
     """Test for the `PassesTestMixin`."""
@@ -92,8 +107,7 @@ class TestStaffUserRequired:
     def test_success(self, user, mixin_view, rf):
         """Users marked as staff should have access."""
         request = rf.get("/")
-        user.is_staff = True
-        request.user = user
+        request.user = user(is_staff=True)
         response = mixin_view().as_view()(request)
         assert response.status_code == 200
 
@@ -105,7 +119,7 @@ class TestStaffUserRequired:
     def test_non_staff(self, user, mixin_view, rf):
         """Users without staff status should be denied."""
         request = rf.get("/")
-        request.user = user
+        request.user = user()
         with pytest.raises(PermissionDenied):
             mixin_view().as_view()(request)
 
@@ -116,23 +130,17 @@ class TestGroupRequired:
     """Tests relating to the `GroupRequiredMixin`."""
 
     @pytest.fixture()
-    def group(self):
-        """Generate a group fixture."""
-        g = Group.objects.create(name="test")
-        yield g
-        g.delete()
-
-    @pytest.fixture()
     def user(self, group, user):
         """Generate a user with a group fixture."""
-        user.groups.add(group)
+        user = user()
+        user.groups.add(group())
         user.refresh_from_db()
         assert user.groups.count() == 1
         return user
 
     def test_success(self, mixin_view, rf, user):
         """Members of the group should be allowed."""
-        _view = mixin_view(group_required="test")
+        _view = mixin_view(group_required=["test"])
         request = rf.get("/")
         request.user = user
         response = _view.as_view()(request)
@@ -140,19 +148,24 @@ class TestGroupRequired:
 
     def test_failure(self, mixin_view, rf, user):
         """Users who are not members are denied."""
-        _view = mixin_view(group_required="nothing")
+        view = mixin_view(group_required="nothing")
         request = rf.get("/")
         request.user = user
-        request.user.groups.clear()
+        view = view(request=request)
         with pytest.raises(PermissionDenied):
-            _view.as_view()(request)
+            view.dispatch(request)
+
+    def test_no_user(self, mixin_view, rf):
+        """A request with no user is denied."""
+        view = mixin_view(group_required="nothing")
+        request = rf.get("/")
+        view = view(request=request)
+        assert not view.check_groups()
 
     def test_no_group_required(self, mixin_view, rf, user):
         """If `group_required` is missing, raise an exception."""
         _view = mixin_view(group_required=None)
         request = rf.get("/")
-
-        user.groups.clear()
         request.user = user
 
         with pytest.raises(ImproperlyConfigured):
@@ -213,7 +226,7 @@ class TestRecentLoginRequired:
         ("time_gap", "status_code"),
         [(timedelta(minutes=-10), 200), (timedelta(days=-10), 302)],
     )
-    def test_mixin(self, time_gap, status_code, admin_user, rf, mixin_view):
+    def test_recent_logins(self, time_gap, status_code, admin_user, rf, mixin_view):
         """Users with a recent login should be allowed."""
         _last_login = now() + time_gap
         session = SessionStore()
@@ -226,9 +239,15 @@ class TestRecentLoginRequired:
         response = mixin_view().as_view()(request)
         assert response.status_code == status_code
 
+    def test_failure(self, mixin_view, rf):
+        """A request with no user is denied."""
+        request = rf.get("/")
+        view = mixin_view(request=request)
+        assert not view().test_recent_login()
 
-@pytest.mark.mixin("PermissionRequiredMixin")
+
 @pytest.mark.django_db()
+@pytest.mark.mixin("PermissionRequiredMixin")
 class TestPermissionRequired:
     """Tests related to the `PermissionRequiredMixin`."""
 
@@ -242,10 +261,12 @@ class TestPermissionRequired:
         yield perm
         perm.delete()
 
-    def test_success(self, mixin_view, rf, user, permission, django_user_model):
+    def test_success(self, mixin_view, rf, user, permission):
         """Users with appropriate permissions should be allowed."""
+        user = user()
         user.user_permissions.add(permission)
-        user = django_user_model.objects.get(pk=user.id)
+        user.refresh_from_db()
+
         request = rf.get("/")
         request.user = user
         _view = mixin_view(permission_required={"all": ["project.add_article"]})
@@ -261,7 +282,7 @@ class TestPermissionRequired:
     def test_no_permission(self, mixin_view, rf, user):
         """Users with no permissions should be denied."""
         request = rf.get("/")
-        request.user = user
+        request.user = user()
         with pytest.raises(ImproperlyConfigured):
             mixin_view().as_view()(request)
 
@@ -269,9 +290,23 @@ class TestPermissionRequired:
         """Optional permissions should be allowed."""
         _view = mixin_view(permission_required={"any": ["tests.add_article"]})
         request = rf.get("/")
-        request.user = user
+        request.user = user()
         response = _view.as_view()(request)
         assert response.status_code == 200
+
+    def test_string_permission(self, mixin_view, rf, user, permission):
+        """A single string permission in `all` should be reformatted into a list."""
+        _user = user()
+        _user.user_permissions.add(permission)
+        _user.refresh_from_db()
+
+        request = rf.get("/")
+        request.user = _user
+
+        _view = mixin_view(permission_required="tests.add_article")
+        assert _view(request=request).get_permission_required() == {
+            "all": ["tests.add_article"]
+        }
 
 
 @pytest.mark.mixin("SSLRequiredMixin")
@@ -286,3 +321,9 @@ class TestSSLRequired:
 
         response = mixin_view().as_view()(request)
         assert response.status_code == status_code
+
+    def test_ssl_debug_switch(self, settings, mixin_view, rf):
+        """Requests should automatically pass during tests."""
+        settings.DEBUG = False
+        req = rf.get("/")
+        assert not mixin_view()(request=req).test_ssl()

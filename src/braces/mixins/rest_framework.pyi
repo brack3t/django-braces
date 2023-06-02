@@ -1,4 +1,5 @@
-from typing import Any, Dict, Generic, Type
+from __future__ import annotations
+from typing import *
 
 from rest_framework.serializers import Serializer
 

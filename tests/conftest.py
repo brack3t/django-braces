@@ -1,30 +1,42 @@
 """Provides fixture for django-braces testing."""
+from __future__ import annotations
 
 from importlib import import_module
-from typing import Any, Callable, Dict, Tuple, Type
+from typing import TYPE_CHECKING
 
 import pytest
 from django import forms
-from django.db.models import Model
 from django.http import HttpResponse
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import BaseUpdateView, ModelFormMixin, BaseFormView
+from django.views.generic.edit import BaseFormView, ModelFormMixin
 from django.views.generic.list import MultipleObjectMixin
 
 from .project.models import Article
 
-A = Type[Tuple[Any]]
-K = Type[Dict[Any, Any]]
+if TYPE_CHECKING:
+    from typing import Any, Callable, Dict, Tuple, Type
+
+    from django.db.models import Model
+
+    A = Type[Tuple[Any]]
+    K = Type[Dict[Any, Any]]
 
 
-@pytest.fixture()
 @pytest.mark.django_db()
-def user(django_user_model) -> Model:  # noqa: ANN001
+@pytest.fixture()
+def user(django_user_model: Model) -> Callable:
     """Provide a generic user fixture for tests."""
-    u = django_user_model.objects.create_user("test", "Test1234")
-    yield u
-    u.delete()
+
+    def _user(**kwargs: K) -> Type[Model]:
+        """Generate a customizable user."""
+        defaults = {"username": "test", "password": "Test1234"}
+        defaults.update(kwargs)
+        user = django_user_model(**defaults)
+        user.save()
+        return user
+
+    return _user
 
 
 @pytest.fixture(name="mixin_view")

@@ -1,15 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import *
+from django.http import HttpRequest, HttpResponse
 
-if TYPE_CHECKING:
-    from typing import *
-    from typing import Any, Tuple, Type
-
-    from django.http import HttpRequest, HttpResponse
-
-A = Type[Tuple[Any]]
-K = Type[Dict[Any, Any]]
+A = Type[tuple[Any]]
+K = Type[dict[Any, Any]]
 
 class AllVerbsMixin:
     all_verb_handler: str
@@ -17,8 +12,8 @@ class AllVerbsMixin:
     def all(self, request: HttpRequest, *args: A, **kwargs: K) -> HttpResponse: ...
 
 class HeaderMixin:
-    headers: Dict[str, Any]
-    def get_headers(self) -> Dict[str, Any]: ...
+    headers: dict[str, Any]
+    def get_headers(self) -> dict[str, Any]: ...
     def dispatch(self, request: HttpRequest, *args: A, **kwargs: K) -> HttpResponse: ...
 
 class CacheControlMixin:
@@ -32,7 +27,7 @@ class CacheControlMixin:
     cache_control_max_age: int
     cache_control_s_maxage: int
     @classmethod
-    def get_cache_control_options(cls) -> Dict[Any, Any]: ...
+    def get_cache_control_options(cls) -> dict[Any, Any]: ...
     @classmethod
     def as_view(cls, **initkwargs: K) -> HttpResponse: ...
 

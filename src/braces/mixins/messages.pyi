@@ -1,20 +1,22 @@
-from _typeshed import Incomplete
+from __future__ import annotations
 from typing import *
 from django import forms
 from django.http import HttpRequest, HttpResponse
 
-A = Type[Tuple[Any]]
-K = Type[Dict[Any, Any]]
+A = Type[tuple[Any]]
+K = Type[dict[str, Any]]
 
-class HasContext(Protocol):
-    """The concept of `context`."""
-
-    context: Dict[str, Any]
-
-    def get_context_data(self) -> Dict[str, Any]: ...
+__all__ = [
+    "MessageHelper",
+    "MessageDescriptor",
+    "MessagesMixin",
+    "FormValidMessageMixin",
+    "FormInvalidMessageMixin",
+    "FormMessagesMixin",
+]
 
 class MessageHelper:
-    API: Incomplete
+    API: Iterable[str]
     def __init__(self, request: HttpRequest) -> None: ...
 
 class MessageDescriptor:
@@ -25,7 +27,7 @@ class MessageDescriptor:
     def __delete__(self, *args: A, **kwargs: K) -> AttributeError: ...
 
 class MessagesMixin:
-    messages: Incomplete
+    messages: MessageDescriptor
 
 class FormValidMessageMixin(MessagesMixin):
     form_valid_message: str

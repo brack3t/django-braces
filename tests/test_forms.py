@@ -64,7 +64,6 @@ class TestCSRFExempt:
         view = view()
         view.form_class = form()
         view.success_url = "/"
-        view = view()
 
         request = rf.post("/")
         view.setup(request=request)
