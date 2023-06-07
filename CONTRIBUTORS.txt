@@ -33,6 +33,8 @@ Direct Contributors
 * Sam Spencer
 * Ben Wilber
 * Mfon Eti-mfon
+* Irtaza Akram
+
 
 Other Contributors
 ==================
