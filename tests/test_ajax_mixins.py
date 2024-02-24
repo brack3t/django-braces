@@ -1,5 +1,5 @@
 import json
-import mock
+from unittest import mock
 
 from django import test
 from django.core.exceptions import ImproperlyConfigured
