@@ -40,7 +40,7 @@ setup(
     author_email="devs@brack3t.com",
     url="https://github.com/brack3t/django-braces/",
     license="BSD",
-    packages=["braces"],
+    packages=["braces", "braces.views"],
     zip_safe=False,
     include_package_data=True,
     classifiers=[
