@@ -744,7 +744,7 @@ class TestSSLRequiredMixin(test.TestCase):
 
 @pytest.mark.django_db
 class TestRecentLoginRequiredMixin(test.TestCase):
-    """ Scenarios requiring a recent login"""
+    """ Scenarios requiring a recent login """
 
     view_class = RecentLoginRequiredView
     recent_view_url = "/recent_login/"

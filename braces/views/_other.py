@@ -1,5 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.views.decorators.cache import cache_control, never_cache
 from django.urls import resolve
 from django.utils.encoding import force_str
@@ -133,6 +134,13 @@ class AllVerbsMixin:
         return handler(request, *args, **kwargs)
 
 
+class CustomHeadersTemplateResponse(TemplateResponse):
+    def __init__(self, *args, **kwargs):
+        headers = kwargs.pop("headers", {})
+        headers.update(kwargs.pop("extra_headers", {}))
+        super().__init__(*args, headers=headers, **kwargs)
+
+
 class HeaderMixin:
     """
     Add extra HTTP headers to a response by specifying them in the
@@ -140,9 +148,19 @@ class HeaderMixin:
     """
 
     headers = {}
+    response_class = CustomHeadersTemplateResponse
 
     def get_headers(self, request):
         return self.headers
+
+    def render_to_response(self, context, **response_kwargs):
+        """
+        Return a response, using the `response_class` for this view, with a
+        template rendered with the given context.
+        Pass response_kwargs to the constructor of the response class.
+        """
+        response_kwargs.setdefault("extra_headers", self.get_headers(self.request))
+        return super().render_to_response(context, **response_kwargs)
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -151,9 +169,11 @@ class HeaderMixin:
         ``.items()`` method.
         """
         response = super().dispatch(request, *args, **kwargs)
-        for key, value in self.get_headers(request).items():
-            if key not in response:
-                response[key] = value
+        if not getattr(self, "template_name", None):
+            # No template so probably no `render_to_response` call
+            for key, value in self.get_headers(request).items():
+                if key not in response:
+                    response[key] = value
         return response
 
 

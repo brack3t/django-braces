@@ -451,6 +451,18 @@ class ExistingHeaderView(views.HeaderMixin, AuxiliaryHeaderView):
         'X-DJANGO-BRACES-EXISTING': 'other value'
     }
 
+class HeadersWithTemplate(views.SetHeadlineMixin, views.HeaderMixin, TemplateView):
+    """
+    View for testing HeaderMixin with a custom TemplateResponse.
+    """
+
+    template_name = "blank.html"
+    headline = "Test headline"
+
+    headers = {
+        "X-DJANGO-BRACES-1": 1
+    }
+
 
 class CacheControlPublicView(views.CacheControlMixin, OkView):
     """A public-cached page with a 60 second timeout"""
