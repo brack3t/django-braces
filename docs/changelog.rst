@@ -4,6 +4,13 @@
 Changelog
 =========
 
+* :release:`1.16.0 <2024-10-09>`
+* :support:`290` Fixed a few typos in the docs.
+* :support:`287` No longer building a universal wheel
+* :support:`300` Removed unnecessarily explicit `super()` call
+* :support:`301` Removed unnecessarily explicit `super()` call
+* :support:`307` Use `unittest.mock` instead of `mock` package
+* :feature:`305` Add support for Django 4.2
 * :support:`277` Updated the codebase to be more modern Python/Django
 * :feature:`245` Cache-related headers
 * :release:`1.15.0 <2021-11-05>`

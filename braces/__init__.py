@@ -9,7 +9,7 @@ Mixins to make Django's generic class-based views simpler.
 """
 
 __title__ = "braces"
-__version__ = "1.15.0"
+__version__ = "1.16.0"
 __author__ = "Kenneth Love and Chris Jones"
 __license__ = "BSD 3-clause"
 __copyright__ = "Copyright 2013 Kenneth Love and Chris Jones"
