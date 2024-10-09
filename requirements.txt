@@ -1,4 +1,4 @@
-factory_boy
+factory-boy
 pytest-django
 pytest-cov
 coverage
