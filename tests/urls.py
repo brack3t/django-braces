@@ -70,6 +70,7 @@ urlpatterns = [
     path("context/", views.ContextView.as_view(), name="context"),
     # PermissionRequiredMixin tests
     path("permission_required/", views.PermissionRequiredView.as_view()),
+    re_path(r"^object_permission_required/(?P<pk>[\w-]+)/$", views.ObjectPermissionRequiredView.as_view()),
     # MultiplePermissionsRequiredMixin tests
     path(
         "multiple_permissions_required/",

@@ -293,6 +293,20 @@ class PermissionRequiredView(views.PermissionRequiredMixin, OkView):
     permission_required = "auth.add_user"
 
 
+class ObjectPermissionRequiredView(views.PermissionRequiredMixin, DetailView):
+    """
+    View for testing PermissionRequiredMixin.
+    """
+
+    model = User
+    permission_required = "auth.add_user"
+    template_name = "blank.html"
+    object_level_permissions = True
+
+    def get_object(self, **kwargs):
+        return User.objects.first()
+
+
 class MultiplePermissionsRequiredView(
     views.MultiplePermissionsRequiredMixin, OkView
 ):

@@ -198,17 +198,11 @@ class PermissionRequiredMixin(AccessMixin):
 
         if self.object_level_permissions:
             if hasattr(self, "object") and self.object is not None:
-                has_permission = request.user.has_perm(
-                    self.get_permission_required(request), self.object
-                )
+                has_permission = request.user.has_perm(perms, self.object)
             elif hasattr(self, "get_object") and callable(self.get_object):
-                has_permission = request.user.has_perm(
-                    self.get_permission_required(request), self.get_object()
-                )
+                has_permission = request.user.has_perm(perms, self.get_object())
         else:
-            has_permission = request.user.has_perm(
-                self.get_permission_required(request)
-            )
+            has_permission = request.user.has_perm(perms)
         return has_permission
 
     def dispatch(self, request, *args, **kwargs):

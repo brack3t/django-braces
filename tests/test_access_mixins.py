@@ -25,7 +25,7 @@ from .views import (
     AnonymousRequiredView,
     SSLRequiredView,
     RecentLoginRequiredView,
-    UserPassesTestLoginRequiredView,
+    UserPassesTestLoginRequiredView, ObjectPermissionRequiredView,
 )
 
 
@@ -412,6 +412,22 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         """
         with self.assertRaises(ImproperlyConfigured):
             self.dispatch_view(self.build_request(), permission_required=None)
+
+
+@pytest.mark.django_db
+class TestObjectPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
+    """Scenarios around requiring an object permission"""
+
+    view_class = ObjectPermissionRequiredView
+    view_url = "/object_permission_required/1/"
+
+    def build_authorized_user(self):
+        """Create a user with permissions"""
+        return UserFactory(permissions=["auth.add_user"])
+
+    def build_unauthorized_user(self):
+        """Create a user without permissions"""
+        return UserFactory()
 
 
 @pytest.mark.django_db
