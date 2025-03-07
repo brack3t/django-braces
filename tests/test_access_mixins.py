@@ -769,7 +769,7 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         user = UserFactory(last_login=last_login)
         self.client.login(username=user.username, password="asdf1234")
         resp = self.client.get(self.outdated_view_url)
-        assert resp.status_code == 302
+        assert resp.status_code in [302, 405]  # 302 is for Django < 5, while 405 is for Django >= 5
 
     def test_not_logged_in(self):
         """Anonymous requests should be handled appropriately"""
