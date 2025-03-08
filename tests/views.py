@@ -302,6 +302,17 @@ class MultiplePermissionsRequiredView(
     }
 
 
+class MultiplePermissionsRequiredWithObjectLevelPermissionsView(
+    views.MultiplePermissionsRequiredMixin, OkView
+):
+    permissions = {
+        "all": ["tests.add_article", "tests.change_article"],
+        "any": ["auth.add_user", "auth.change_user"],
+    }
+    object_level_permissions = True
+
+
+
 class SuperuserRequiredView(views.SuperuserRequiredMixin, OkView):
     """Require a superuser"""
 
