@@ -441,7 +441,7 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         )
         invalid_req_1 = self.build_request(path=self.view_url, user=invalid_user_1)
         invalid_req_2 = self.build_request(path=self.view_url, user=invalid_user_2)
-        # Arrange
+        # Assert
         self.assertEqual(valid_resp.status_code, 200)
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(
