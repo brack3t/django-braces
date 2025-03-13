@@ -1,8 +1,9 @@
 import factory
 
 from django.contrib.auth.models import Group, Permission, User
+from django.contrib.contenttypes.models import ContentType
 
-from .models import Article
+from .models import Article, UserObjectPermissions
 
 
 def _get_perm(perm_name):
@@ -54,3 +55,35 @@ class UserFactory(factory.django.DjangoModelFactory):
         if create and extracted:
             # We have a saved object and a list of permission names
             self.user_permissions.add(*[_get_perm(pn) for pn in extracted])
+
+
+class ContentTypeFactory(factory.django.DjangoModelFactory):
+    """Factory for creating `ContentType` model objects"""
+    app_label = factory.Sequence(lambda n: f"app_label_{n}")
+    model = factory.Sequence(lambda n: f"model_{n}")
+
+    class Meta:
+        model = ContentType
+        abstract = False
+
+
+class PermissionFactory(factory.django.DjangoModelFactory):
+    """Factory for creating `Permission` model objects"""
+    name = factory.Sequence(lambda n: f"name_{n}")
+    codename = factory.Sequence(lambda n: f"codename_{n}")
+    content_type = factory.SubFactory(ContentTypeFactory)
+
+    class Meta:
+        model = Permission
+        abstract = False
+
+
+class UserObjectPermissionsFactory(factory.django.DjangoModelFactory):
+    """Factory for creating `UserObjectPermissions` model objects"""
+    user = factory.SubFactory(UserFactory)
+    permission = factory.SubFactory(PermissionFactory)
+    article_object = factory.SubFactory(ArticleFactory)
+
+    class Meta:
+        model = UserObjectPermissions
+        abstract = False

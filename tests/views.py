@@ -292,6 +292,16 @@ class PermissionRequiredView(views.PermissionRequiredMixin, OkView):
 
     permission_required = "auth.add_user"
 
+    def get_object(self):
+        """
+        Get the article object for the query parameter's primary key
+        """
+        article_obj = None
+        object_pk = self.request.GET.get("pk")
+        if object_pk:
+            article_obj = Article.objects.get(pk=object_pk)
+        return article_obj
+
 
 class MultiplePermissionsRequiredView(
     views.MultiplePermissionsRequiredMixin, OkView
@@ -300,6 +310,18 @@ class MultiplePermissionsRequiredView(
         "all": ["tests.add_article", "tests.change_article"],
         "any": ["auth.add_user", "auth.change_user"],
     }
+
+    def get_object(self):
+        """
+        Get the article object for the query parameter's primary key
+        """
+        article_obj = None
+        object_pk = self.request.GET.get("pk")
+        if object_pk:
+            article_obj = Article.objects.get(pk=object_pk)
+        return article_obj
+
+
 
 
 class SuperuserRequiredView(views.SuperuserRequiredMixin, OkView):

@@ -199,16 +199,14 @@ class PermissionRequiredMixin(AccessMixin):
         if self.object_level_permissions:
             if hasattr(self, "object") and self.object is not None:
                 has_permission = request.user.has_perm(
-                    self.get_permission_required(request), self.object
+                    perms, self.object
                 )
             elif hasattr(self, "get_object") and callable(self.get_object):
                 has_permission = request.user.has_perm(
-                    self.get_permission_required(request), self.get_object()
+                    perms, self.get_object()
                 )
         else:
-            has_permission = request.user.has_perm(
-                self.get_permission_required(request)
-            )
+            has_permission = request.user.has_perm(perms)
         return has_permission
 
     def dispatch(self, request, *args, **kwargs):
@@ -275,21 +273,30 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
         permissions = self.get_permission_required(request)
         perms_all = permissions.get("all")
         perms_any = permissions.get("any")
+        instance_object = None
 
         self._check_permissions_keys_set(perms_all, perms_any)
         self._check_perms_keys("all", perms_all)
         self._check_perms_keys("any", perms_any)
 
+        if self.object_level_permissions:
+            if hasattr(self, "object") and self.object is not None:
+                instance_object = self.object
+            elif hasattr(self, "get_object") and callable(self.get_object):
+                instance_object = self.get_object()
         # Check that user has all permissions in the list/tuple
         if perms_all:
             # Why not `return request.user.has_perms(perms_all)`?
             # There may be optional permissions below.
-            if not request.user.has_perms(perms_all):
+            if not request.user.has_perms(perms_all, instance_object):
                 return False
 
         # If perms_any, check that user has at least one in the list/tuple
         if perms_any:
-            any_perms = [request.user.has_perm(perm) for perm in perms_any]
+            any_perms = [
+                request.user.has_perm(perm, instance_object)
+                for perm in perms_any
+            ]
             if not any_perms or not any(any_perms):
                 return False
         return True

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Permission, User
 from django.db import models
 
 
@@ -29,3 +30,11 @@ class CanonicalArticle(models.Model):
         if self.author:
             return f"{self.author.username}-{self.slug}"
         return f"unauthored-{self.slug}"
+
+
+class UserObjectPermissions(models.Model):
+    """Django model used to test and assign object level permissions"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
+    article_object = models.ForeignKey(Article, on_delete=models.CASCADE)
+

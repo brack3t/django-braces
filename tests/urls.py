@@ -70,10 +70,15 @@ urlpatterns = [
     path("context/", views.ContextView.as_view(), name="context"),
     # PermissionRequiredMixin tests
     path("permission_required/", views.PermissionRequiredView.as_view()),
+    path("object_level_permission_required/", views.PermissionRequiredView.as_view(object_level_permissions=True)),
     # MultiplePermissionsRequiredMixin tests
     path(
         "multiple_permissions_required/",
         views.MultiplePermissionsRequiredView.as_view(),
+    ),
+    path(
+        "multiple_object_level_permissions_required/",
+        views.MultiplePermissionsRequiredView.as_view(object_level_permissions=True),
     ),
     # SuperuserRequiredMixin tests
     path("superuser_required/", views.SuperuserRequiredView.as_view()),

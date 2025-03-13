@@ -123,6 +123,7 @@ The ``MultiplePermissionsRequiredMixin`` is a more powerful version of the :ref:
         }
 
 The ``MultiplePermissionsRequiredMixin`` also offers a ``check_permissions`` method that should be overridden if you need custom permissions checking.
+Additionally similar to ``PermissionRequiredMixin``, ``MultiplePermissionsRequiredMixin`` offers object level permission checking.
 
 
 .. _GroupRequiredMixin:

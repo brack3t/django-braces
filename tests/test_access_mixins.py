@@ -3,6 +3,7 @@ import datetime
 import pytest
 
 from django import test
+from django.contrib.auth.models import Permission
 from django.test.utils import override_settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404, HttpResponse
@@ -11,7 +12,7 @@ from django.utils.timezone import make_aware, get_current_timezone
 
 from django.urls import reverse_lazy
 
-from .factories import GroupFactory, UserFactory
+from .factories import GroupFactory, UserFactory, UserObjectPermissionsFactory, ArticleFactory
 from .helpers import TestViewHelper
 from .views import (
     PermissionRequiredView,
@@ -413,6 +414,50 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
         with self.assertRaises(ImproperlyConfigured):
             self.dispatch_view(self.build_request(), permission_required=None)
 
+    def test_object_level_permissions(self):
+        """
+        Tests that object level permissions perform as expected, where object level permissions and
+        global level permissions
+        """
+        # Arrange
+        article = ArticleFactory()
+        self.view_class = PermissionRequiredView
+        self.view_url = f"/object_level_permission_required/?pk={article.pk}"
+        tests_add_article = Permission.objects.get(codename="add_article")
+        permissions = "tests.add_article"
+        valid_user = UserFactory(permissions=[permissions])
+        invalid_user_1 = UserFactory(permissions=["auth.add_user"])
+        invalid_user_2 = UserFactory(permissions=[permissions])
+        UserObjectPermissionsFactory(
+            user=valid_user, permission=tests_add_article, article_object=article
+        )
+        # Act
+        valid_req = self.build_request(path=self.view_url, user=valid_user)
+        valid_resp = self.dispatch_view(
+            valid_req,
+            permission_required=permissions,
+            object_level_permissions=True,
+            raise_exception=True
+        )
+        invalid_req_1 = self.build_request(path=self.view_url, user=invalid_user_1)
+        invalid_req_2 = self.build_request(path=self.view_url, user=invalid_user_2)
+        # Assert
+        self.assertEqual(valid_resp.status_code, 200)
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                invalid_req_1,
+                permission_required=permissions,
+                object_level_permissions=True,
+                raise_exception=True
+            )
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                invalid_req_2,
+                permission_required=permissions,
+                object_level_permissions=True,
+                raise_exception=True
+            )
+
 
 @pytest.mark.django_db
 class TestMultiplePermissionsRequiredMixin(
@@ -533,6 +578,69 @@ class TestMultiplePermissionsRequiredMixin(
                 raise_exception=True,
                 permissions=permissions,
             )
+
+    def test_all_object_level_permissions_key(self):
+        """
+        Tests that when a user has all the correct object level permissions, response is OK,
+        else forbidden.
+        """
+        # Arrange
+        article = ArticleFactory()
+        self.view_class = MultiplePermissionsRequiredView
+        self.view_url = f"/multiple_object_level_permissions_required/?pk={article.pk}"
+        auth_add_user = Permission.objects.get(codename="add_user")
+        tests_add_article = Permission.objects.get(codename="add_article")
+        permissions = {"all": ["auth.add_user", "tests.add_article"]}
+        valid_user = UserFactory(permissions=permissions["all"])
+        invalid_user = UserFactory(permissions=["auth.add_user"])
+        UserObjectPermissionsFactory(user=valid_user, permission=auth_add_user, article_object=article)
+        UserObjectPermissionsFactory(user=valid_user, permission=tests_add_article, article_object=article)
+        # Act
+        valid_req = self.build_request(path=self.view_url, user=valid_user)
+        valid_resp = self.dispatch_view(
+            valid_req, permissions=permissions, object_level_permissions=True
+        )
+        invalid_req = self.build_request(path=self.view_url, user=invalid_user)
+        # Arrange
+        self.assertEqual(valid_resp.status_code, 200)
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                invalid_req, permissions=permissions, object_level_permissions=True, raise_exception=True
+            )
+
+    def test_any_object_level_permissions_key(self):
+        """
+        Tests that when a user has any the correct object level permissions, response is OK,
+        else forbidden.
+        """
+        # Arrange
+        article = ArticleFactory()
+        self.view_url = f"/multiple_object_level_permissions_required/?pk={article.pk}"
+        self.view_class = MultiplePermissionsRequiredView
+        auth_add_user = Permission.objects.get(codename="add_user")
+        tests_add_article = Permission.objects.get(codename="add_article")
+        permissions = {"any": ["auth.add_user", "tests.add_article"]}
+        user = UserFactory(permissions=[permissions["any"][0]])
+        user_1 = UserFactory()
+        user_2 = UserFactory(permissions=permissions["any"])
+        UserObjectPermissionsFactory(user=user, permission=auth_add_user, article_object=article)
+        UserObjectPermissionsFactory(user=user, permission=tests_add_article, article_object=article)
+        # Act
+        valid_req = self.build_request(path=self.view_url, user=user)
+        valid_resp = self.dispatch_view(
+            valid_req, permissions=permissions, object_level_permissions=True, raise_exception=True
+        )
+        invalid_req_1 = self.build_request(path=self.view_url, user=user_1)
+        invalid_req_2 = self.build_request(path=self.view_url, user=user_2)
+        # Assert
+        self.assertEqual(valid_resp.status_code, 200)
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(
+                invalid_req_1, permissions=permissions, object_level_permissions=True, raise_exception=True
+            )
+        with self.assertRaises(PermissionDenied):
+            self.dispatch_view(invalid_req_2, permissions=permissions, object_level_permissions=True, raise_exception=True)
+
 
 
 @pytest.mark.django_db
