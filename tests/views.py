@@ -301,15 +301,17 @@ class MultiplePermissionsRequiredView(
         "any": ["auth.add_user", "auth.change_user"],
     }
 
+    def get_object(self):
+        """
+        Get the article object for the query parameter's primary key
+        """
+        print(f"pk={self.request.GET.get('pk')}")
+        article_obj = None
+        object_pk = self.request.GET.get("pk")
+        if object_pk:
+            article_obj = Article.objects.get(pk=object_pk)
+        return article_obj
 
-class MultiplePermissionsRequiredWithObjectLevelPermissionsView(
-    views.MultiplePermissionsRequiredMixin, OkView
-):
-    permissions = {
-        "all": ["tests.add_article", "tests.change_article"],
-        "any": ["auth.add_user", "auth.change_user"],
-    }
-    object_level_permissions = True
 
 
 

@@ -284,7 +284,6 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
                 instance_object = self.object
             elif hasattr(self, "get_object") and callable(self.get_object):
                 instance_object = self.get_object()
-
         # Check that user has all permissions in the list/tuple
         if perms_all:
             # Why not `return request.user.has_perms(perms_all)`?
