@@ -293,7 +293,10 @@ class MultiplePermissionsRequiredMixin(PermissionRequiredMixin):
 
         # If perms_any, check that user has at least one in the list/tuple
         if perms_any:
-            any_perms = [request.user.has_perm(perm, instance_object) for perm in perms_any]
+            any_perms = [
+                request.user.has_perm(perm, instance_object)
+                for perm in perms_any
+            ]
             if not any_perms or not any(any_perms):
                 return False
         return True
