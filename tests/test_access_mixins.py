@@ -12,7 +12,12 @@ from django.utils.timezone import make_aware, get_current_timezone
 
 from django.urls import reverse_lazy
 
-from .factories import GroupFactory, UserFactory, UserObjectPermissionsFactory, ArticleFactory
+from .factories import (
+    GroupFactory,
+    UserFactory,
+    UserObjectPermissionsFactory,
+    ArticleFactory,
+)
 from .helpers import TestViewHelper
 from .views import (
     PermissionRequiredView,
@@ -68,9 +73,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         self.client.login(username=user.username, password="asdf1234")
         resp = self.client.get(self.view_url)
-        self.assertRedirects(
-            resp, "/accounts/login/?next={0}".format(self.view_url)
-        )
+        self.assertRedirects(resp, "/accounts/login/?next={0}".format(self.view_url))
 
     def test_raise_permission_denied(self):
         """
@@ -159,15 +162,11 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         req = self.build_request(user=user, path=self.view_url)
         resp = self.dispatch_view(req, login_url="/login/")
-        self.assertEqual(
-            "/login/?next={0}".format(self.view_url), resp["Location"]
-        )
+        self.assertEqual("/login/?next={0}".format(self.view_url), resp["Location"])
 
         # Test with reverse_lazy
         resp = self.dispatch_view(req, login_url=reverse_lazy("headline"))
-        self.assertEqual(
-            "/headline/?next={0}".format(self.view_url), resp["Location"]
-        )
+        self.assertEqual("/headline/?next={0}".format(self.view_url), resp["Location"])
 
     def test_custom_redirect_field_name(self):
         """
@@ -186,9 +185,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         ImproperlyConfigured.
         """
         with self.assertRaises(ImproperlyConfigured):
-            self.dispatch_view(
-                self.build_request(path=self.view_url), login_url=None
-            )
+            self.dispatch_view(self.build_request(path=self.view_url), login_url=None)
 
     def test_get_redirect_field_name_raises_exception(self):
         """
@@ -210,9 +207,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
         user = self.build_unauthorized_user()
         self.client.login(username=user.username, password="asdf1234")
         resp = self.client.get(self.view_url)
-        self.assertRedirects(
-            resp, "/auth/login/?next={0}".format(self.view_url)
-        )
+        self.assertRedirects(resp, "/auth/login/?next={0}".format(self.view_url))
 
     def test_redirect_unauthenticated(self):
         resp = self.dispatch_view(
@@ -221,9 +216,7 @@ class _TestAccessBasicsMixin(TestViewHelper):
             redirect_unauthenticated_users=True,
         )
         assert resp.status_code == 302
-        assert resp["Location"] == "/accounts/login/?next={0}".format(
-            self.view_url
-        )
+        assert resp["Location"] == "/accounts/login/?next={0}".format(self.view_url)
 
     def test_redirect_unauthenticated_false(self):
         with self.assertRaises(PermissionDenied):
@@ -437,7 +430,7 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
             valid_req,
             permission_required=permissions,
             object_level_permissions=True,
-            raise_exception=True
+            raise_exception=True,
         )
         invalid_req_1 = self.build_request(path=self.view_url, user=invalid_user_1)
         invalid_req_2 = self.build_request(path=self.view_url, user=invalid_user_2)
@@ -448,22 +441,21 @@ class TestPermissionRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
                 invalid_req_1,
                 permission_required=permissions,
                 object_level_permissions=True,
-                raise_exception=True
+                raise_exception=True,
             )
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(
                 invalid_req_2,
                 permission_required=permissions,
                 object_level_permissions=True,
-                raise_exception=True
+                raise_exception=True,
             )
 
 
 @pytest.mark.django_db
-class TestMultiplePermissionsRequiredMixin(
-    _TestAccessBasicsMixin, test.TestCase
-):
+class TestMultiplePermissionsRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     """Scenarios around requiring multiple permissions"""
+
     view_class = MultiplePermissionsRequiredView
     view_url = "/multiple_permissions_required/"
 
@@ -593,8 +585,12 @@ class TestMultiplePermissionsRequiredMixin(
         permissions = {"all": ["auth.add_user", "tests.add_article"]}
         valid_user = UserFactory(permissions=permissions["all"])
         invalid_user = UserFactory(permissions=["auth.add_user"])
-        UserObjectPermissionsFactory(user=valid_user, permission=auth_add_user, article_object=article)
-        UserObjectPermissionsFactory(user=valid_user, permission=tests_add_article, article_object=article)
+        UserObjectPermissionsFactory(
+            user=valid_user, permission=auth_add_user, article_object=article
+        )
+        UserObjectPermissionsFactory(
+            user=valid_user, permission=tests_add_article, article_object=article
+        )
         # Act
         valid_req = self.build_request(path=self.view_url, user=valid_user)
         valid_resp = self.dispatch_view(
@@ -605,7 +601,10 @@ class TestMultiplePermissionsRequiredMixin(
         self.assertEqual(valid_resp.status_code, 200)
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(
-                invalid_req, permissions=permissions, object_level_permissions=True, raise_exception=True
+                invalid_req,
+                permissions=permissions,
+                object_level_permissions=True,
+                raise_exception=True,
             )
 
     def test_any_object_level_permissions_key(self):
@@ -623,12 +622,19 @@ class TestMultiplePermissionsRequiredMixin(
         user = UserFactory(permissions=[permissions["any"][0]])
         user_1 = UserFactory()
         user_2 = UserFactory(permissions=permissions["any"])
-        UserObjectPermissionsFactory(user=user, permission=auth_add_user, article_object=article)
-        UserObjectPermissionsFactory(user=user, permission=tests_add_article, article_object=article)
+        UserObjectPermissionsFactory(
+            user=user, permission=auth_add_user, article_object=article
+        )
+        UserObjectPermissionsFactory(
+            user=user, permission=tests_add_article, article_object=article
+        )
         # Act
         valid_req = self.build_request(path=self.view_url, user=user)
         valid_resp = self.dispatch_view(
-            valid_req, permissions=permissions, object_level_permissions=True, raise_exception=True
+            valid_req,
+            permissions=permissions,
+            object_level_permissions=True,
+            raise_exception=True,
         )
         invalid_req_1 = self.build_request(path=self.view_url, user=user_1)
         invalid_req_2 = self.build_request(path=self.view_url, user=user_2)
@@ -636,16 +642,24 @@ class TestMultiplePermissionsRequiredMixin(
         self.assertEqual(valid_resp.status_code, 200)
         with self.assertRaises(PermissionDenied):
             self.dispatch_view(
-                invalid_req_1, permissions=permissions, object_level_permissions=True, raise_exception=True
+                invalid_req_1,
+                permissions=permissions,
+                object_level_permissions=True,
+                raise_exception=True,
             )
         with self.assertRaises(PermissionDenied):
-            self.dispatch_view(invalid_req_2, permissions=permissions, object_level_permissions=True, raise_exception=True)
-
+            self.dispatch_view(
+                invalid_req_2,
+                permissions=permissions,
+                object_level_permissions=True,
+                raise_exception=True,
+            )
 
 
 @pytest.mark.django_db
 class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     """Scenarios requiring a superuser"""
+
     view_class = SuperuserRequiredView
     view_url = "/superuser_required/"
 
@@ -661,6 +675,7 @@ class TestSuperuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
 @pytest.mark.django_db
 class TestStaffuserRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
     """Scenarios requiring a staff user"""
+
     view_class = StaffuserRequiredView
     view_url = "/staffuser_required/"
 
@@ -763,6 +778,7 @@ class TestGroupRequiredMixin(_TestAccessBasicsMixin, test.TestCase):
 @pytest.mark.django_db
 class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
     """Scenarios requiring a user to pass a test"""
+
     view_class = UserPassesTestView
     view_url = "/user_passes_test/"
     view_not_implemented_class = UserPassesTestNotImplementedView
@@ -816,6 +832,7 @@ class TestUserPassesTestMixin(_TestAccessBasicsMixin, test.TestCase):
 @pytest.mark.django_db
 class TestSSLRequiredMixin(test.TestCase):
     """Scenarios around requiring SSL"""
+
     view_class = SSLRequiredView
     view_url = "/sslrequired/"
 
@@ -852,7 +869,7 @@ class TestSSLRequiredMixin(test.TestCase):
 
 @pytest.mark.django_db
 class TestRecentLoginRequiredMixin(test.TestCase):
-    """ Scenarios requiring a recent login"""
+    """Scenarios requiring a recent login"""
 
     view_class = RecentLoginRequiredView
     recent_view_url = "/recent_login/"
@@ -877,7 +894,10 @@ class TestRecentLoginRequiredMixin(test.TestCase):
         user = UserFactory(last_login=last_login)
         self.client.login(username=user.username, password="asdf1234")
         resp = self.client.get(self.outdated_view_url)
-        assert resp.status_code in [302, 405]  # 302 is for Django < 5, while 405 is for Django >= 5
+        assert resp.status_code in [
+            302,
+            405,
+        ]  # 302 is for Django < 5, while 405 is for Django >= 5
 
     def test_not_logged_in(self):
         """Anonymous requests should be handled appropriately"""
