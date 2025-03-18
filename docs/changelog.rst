@@ -4,6 +4,9 @@
 Changelog
 =========
 
+* :release:`1.17.0 <2025-03-17>`
+* :bug:`316 major` `MultiplePermissionsRequiredMixin` didn't do object-level permission checks. 
+* :bug:`309 minor` `RecentLoginRequiredMixin` no longer throws error about `GET` requests in Django >= 5.0
 * :release:`1.16.0 <2024-10-09>`
 * :support:`290` Fixed a few typos in the docs.
 * :support:`287` No longer building a universal wheel
