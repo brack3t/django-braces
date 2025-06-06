@@ -35,7 +35,7 @@ Direct Contributors
 * Mfon Eti-mfon
 * Irtaza Akram
 * Matthew Ethan Tam
-
+* Paolo Melchiorre
 
 Other Contributors
 ==================
