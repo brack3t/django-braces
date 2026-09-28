@@ -12,6 +12,8 @@ dist/
 .idea
 build/
 venv/
+.venv*/
+__pycache__/
 .pytest_cache/
 .tool-versions
 pytest-coverage.txt
